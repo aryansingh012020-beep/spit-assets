@@ -73,10 +73,13 @@ export default async function FloorsPage({ searchParams }: { searchParams: Promi
     })
   );
 
-  const title = buildingName ? `Floors in ${buildingName}` : 'All Floors';
+  const title = buildingName ? `Floors in ${buildingName}` : 'Campus Floor Architecture';
+  const totalFloorRooms = enriched.reduce((sum, f) => sum + f.room_count, 0);
+  const totalFloorAssets = enriched.reduce((sum, f) => sum + f.asset_count, 0);
+  const maxFloorAssets = Math.max(...enriched.map((f) => f.asset_count), 1);
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-6 w-full max-w-7xl mx-auto pb-10">
       {/* Breadcrumb */}
       {buildingName && (
         <nav className="flex items-center gap-1.5 text-xs text-zinc-400 dark:text-zinc-500">
@@ -86,18 +89,26 @@ export default async function FloorsPage({ searchParams }: { searchParams: Promi
         </nav>
       )}
 
-      <div className="flex items-center justify-between">
+      {/* Header & Metric Strip */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-200/80 dark:border-zinc-800 pb-5">
         <div>
-          <h1 className="text-xl font-bold text-zinc-900 dark:text-white">{title}</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
-            {enriched.length} floor{enriched.length !== 1 ? 's' : ''} · Click to explore rooms
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">{title}</h1>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+            {enriched.length} vertical levels · {totalFloorRooms} active rooms · {totalFloorAssets.toLocaleString()} physical assets
           </p>
         </div>
-        {params.building && (
-          <Link href="/locations/buildings" className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1">
-            <ArrowLeft className="h-3 w-3" /> All Buildings
-          </Link>
-        )}
+
+        <div className="flex items-center gap-2">
+          {params.building ? (
+            <Link href="/locations/buildings" className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-xs font-semibold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors">
+              <ArrowLeft className="h-3 w-3" /> All Buildings
+            </Link>
+          ) : (
+            <Link href="/locations/rooms" className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-indigo-500 transition-colors shadow-sm">
+              <DoorOpen className="h-3.5 w-3.5" /> Browse All Rooms
+            </Link>
+          )}
+        </div>
       </div>
 
       {enriched.length === 0 ? (
@@ -107,42 +118,64 @@ export default async function FloorsPage({ searchParams }: { searchParams: Promi
           description="Floors will appear once created in the database"
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {enriched.map((floor: any) => (
-            <Link key={floor.id} href={`/locations/rooms?floor=${floor.id}`}>
-              <Card className="hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-800 transition-all cursor-pointer group h-full">
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold text-sm group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/60 transition-colors">
-                        L{floor.level}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {enriched.map((floor: any) => {
+            const densityPct = ((floor.asset_count / maxFloorAssets) * 100).toFixed(0);
+            return (
+              <Link key={floor.id} href={`/locations/rooms?floor=${floor.id}`}>
+                <Card className="hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-700 transition-all cursor-pointer group h-full flex flex-col justify-between">
+                  <CardContent className="p-5 space-y-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-200/60 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 font-bold text-sm group-hover:bg-indigo-600 group-hover:text-white dark:group-hover:bg-indigo-600 dark:group-hover:text-white transition-all shadow-xs">
+                          L{floor.level}
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-zinc-900 dark:text-white text-sm group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                            {floor.name}
+                          </h3>
+                          <p className="text-xs text-zinc-400 dark:text-zinc-500">
+                            {floor.building?.name ?? 'Main Campus Building'}
+                          </p>
+                        </div>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-zinc-300 dark:text-zinc-600 group-hover:text-indigo-500 transition-colors shrink-0 mt-1" />
+                    </div>
+
+                    {/* Floor Metric Boxes */}
+                    <div className="grid grid-cols-2 gap-2 border border-zinc-100 dark:border-zinc-800/80 rounded-xl p-3 bg-zinc-50/60 dark:bg-zinc-800/40 text-center">
+                      <div>
+                        <p className="text-base font-bold text-zinc-900 dark:text-white">{floor.room_count}</p>
+                        <p className="text-[10px] text-zinc-400 dark:text-zinc-500 flex items-center justify-center gap-1 font-medium">
+                          <DoorOpen className="h-3 w-3" /> Rooms
+                        </p>
                       </div>
                       <div>
-                        <h3 className="font-semibold text-zinc-900 dark:text-white text-sm group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{floor.name}</h3>
-                        <p className="text-xs text-zinc-400 dark:text-zinc-500">{floor.building?.name ?? 'Main Building'}</p>
+                        <p className="text-base font-bold text-zinc-900 dark:text-white">{floor.asset_count.toLocaleString()}</p>
+                        <p className="text-[10px] text-zinc-400 dark:text-zinc-500 flex items-center justify-center gap-1 font-medium">
+                          <Package className="h-3 w-3" /> Assets
+                        </p>
                       </div>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-zinc-300 dark:text-zinc-600 group-hover:text-indigo-400 transition-colors shrink-0 mt-1" />
-                  </div>
 
-                  <div className="mt-4 grid grid-cols-2 gap-2 border border-zinc-100 dark:border-zinc-800 rounded-lg p-2.5 bg-zinc-50 dark:bg-zinc-800/50 text-center">
-                    <div>
-                      <p className="text-base font-bold text-zinc-900 dark:text-white">{floor.room_count}</p>
-                      <p className="text-[10px] text-zinc-400 dark:text-zinc-500 flex items-center justify-center gap-1">
-                        <DoorOpen className="h-3 w-3" /> Rooms
-                      </p>
+                    {/* Relative Density Meter */}
+                    <div className="space-y-1.5 pt-1">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-zinc-400 font-medium">Floor Capacity Load</span>
+                        <span className="font-mono font-semibold text-zinc-700 dark:text-zinc-300">{densityPct}%</span>
+                      </div>
+                      <div className="h-1.5 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                        <div
+                          style={{ width: `${densityPct}%` }}
+                          className="h-full rounded-full bg-indigo-600 dark:bg-indigo-500 transition-all"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-base font-bold text-zinc-900 dark:text-white">{floor.asset_count}</p>
-                      <p className="text-[10px] text-zinc-400 dark:text-zinc-500 flex items-center justify-center gap-1">
-                        <Package className="h-3 w-3" /> Assets
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
