@@ -132,6 +132,8 @@ export default async function DashboardPage() {
     { data: pendingRequests },
     { data: rawCategories },
     { data: rawFloors },
+    pendingCountResult,
+    { count: recentTransfers },
   ] = await Promise.all([
     supabase.from('assets').select('*', { count: 'exact', head: true }),
     supabase.from('assets').select('*', { count: 'exact', head: true }).eq('status', 'active'),
@@ -162,29 +164,24 @@ export default async function DashboardPage() {
           .limit(6),
     supabase.from('asset_categories').select('id, name, code, assets(count)').order('name'),
     supabase.from('floors').select('id, name, level, assets(count)').order('level'),
+    role === 'approver'
+      ? supabase
+          .from('change_requests')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pending')
+          .neq('requested_by', user.id)
+      : supabase
+          .from('change_requests')
+          .select('*', { count: 'exact', head: true })
+          .eq('requested_by', user.id)
+          .eq('status', 'pending'),
+    supabase
+      .from('asset_movements')
+      .select('*', { count: 'exact', head: true })
+      .gte('moved_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
   ]);
 
-  const pendingCount =
-    role === 'approver'
-      ? (
-          await supabase
-            .from('change_requests')
-            .select('*', { count: 'exact', head: true })
-            .eq('status', 'pending')
-            .neq('requested_by', user.id)
-        ).count ?? 0
-      : (
-          await supabase
-            .from('change_requests')
-            .select('*', { count: 'exact', head: true })
-            .eq('requested_by', user.id)
-            .eq('status', 'pending')
-        ).count ?? 0;
-
-  const { count: recentTransfers } = await supabase
-    .from('asset_movements')
-    .select('*', { count: 'exact', head: true })
-    .gte('moved_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+  const pendingCount = pendingCountResult?.count ?? 0;
 
   // Format categories with count
   const formattedCategories = (rawCategories ?? [])

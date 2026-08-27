@@ -70,7 +70,7 @@ export default async function RoomsPage({ searchParams }: { searchParams: Promis
   }
 
   let query = supabase.from('rooms')
-    .select(`id,name,room_number,room_type,capacity,floor:floors(id,name,building:buildings(id,name))`);
+    .select(`id,name,room_number,room_type,capacity,floor:floors(id,name,building:buildings(id,name)),assets(count)`);
 
   if (params.q) query = query.or(`name.ilike.%${params.q}%,room_number.ilike.%${params.q}%`);
   if (params.type) query = query.eq('room_type', params.type);
@@ -84,16 +84,10 @@ export default async function RoomsPage({ searchParams }: { searchParams: Promis
     filteredRooms = filteredRooms.filter((r: any) => r.floor?.building?.id === params.building);
   }
 
-  // Attach accurate asset counts — use count queries, not row fetches
-  const rooms = await Promise.all(
-    filteredRooms.map(async (r: any) => {
-      const { count } = await supabase
-        .from('assets')
-        .select('*', { count: 'exact', head: true })
-        .eq('room_id', r.id);
-      return { ...r, asset_count: count ?? 0 };
-    })
-  );
+  const rooms = filteredRooms.map((r: any) => ({
+    ...r,
+    asset_count: r.assets?.[0]?.count ?? 0,
+  }));
 
   return <RoomsContent rooms={rooms} params={params} floorName={floorName} buildingName={buildingName} />;
 }

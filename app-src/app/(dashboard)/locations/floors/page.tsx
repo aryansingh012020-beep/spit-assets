@@ -29,16 +29,16 @@ export default async function FloorsPage({ searchParams }: { searchParams: Promi
 
   let query = supabase
     .from('floors')
-    .select(`id, name, level, building:buildings(id, name, code)`)
+    .select(`id, name, level, building:buildings(id, name, code), rooms(count), assets(count)`)
     .order('level');
 
   if (params.building) {
     query = query.eq('building_id', params.building);
   }
 
-  const { data: floors } = await query;
+  const { data: rawFloors } = await query;
 
-  if (!floors || floors.length === 0) {
+  if (!rawFloors || rawFloors.length === 0) {
     const title = buildingName ? `Floors in ${buildingName}` : 'All Floors';
     return (
       <div className="space-y-6 max-w-5xl">
@@ -55,23 +55,11 @@ export default async function FloorsPage({ searchParams }: { searchParams: Promi
     );
   }
 
-  // Use proper count queries — no 1,000-row cap
-  const enriched = await Promise.all(
-    floors.map(async (f: any) => {
-      const [
-        { count: roomCount },
-        { count: assetCount },
-      ] = await Promise.all([
-        supabase.from('rooms').select('*', { count: 'exact', head: true }).eq('floor_id', f.id),
-        supabase.from('assets').select('*', { count: 'exact', head: true }).eq('floor_id', f.id),
-      ]);
-      return {
-        ...f,
-        room_count:  roomCount  ?? 0,
-        asset_count: assetCount ?? 0,
-      };
-    })
-  );
+  const enriched = rawFloors.map((f: any) => ({
+    ...f,
+    room_count: f.rooms?.[0]?.count ?? 0,
+    asset_count: f.assets?.[0]?.count ?? 0,
+  }));
 
   const title = buildingName ? `Floors in ${buildingName}` : 'Campus Floor Architecture';
   const totalFloorRooms = enriched.reduce((sum, f) => sum + f.room_count, 0);
