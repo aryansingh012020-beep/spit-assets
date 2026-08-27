@@ -357,11 +357,15 @@ export function TopNavbar({
           {/* Theme switcher */}
           <button
             onClick={toggle}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 shadow-2xs transition-all hover:scale-105 active:scale-95"
             aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
-            {theme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+            {theme === 'dark' ? (
+              <Sun className="h-4 w-4 text-amber-400 animate-in spin-in-90" />
+            ) : (
+              <Moon className="h-4 w-4 text-indigo-600 animate-in spin-in-90" />
+            )}
           </button>
 
           <div className="h-6 w-px bg-zinc-200 dark:bg-zinc-800" />
@@ -370,46 +374,59 @@ export function TopNavbar({
           <div className="relative" onMouseLeave={() => setUserMenuOpen(false)}>
             <button
               onClick={() => setUserMenuOpen(!userMenuOpen)}
-              className="flex items-center gap-2 rounded-lg p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors group"
+              className="flex items-center gap-2.5 rounded-xl p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors group"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600 text-white text-xs font-bold shadow-xs group-hover:ring-2 group-hover:ring-indigo-500 transition-all">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-600 text-white text-xs font-bold shadow-xs group-hover:ring-2 group-hover:ring-indigo-500 transition-all">
                 {getInitials(profile?.full_name ?? 'User')}
               </div>
               <div className="text-left hidden md:block">
-                <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">
+                <p className="text-xs sm:text-sm font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">
                   {profile?.full_name ?? 'User'}
                 </p>
-                <p className="text-[10px] text-zinc-400 dark:text-zinc-500 capitalize leading-tight">
+                <p className="text-[11px] text-zinc-400 dark:text-zinc-500 capitalize leading-tight">
                   {getRoleLabel(role)}
                 </p>
               </div>
-              <ChevronDown className="h-3 w-3 text-zinc-400 hidden sm:block" />
+              <ChevronDown className="h-3.5 w-3.5 text-zinc-400 hidden sm:block" />
             </button>
 
             {userMenuOpen && (
-              <div className="absolute right-0 top-full mt-1 w-52 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-1.5 shadow-lg shadow-zinc-900/5 animate-in fade-in slide-in-from-top-1 z-50">
+              <div className="absolute right-0 top-full mt-1.5 w-56 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2 shadow-xl shadow-zinc-900/10 animate-in fade-in slide-in-from-top-1 z-50">
                 <div className="px-3 py-2 border-b border-zinc-100 dark:border-zinc-800 mb-1">
-                  <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">
+                  <p className="text-sm font-bold text-zinc-900 dark:text-white truncate">
                     {profile?.full_name ?? 'User Profile'}
                   </p>
-                  <p className="text-[10px] text-zinc-400 dark:text-zinc-500 capitalize">
+                  <p className="text-xs text-zinc-400 dark:text-zinc-500 capitalize">
                     {getRoleLabel(role)} · {profile?.department ?? 'SPIT'}
                   </p>
                 </div>
 
                 <Link
                   href="/profile"
-                  className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
-                  <User className="h-3.5 w-3.5 text-indigo-500" />
+                  <User className="h-4 w-4 text-indigo-500" />
                   <span>My Profile & Ledger</span>
                 </Link>
 
                 <button
-                  onClick={onSignOut}
-                  className="w-full flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors mt-1"
+                  onClick={toggle}
+                  className="w-full flex items-center justify-between rounded-xl px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
-                  <LogOut className="h-3.5 w-3.5" />
+                  <span className="flex items-center gap-2.5">
+                    {theme === 'dark' ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-indigo-500" />}
+                    <span>{theme === 'dark' ? 'Light Theme' : 'Dark Theme'}</span>
+                  </span>
+                  <span className="text-xs font-mono text-zinc-400 uppercase">{theme}</span>
+                </button>
+
+                <div className="my-1 border-t border-zinc-100 dark:border-zinc-800" />
+
+                <button
+                  onClick={onSignOut}
+                  className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
                   <span>Sign Out</span>
                 </button>
               </div>
@@ -526,6 +543,14 @@ export function TopNavbar({
                 <Settings className="h-4 w-4" /> Admin
               </Link>
             )}
+
+            <button
+              onClick={toggle}
+              className="flex items-center gap-2 p-2 rounded-lg text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 w-full text-left"
+            >
+              {theme === 'dark' ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-indigo-500" />}
+              <span>{theme === 'dark' ? 'Light Theme' : 'Dark Theme'}</span>
+            </button>
           </div>
         </div>
       )}
