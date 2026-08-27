@@ -53,13 +53,13 @@ export default function LoginPage() {
     <div className="relative min-h-screen bg-gradient-to-br from-zinc-50 to-indigo-50 flex items-center justify-center p-4 overflow-hidden">
       {/* Background Watermark */}
       <div 
-        className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-[0.05] select-none"
+        className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-[0.10] select-none"
         aria-hidden="true"
       >
         <img
           src="/spit-logo-light.jpg"
           alt="SPIT Emblem"
-          className="h-[520px] w-[520px] max-w-[85vw] object-contain grayscale"
+          className="h-[640px] w-[640px] max-w-[85vw] object-contain grayscale contrast-125"
         />
       </div>
 
