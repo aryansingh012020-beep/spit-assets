@@ -120,7 +120,7 @@ export default async function FloorsPage({ searchParams }: { searchParams: Promi
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {enriched.map((floor: any) => {
-            const densityPct = ((floor.asset_count / maxFloorAssets) * 100).toFixed(0);
+            const assetSharePct = totalFloorAssets > 0 ? ((floor.asset_count / totalFloorAssets) * 100).toFixed(1) : '0';
             return (
               <Link key={floor.id} href={`/locations/rooms?floor=${floor.id}`}>
                 <Card className="hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-700 transition-all cursor-pointer group h-full flex flex-col justify-between">
@@ -131,7 +131,7 @@ export default async function FloorsPage({ searchParams }: { searchParams: Promi
                           L{floor.level}
                         </div>
                         <div>
-                          <h3 className="font-bold text-zinc-900 dark:text-white text-sm group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                          <h3 className="font-bold text-zinc-900 dark:text-white text-base group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                             {floor.name}
                           </h3>
                           <p className="text-xs text-zinc-400 dark:text-zinc-500">
@@ -145,28 +145,28 @@ export default async function FloorsPage({ searchParams }: { searchParams: Promi
                     {/* Floor Metric Boxes */}
                     <div className="grid grid-cols-2 gap-2 border border-zinc-100 dark:border-zinc-800/80 rounded-xl p-3 bg-zinc-50/60 dark:bg-zinc-800/40 text-center">
                       <div>
-                        <p className="text-base font-bold text-zinc-900 dark:text-white">{floor.room_count}</p>
-                        <p className="text-[10px] text-zinc-400 dark:text-zinc-500 flex items-center justify-center gap-1 font-medium">
-                          <DoorOpen className="h-3 w-3" /> Rooms
+                        <p className="text-lg font-bold text-zinc-900 dark:text-white">{floor.room_count}</p>
+                        <p className="text-xs text-zinc-400 dark:text-zinc-500 flex items-center justify-center gap-1 font-medium">
+                          <DoorOpen className="h-3.5 w-3.5" /> Rooms
                         </p>
                       </div>
                       <div>
-                        <p className="text-base font-bold text-zinc-900 dark:text-white">{floor.asset_count.toLocaleString()}</p>
-                        <p className="text-[10px] text-zinc-400 dark:text-zinc-500 flex items-center justify-center gap-1 font-medium">
-                          <Package className="h-3 w-3" /> Assets
+                        <p className="text-lg font-bold text-zinc-900 dark:text-white">{floor.asset_count.toLocaleString()}</p>
+                        <p className="text-xs text-zinc-400 dark:text-zinc-500 flex items-center justify-center gap-1 font-medium">
+                          <Package className="h-3.5 w-3.5" /> Assets
                         </p>
                       </div>
                     </div>
 
-                    {/* Relative Density Meter */}
+                    {/* Share of Total Campus Assets Meter */}
                     <div className="space-y-1.5 pt-1">
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="text-zinc-400 font-medium">Floor Capacity Load</span>
-                        <span className="font-mono font-semibold text-zinc-700 dark:text-zinc-300">{densityPct}%</span>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-zinc-500 dark:text-zinc-400 font-medium">Share of Total Assets</span>
+                        <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">{assetSharePct}%</span>
                       </div>
-                      <div className="h-1.5 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                      <div className="h-2 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
                         <div
-                          style={{ width: `${densityPct}%` }}
+                          style={{ width: `${Math.min(100, Math.max(2, Number(assetSharePct)))}%` }}
                           className="h-full rounded-full bg-indigo-600 dark:bg-indigo-500 transition-all"
                         />
                       </div>

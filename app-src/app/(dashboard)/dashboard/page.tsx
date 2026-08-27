@@ -576,26 +576,24 @@ function DashboardContent({
 
             <CardContent className="pt-4 space-y-3">
               {floors.map((floor) => {
-                const maxFloorAsset = Math.max(...floors.map((f) => f.count), 1);
-                const fillPct = (floor.count / maxFloorAsset) * 100;
+                const sharePct = stats.totalAssets > 0 ? ((floor.count / stats.totalAssets) * 100).toFixed(1) : '0';
                 return (
                   <Link
                     key={floor.id}
                     href={`/locations/floors`}
                     className="block group space-y-1.5 p-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
                   >
-                    <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center justify-between text-xs sm:text-sm">
                       <span className="font-medium text-zinc-800 dark:text-zinc-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                         {floor.name}
                       </span>
                       <span className="font-mono text-zinc-900 dark:text-white font-semibold">
-                        {floor.count.toLocaleString()}{' '}
-                        <span className="text-[10px] text-zinc-400 font-normal">units</span>
+                        {floor.count.toLocaleString()} <span className="text-xs text-indigo-600 dark:text-indigo-400 font-bold">({sharePct}%)</span>
                       </span>
                     </div>
-                    <div className="h-1.5 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                    <div className="h-2 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
                       <div
-                        style={{ width: `${fillPct}%` }}
+                        style={{ width: `${Math.min(100, Math.max(2, Number(sharePct)))}%` }}
                         className="h-full rounded-full bg-indigo-600 dark:bg-indigo-500 transition-all"
                       />
                     </div>
