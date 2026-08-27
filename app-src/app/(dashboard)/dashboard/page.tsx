@@ -315,42 +315,84 @@ function DashboardContent({
         </div>
       </div>
 
-      {/* ── Key Performance Metric Cards ─────────────────────────── */}
-      <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
-        <StatCard
-          title="Total Catalog"
-          value={stats.totalAssets.toLocaleString()}
-          icon={<Package className="h-4 w-4" />}
-          trend="neutral"
-        />
-        <StatCard
-          title="Active Assets"
-          value={stats.activeAssets.toLocaleString()}
-          icon={<Activity className="h-4 w-4" />}
-          trend="up"
-        />
-        <StatCard
-          title="Campus Rooms"
-          value={stats.totalRooms.toLocaleString()}
-          icon={<DoorOpen className="h-4 w-4" />}
-        />
-        <StatCard
-          title="Campus Buildings"
-          value={stats.totalBuildings.toLocaleString()}
-          icon={<Building2 className="h-4 w-4" />}
-        />
-        <StatCard
-          title="Pending Reviews"
-          value={stats.pendingApprovals.toLocaleString()}
-          icon={<CheckSquare className="h-4 w-4" />}
-          trend={stats.pendingApprovals > 0 ? 'down' : 'neutral'}
-        />
-        <StatCard
-          title="Relocations (30d)"
-          value={stats.recentTransfers.toLocaleString()}
-          icon={<ArrowRightLeft className="h-4 w-4" />}
-          trend="up"
-        />
+      {/* ── Key Performance Metric Cards & Unified Workflow Block ── */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+        {/* 4 Core Infrastructure Stats (8 cols on lg) */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:col-span-8">
+          <StatCard
+            title="Total Catalog"
+            value={stats.totalAssets.toLocaleString()}
+            icon={<Package className="h-4 w-4" />}
+            trend="neutral"
+          />
+          <StatCard
+            title="Active Assets"
+            value={stats.activeAssets.toLocaleString()}
+            icon={<Activity className="h-4 w-4" />}
+            trend="up"
+          />
+          <StatCard
+            title="Campus Rooms"
+            value={stats.totalRooms.toLocaleString()}
+            icon={<DoorOpen className="h-4 w-4" />}
+          />
+          <StatCard
+            title="Buildings"
+            value={stats.totalBuildings.toLocaleString()}
+            icon={<Building2 className="h-4 w-4" />}
+          />
+        </div>
+
+        {/* Unified Merged Approvals & Transfers Block (4 cols on lg) */}
+        <Card className="lg:col-span-4 overflow-hidden border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-indigo-50/40 via-white to-purple-50/20 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-900/60 shadow-xs flex flex-col justify-center">
+          <CardContent className="p-3.5">
+            <div className="grid grid-cols-2 divide-x divide-zinc-200/80 dark:divide-zinc-800">
+              {/* Approvals side */}
+              <Link
+                href="/approvals"
+                className="pr-3 group hover:opacity-85 transition-opacity block"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors flex items-center gap-1">
+                    <CheckSquare className="h-3.5 w-3.5 text-indigo-500" /> Approvals
+                  </span>
+                  {stats.pendingApprovals > 0 ? (
+                    <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 text-white text-[10px] font-bold px-1 animate-pulse">
+                      {stats.pendingApprovals}
+                    </span>
+                  ) : (
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">Clear</span>
+                  )}
+                </div>
+                <div className="mt-1.5 flex items-baseline gap-1.5">
+                  <span className="text-2xl font-extrabold text-zinc-900 dark:text-white">
+                    {stats.pendingApprovals}
+                  </span>
+                  <span className="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium">pending</span>
+                </div>
+              </Link>
+
+              {/* Transfers side */}
+              <Link
+                href="/transfers"
+                className="pl-3 group hover:opacity-85 transition-opacity block"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors flex items-center gap-1">
+                    <ArrowRightLeft className="h-3.5 w-3.5 text-indigo-500" /> Transfers
+                  </span>
+                  <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold">30d</span>
+                </div>
+                <div className="mt-1.5 flex items-baseline gap-1.5">
+                  <span className="text-2xl font-extrabold text-zinc-900 dark:text-white">
+                    {stats.recentTransfers}
+                  </span>
+                  <span className="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium">relocations</span>
+                </div>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* ── Main Bento Grid Layout (2 Col Left + 1 Col Right) ────── */}
