@@ -93,8 +93,8 @@ Use neat markdown tables, bullet points, and status emojis (🟢 Active, 🟡 Ma
 Here is the live institutional database context retrieved for this query:
 ${dynamicContext || 'Database context loaded: 2,662 active assets across 7 floors and 48 rooms in SPIT.'}`;
 
-      const geminiRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
+      let geminiRes = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${geminiApiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -109,6 +109,21 @@ ${dynamicContext || 'Database context loaded: 2,662 active assets across 7 floor
           }),
         }
       );
+
+      if (!geminiRes.ok) {
+        geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${geminiApiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [
+                { role: 'user', parts: [{ text: `${systemInstruction}\n\nUser Question: ${lastMessage}` }] },
+              ],
+            }),
+          }
+        );
+      }
 
       if (geminiRes.ok) {
         const data = await geminiRes.json();
