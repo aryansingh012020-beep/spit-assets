@@ -51,6 +51,7 @@ export function TopNavbar({
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [locationsOpen, setLocationsOpen] = React.useState(false);
   const [assetsOpen, setAssetsOpen] = React.useState(false);
+  const [operationsOpen, setOperationsOpen] = React.useState(false);
   const [adminOpen, setAdminOpen] = React.useState(false);
   const [userMenuOpen, setUserMenuOpen] = React.useState(false);
 
@@ -61,12 +62,14 @@ export function TopNavbar({
     setMobileMenuOpen(false);
     setLocationsOpen(false);
     setAssetsOpen(false);
+    setOperationsOpen(false);
     setAdminOpen(false);
     setUserMenuOpen(false);
   }, [pathname]);
 
   const isAssetsActive = pathname.startsWith('/inventory');
   const isLocationsActive = pathname.startsWith('/locations');
+  const isOperationsActive = pathname === '/approvals' || pathname === '/transfers';
   const isAdminActive = pathname.startsWith('/admin');
 
   return (
@@ -212,41 +215,65 @@ export function TopNavbar({
             )}
           </div>
 
-          {/* Approvals */}
+          {/* Operations Dropdown (Approvals & Transfers merged) */}
           {role !== 'viewer' && (
-            <Link
-              href="/approvals"
-              className={cn(
-                'flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all',
-                pathname === '/approvals'
-                  ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400'
-                  : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white'
-              )}
-            >
-              <CheckSquare className="h-4 w-4" />
-              <span>Approvals</span>
-              {pendingCount > 0 && (
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 text-xs font-bold text-white px-1.5">
-                  {pendingCount}
-                </span>
-              )}
-            </Link>
-          )}
+            <div className="relative" onMouseLeave={() => setOperationsOpen(false)}>
+              <button
+                onClick={() => setOperationsOpen(!operationsOpen)}
+                onMouseEnter={() => setOperationsOpen(true)}
+                className={cn(
+                  'flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all',
+                  isOperationsActive
+                    ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400'
+                    : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white'
+                )}
+              >
+                <ArrowRightLeft className="h-4 w-4" />
+                <span>Operations</span>
+                {pendingCount > 0 && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 text-xs font-bold text-white px-1.5">
+                    {pendingCount}
+                  </span>
+                )}
+                <ChevronDown className="h-3.5 w-3.5 opacity-60 ml-0.5" />
+              </button>
 
-          {/* Transfers */}
-          {role !== 'viewer' && (
-            <Link
-              href="/transfers"
-              className={cn(
-                'flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all',
-                pathname === '/transfers'
-                  ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400'
-                  : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white'
+              {operationsOpen && (
+                <div className="absolute left-0 top-full mt-1.5 w-56 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2 shadow-xl shadow-zinc-900/10 animate-in fade-in slide-in-from-top-1 z-50">
+                  <Link
+                    href="/approvals"
+                    className={cn(
+                      'flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+                      pathname === '/approvals'
+                        ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold'
+                        : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+                    )}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <CheckSquare className="h-4 w-4 text-indigo-500" />
+                      <span>Approval Queue</span>
+                    </div>
+                    {pendingCount > 0 && (
+                      <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white px-1">
+                        {pendingCount}
+                      </span>
+                    )}
+                  </Link>
+                  <Link
+                    href="/transfers"
+                    className={cn(
+                      'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+                      pathname === '/transfers'
+                        ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold'
+                        : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+                    )}
+                  >
+                    <ArrowRightLeft className="h-4 w-4 text-indigo-500" />
+                    <span>Asset Transfers</span>
+                  </Link>
+                </div>
               )}
-            >
-              <ArrowRightLeft className="h-4 w-4" />
-              <span>Transfers</span>
-            </Link>
+            </div>
           )}
 
           {/* History */}
