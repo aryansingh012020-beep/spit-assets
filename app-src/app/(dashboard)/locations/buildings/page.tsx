@@ -102,7 +102,7 @@ function BuildingsContent({ buildings }: { buildings: any[] }) {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {buildings.map((b: any) => (
             <Link key={b.id} href={`/locations/floors?building=${b.id}`}>
-              <Card className="relative overflow-hidden hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-300 cursor-pointer group h-full flex flex-col justify-between">
+              <Card className="relative overflow-hidden hover:shadow-xl hover:border-indigo-400 dark:hover:border-indigo-600 transition-all duration-300 cursor-pointer group h-full flex flex-col justify-between border-zinc-300/80 dark:border-zinc-800">
                 {/* ── SPIT Entrance Photo Watermark Overlay ────────────── */}
                 <div
                   className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none"
@@ -111,9 +111,9 @@ function BuildingsContent({ buildings }: { buildings: any[] }) {
                   <img
                     src="/spit-entrance.jpg"
                     alt={b.name}
-                    className="h-full w-full object-cover object-center opacity-40 dark:opacity-45 contrast-125 group-hover:opacity-60 group-hover:scale-105 transition-all duration-500"
+                    className="h-full w-full object-cover object-center opacity-75 dark:opacity-75 contrast-125 brightness-90 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-white/95 via-white/70 to-white/30 dark:from-zinc-950/95 dark:via-zinc-950/75 dark:to-zinc-900/35" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-white/95 via-white/80 to-white/40 dark:from-zinc-950/95 dark:via-zinc-950/80 dark:to-zinc-900/40" />
                 </div>
 
                 <CardContent className="relative z-10 p-6 space-y-4">
