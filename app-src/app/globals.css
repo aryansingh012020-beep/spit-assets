@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
+}
+
+/* Base styles */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1aa;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
+}
+
+/* Focus ring consistency */
+:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+/* Smooth transitions */
+* {
+  transition-property: color, background-color, border-color, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animation utilities */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes pulse {
+  50% { opacity: 0.5; }
+}
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Radix UI animation classes */
+@keyframes fade-in { from { opacity: 0 } to { opacity: 1 } }
+@keyframes fade-out { from { opacity: 1 } to { opacity: 0 } }
+@keyframes zoom-in-95 { from { transform: scale(0.95); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+@keyframes zoom-out-95 { from { transform: scale(1); opacity: 1 } to { transform: scale(0.95); opacity: 0 } }
+@keyframes slide-in-from-right { from { transform: translateX(100%) } to { transform: translateX(0) } }
+@keyframes slide-out-to-right  { from { transform: translateX(0) } to { transform: translateX(100%) } }
+@keyframes slide-in-from-bottom-2 { from { transform: translateY(8px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+
+.data-\[state\=open\]\:animate-in[data-state="open"]    { animation-name: fade-in; animation-duration: 150ms; animation-fill-mode: both; }
+.data-\[state\=closed\]\:animate-out[data-state="closed"] { animation-name: fade-out; animation-duration: 100ms; animation-fill-mode: both; }
+.data-\[state\=open\]\:fade-in-0[data-state="open"]    { animation-name: fade-in; }
+.data-\[state\=closed\]\:fade-out-0[data-state="closed"] { animation-name: fade-out; }
+.data-\[state\=open\]\:zoom-in-95[data-state="open"]   { animation-name: zoom-in-95; }
+.data-\[state\=closed\]\:zoom-out-95[data-state="closed"] { animation-name: zoom-out-95; }
+.data-\[state\=open\]\:slide-in-from-right-full[data-state="open"] { animation-name: slide-in-from-right; }
+.data-\[state\=closed\]\:slide-out-to-right-full[data-state="closed"] { animation-name: slide-out-to-right; }
