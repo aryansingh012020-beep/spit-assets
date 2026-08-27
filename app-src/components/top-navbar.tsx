@@ -26,6 +26,7 @@ import {
   Menu,
   X,
   Shield,
+  ClipboardCheck,
 } from 'lucide-react';
 import { cn, getRoleLabel, getInitials } from '@/lib/utils';
 import { UserRole, Profile } from '@/lib/types';
@@ -262,6 +263,20 @@ export function TopNavbar({
             <span>History</span>
           </Link>
 
+          {/* Stocktake & Audit Mode */}
+          <Link
+            href="/audit"
+            className={cn(
+              'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
+              pathname === '/audit'
+                ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400'
+                : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white'
+            )}
+          >
+            <ClipboardCheck className="h-3.5 w-3.5 text-indigo-500" />
+            <span>Stock Audit</span>
+          </Link>
+
           {/* Administration Dropdown (Approvers only) */}
           {role === 'approver' && (
             <div className="relative" onMouseLeave={() => setAdminOpen(false)}>
@@ -478,6 +493,16 @@ export function TopNavbar({
               )}
             >
               <History className="h-4 w-4" /> History
+            </Link>
+
+            <Link
+              href="/audit"
+              className={cn(
+                'flex items-center gap-2 p-2 rounded-lg',
+                pathname === '/audit' ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 font-bold' : 'text-zinc-700 dark:text-zinc-300'
+              )}
+            >
+              <ClipboardCheck className="h-4 w-4" /> Stock Audit
             </Link>
 
             <Link

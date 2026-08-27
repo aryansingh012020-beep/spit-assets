@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { TopNavbar } from '@/components/top-navbar';
 import { SiteFooter } from '@/components/site-footer';
+import { AIAssistantDrawer } from '@/components/ai-assistant-drawer';
 import { CommandPalette, useCommandPalette } from '@/components/command-palette';
 import { ToastRoot } from '@/components/ui/toast';
 import { Profile } from '@/lib/types';
@@ -67,6 +68,9 @@ export function DashboardShell({ children, profile, pendingCount = 0 }: Dashboar
 
         {/* Site Footer with Built by Aryan Singh */}
         <SiteFooter />
+
+        {/* Floating SPIT AI Assistant */}
+        <AIAssistantDrawer />
       </div>
 
       {/* Command Palette (⌘K) */}
