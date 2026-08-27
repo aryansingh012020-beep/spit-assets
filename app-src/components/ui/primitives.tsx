@@ -274,16 +274,16 @@ export interface StatCardProps {
 
 export function StatCard({ title, value, delta, icon, trend }: StatCardProps) {
   return (
-    <Card>
-      <CardContent className="p-5">
-        <div className="flex items-start justify-between">
+    <Card className="hover:shadow-md transition-shadow">
+      <CardContent className="p-5 sm:p-6">
+        <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">{title}</p>
-            <p className="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{value}</p>
+            <p className="text-xs sm:text-sm font-semibold text-zinc-500 dark:text-zinc-400 tracking-wide">{title}</p>
+            <p className="mt-2 text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white tabular-nums tracking-tight">{value}</p>
             {delta && (
               <p
                 className={cn(
-                  'mt-1 text-xs font-medium',
+                  'mt-1.5 text-xs sm:text-sm font-medium',
                   trend === 'up'   && 'text-emerald-600 dark:text-emerald-400',
                   trend === 'down' && 'text-red-600 dark:text-red-400',
                   trend === 'neutral' && 'text-zinc-500 dark:text-zinc-400'
@@ -294,7 +294,7 @@ export function StatCard({ title, value, delta, icon, trend }: StatCardProps) {
             )}
           </div>
           {icon && (
-            <div className="rounded-lg bg-indigo-50 dark:bg-indigo-950/50 p-2.5 text-indigo-600 dark:text-indigo-400">
+            <div className="rounded-xl bg-indigo-50 dark:bg-indigo-950/60 p-3 text-indigo-600 dark:text-indigo-400 [&_svg]:h-5 [&_svg]:w-5 shrink-0 shadow-2xs">
               {icon}
             </div>
           )}

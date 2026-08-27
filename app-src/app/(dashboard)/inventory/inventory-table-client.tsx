@@ -245,14 +245,14 @@ export function InventoryTableClient({
                           className="h-4 w-4 rounded border-zinc-300 dark:border-zinc-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                         />
                       </td>
-                      <td className="px-4 py-3">
-                        <span className="font-mono text-xs font-semibold text-indigo-600 dark:text-indigo-400 group-hover:underline">
+                      <td className="px-4 py-3 font-mono text-xs sm:text-sm font-bold text-zinc-700 dark:text-zinc-200">
+                        <span className="rounded-lg bg-zinc-100 dark:bg-zinc-800 px-2 py-1 border border-zinc-200/60 dark:border-zinc-700/60">
                           {asset.asset_tag}
                         </span>
                       </td>
                       <td className="px-4 py-3">
                         <div>
-                          <p className="text-sm font-medium text-zinc-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                          <p className="text-sm sm:text-base font-semibold text-zinc-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                             {asset.name}
                           </p>
                           <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5 lg:hidden">
@@ -266,13 +266,13 @@ export function InventoryTableClient({
                       </td>
                       <td className="px-4 py-3">
                         {asset.category ? (
-                          <Badge variant="default">{asset.category.name}</Badge>
+                          <Badge variant="default" className="text-xs">{asset.category.name}</Badge>
                         ) : (
                           <span className="text-zinc-300 dark:text-zinc-600 text-xs">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <p className="text-xs text-zinc-600 dark:text-zinc-300">
+                        <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-300">
                           {buildLocationString([
                             asset.building?.name,
                             asset.floor?.name,

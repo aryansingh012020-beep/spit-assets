@@ -75,15 +75,15 @@ export function TopNavbar({
         {/* ── Brand / Logo ────────────────────────────────────────── */}
         <div className="flex items-center gap-3 shrink-0">
           <Link href="/dashboard" className="flex items-center gap-2.5 group">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl overflow-hidden bg-white dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700/80 p-1 shadow-xs group-hover:border-indigo-400 dark:group-hover:border-indigo-600 transition-colors">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl overflow-hidden bg-white dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700/80 p-1 shadow-xs group-hover:border-indigo-400 dark:group-hover:border-indigo-600 transition-colors">
               <img src="/spit-logo-light.jpg" alt="SPIT Logo" className="h-full w-full object-contain dark:hidden" />
               <img src="/spit-logo-dark.png" alt="SPIT Logo" className="h-full w-full object-contain hidden dark:block" />
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-bold tracking-tight text-zinc-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+              <span className="text-base font-bold tracking-tight text-zinc-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                 SPIT Assets
               </span>
-              <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium -mt-0.5 hidden sm:inline">
+              <span className="text-xs text-zinc-400 dark:text-zinc-500 font-medium -mt-0.5 hidden sm:inline">
                 Sardar Patel Institute
               </span>
             </div>
@@ -91,18 +91,18 @@ export function TopNavbar({
         </div>
 
         {/* ── Desktop Navigation Links ────────────────────────────── */}
-        <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
+        <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5">
           {/* Dashboard */}
           <Link
             href="/dashboard"
             className={cn(
-              'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
+              'flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all',
               pathname === '/dashboard'
                 ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 shadow-2xs'
                 : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white'
             )}
           >
-            <LayoutDashboard className="h-3.5 w-3.5" />
+            <LayoutDashboard className="h-4 w-4" />
             <span>Dashboard</span>
           </Link>
 
@@ -112,41 +112,41 @@ export function TopNavbar({
               onClick={() => setAssetsOpen(!assetsOpen)}
               onMouseEnter={() => setAssetsOpen(true)}
               className={cn(
-                'flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
+                'flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all',
                 isAssetsActive
                   ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400'
                   : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white'
               )}
             >
-              <Package className="h-3.5 w-3.5" />
+              <Package className="h-4 w-4" />
               <span>Assets</span>
-              <ChevronDown className="h-3 w-3 opacity-60 ml-0.5" />
+              <ChevronDown className="h-3.5 w-3.5 opacity-60 ml-0.5" />
             </button>
 
             {assetsOpen && (
-              <div className="absolute left-0 top-full mt-1 w-48 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-1.5 shadow-lg shadow-zinc-900/5 animate-in fade-in slide-in-from-top-1 z-50">
+              <div className="absolute left-0 top-full mt-1.5 w-52 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2 shadow-xl shadow-zinc-900/10 animate-in fade-in slide-in-from-top-1 z-50">
                 <Link
                   href="/inventory"
                   className={cn(
-                    'flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors',
+                    'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
                     pathname === '/inventory'
                       ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold'
                       : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
                   )}
                 >
-                  <Package className="h-3.5 w-3.5 text-indigo-500" />
+                  <Package className="h-4 w-4 text-indigo-500" />
                   <span>All Catalog Assets</span>
                 </Link>
                 <Link
                   href="/inventory/categories"
                   className={cn(
-                    'flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors',
+                    'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
                     pathname === '/inventory/categories'
                       ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold'
                       : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
                   )}
                 >
-                  <Tag className="h-3.5 w-3.5 text-indigo-500" />
+                  <Tag className="h-4 w-4 text-indigo-500" />
                   <span>Categories Registry</span>
                 </Link>
               </div>
@@ -159,53 +159,53 @@ export function TopNavbar({
               onClick={() => setLocationsOpen(!locationsOpen)}
               onMouseEnter={() => setLocationsOpen(true)}
               className={cn(
-                'flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
+                'flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all',
                 isLocationsActive
                   ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400'
                   : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white'
               )}
             >
-              <Building2 className="h-3.5 w-3.5" />
+              <Building2 className="h-4 w-4" />
               <span>Locations</span>
-              <ChevronDown className="h-3 w-3 opacity-60 ml-0.5" />
+              <ChevronDown className="h-3.5 w-3.5 opacity-60 ml-0.5" />
             </button>
 
             {locationsOpen && (
-              <div className="absolute left-0 top-full mt-1 w-48 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-1.5 shadow-lg shadow-zinc-900/5 animate-in fade-in slide-in-from-top-1 z-50">
+              <div className="absolute left-0 top-full mt-1.5 w-52 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2 shadow-xl shadow-zinc-900/10 animate-in fade-in slide-in-from-top-1 z-50">
                 <Link
                   href="/locations/buildings"
                   className={cn(
-                    'flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors',
+                    'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
                     pathname === '/locations/buildings'
                       ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold'
                       : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
                   )}
                 >
-                  <Building2 className="h-3.5 w-3.5 text-indigo-500" />
+                  <Building2 className="h-4 w-4 text-indigo-500" />
                   <span>Campus Buildings</span>
                 </Link>
                 <Link
                   href="/locations/floors"
                   className={cn(
-                    'flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors',
+                    'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
                     pathname === '/locations/floors'
                       ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold'
                       : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
                   )}
                 >
-                  <Layers className="h-3.5 w-3.5 text-indigo-500" />
+                  <Layers className="h-4 w-4 text-indigo-500" />
                   <span>Vertical Floors</span>
                 </Link>
                 <Link
                   href="/locations/rooms"
                   className={cn(
-                    'flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors',
+                    'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
                     pathname === '/locations/rooms'
                       ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold'
                       : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
                   )}
                 >
-                  <DoorOpen className="h-3.5 w-3.5 text-indigo-500" />
+                  <DoorOpen className="h-4 w-4 text-indigo-500" />
                   <span>Campus Rooms</span>
                 </Link>
               </div>
@@ -217,16 +217,16 @@ export function TopNavbar({
             <Link
               href="/approvals"
               className={cn(
-                'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
+                'flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all',
                 pathname === '/approvals'
                   ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400'
                   : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white'
               )}
             >
-              <CheckSquare className="h-3.5 w-3.5" />
+              <CheckSquare className="h-4 w-4" />
               <span>Approvals</span>
               {pendingCount > 0 && (
-                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white px-1">
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 text-xs font-bold text-white px-1.5">
                   {pendingCount}
                 </span>
               )}
@@ -238,13 +238,13 @@ export function TopNavbar({
             <Link
               href="/transfers"
               className={cn(
-                'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
+                'flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all',
                 pathname === '/transfers'
                   ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400'
                   : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white'
               )}
             >
-              <ArrowRightLeft className="h-3.5 w-3.5" />
+              <ArrowRightLeft className="h-4 w-4" />
               <span>Transfers</span>
             </Link>
           )}
@@ -253,13 +253,13 @@ export function TopNavbar({
           <Link
             href="/history"
             className={cn(
-              'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
+              'flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all',
               pathname === '/history'
                 ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400'
                 : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white'
             )}
           >
-            <History className="h-3.5 w-3.5" />
+            <History className="h-4 w-4" />
             <span>History</span>
           </Link>
 
@@ -267,13 +267,13 @@ export function TopNavbar({
           <Link
             href="/audit"
             className={cn(
-              'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
+              'flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all',
               pathname === '/audit'
                 ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400'
                 : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white'
             )}
           >
-            <ClipboardCheck className="h-3.5 w-3.5 text-indigo-500" />
+            <ClipboardCheck className="h-4 w-4 text-indigo-500" />
             <span>Stock Audit</span>
           </Link>
 
@@ -284,54 +284,54 @@ export function TopNavbar({
                 onClick={() => setAdminOpen(!adminOpen)}
                 onMouseEnter={() => setAdminOpen(true)}
                 className={cn(
-                  'flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
+                  'flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all',
                   isAdminActive
                     ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400'
                     : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white'
                 )}
               >
-                <Settings className="h-3.5 w-3.5" />
+                <Settings className="h-4 w-4" />
                 <span>Admin</span>
-                <ChevronDown className="h-3 w-3 opacity-60 ml-0.5" />
+                <ChevronDown className="h-3.5 w-3.5 opacity-60 ml-0.5" />
               </button>
 
               {adminOpen && (
-                <div className="absolute right-0 top-full mt-1 w-48 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-1.5 shadow-lg shadow-zinc-900/5 animate-in fade-in slide-in-from-top-1 z-50">
+                <div className="absolute right-0 top-full mt-1.5 w-52 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2 shadow-xl shadow-zinc-900/10 animate-in fade-in slide-in-from-top-1 z-50">
                   <Link
                     href="/admin/users"
                     className={cn(
-                      'flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors',
+                      'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
                       pathname === '/admin/users'
                         ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold'
                         : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
                     )}
                   >
-                    <Users className="h-3.5 w-3.5 text-indigo-500" />
+                    <Users className="h-4 w-4 text-indigo-500" />
                     <span>User Directory</span>
                   </Link>
                   <Link
                     href="/admin/audit"
                     className={cn(
-                      'flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors',
+                      'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
                       pathname === '/admin/audit'
                         ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold'
                         : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
                     )}
                   >
-                    <FileText className="h-3.5 w-3.5 text-indigo-500" />
-                    <span>System Audit Log</span>
+                    <FileText className="h-4 w-4 text-indigo-500" />
+                    <span>System Audit Trail</span>
                   </Link>
                   <Link
                     href="/admin/import"
                     className={cn(
-                      'flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors',
+                      'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
                       pathname === '/admin/import'
                         ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold'
                         : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
                     )}
                   >
-                    <Upload className="h-3.5 w-3.5 text-indigo-500" />
-                    <span>Import Registers</span>
+                    <Upload className="h-4 w-4 text-indigo-500" />
+                    <span>Bulk Excel Ingest</span>
                   </Link>
                 </div>
               )}
