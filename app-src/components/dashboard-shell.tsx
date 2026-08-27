@@ -1,15 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, Moon, Sun } from 'lucide-react';
-import { Sidebar } from '@/components/sidebar';
+import { TopNavbar } from '@/components/top-navbar';
+import { SiteFooter } from '@/components/site-footer';
 import { CommandPalette, useCommandPalette } from '@/components/command-palette';
 import { ToastRoot } from '@/components/ui/toast';
 import { Profile } from '@/lib/types';
 import { createClient } from '@/lib/supabase/client';
-import { useTheme } from '@/components/theme-provider';
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -20,7 +18,6 @@ interface DashboardShellProps {
 export function DashboardShell({ children, profile, pendingCount = 0 }: DashboardShellProps) {
   const router = useRouter();
   const { open, setOpen } = useCommandPalette();
-  const { theme, toggle } = useTheme();
 
   async function handleSignOut() {
     if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
@@ -37,96 +34,42 @@ export function DashboardShell({ children, profile, pendingCount = 0 }: Dashboar
 
   return (
     <ToastRoot>
-      <div className="flex h-screen overflow-hidden bg-zinc-50 dark:bg-zinc-950">
-        {/* Sidebar */}
-        <Sidebar
+      <div className="min-h-screen flex flex-col bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 relative">
+        {/* Subtle Institutional Watermark */}
+        <div
+          className="pointer-events-none fixed inset-0 z-0 flex items-center justify-center overflow-hidden opacity-[0.035] dark:opacity-[0.045] select-none"
+          aria-hidden="true"
+        >
+          <img
+            src="/spit-logo-light.jpg"
+            alt="SPIT Emblem"
+            className="h-[520px] w-[520px] max-w-[70vw] object-contain grayscale dark:hidden"
+          />
+          <img
+            src="/spit-logo-dark.png"
+            alt="SPIT Emblem"
+            className="h-[520px] w-[520px] max-w-[70vw] object-contain hidden dark:block"
+          />
+        </div>
+
+        {/* Top Navigation Bar */}
+        <TopNavbar
           profile={profile}
           pendingCount={pendingCount}
+          onOpenCommandPalette={() => setOpen(true)}
           onSignOut={handleSignOut}
         />
 
-        {/* Main content */}
-        <div className="relative flex flex-1 flex-col overflow-hidden">
-          {/* Subtle Institutional Watermark */}
-          <div 
-            className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center overflow-hidden opacity-[0.04] dark:opacity-[0.05] select-none"
-            aria-hidden="true"
-          >
-            <img
-              src="/spit-logo-light.jpg"
-              alt="SPIT Emblem"
-              className="h-[480px] w-[480px] max-w-[70vw] object-contain grayscale dark:hidden"
-            />
-            <img
-              src="/spit-logo-dark.png"
-              alt="SPIT Emblem"
-              className="h-[480px] w-[480px] max-w-[70vw] object-contain hidden dark:block"
-            />
-          </div>
+        {/* Page Content Canvas */}
+        <main className="relative z-10 flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full max-w-7xl mx-auto">
+          {children}
+        </main>
 
-          {/* Top bar */}
-          <header className="relative z-10 flex h-14 shrink-0 items-center justify-between border-b border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm px-6">
-            {/* Search / command palette trigger */}
-            <button
-              onClick={() => setOpen(true)}
-              className="flex items-center gap-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-3 py-1.5 text-sm text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors w-56"
-              aria-label="Open command palette (⌘K)"
-            >
-              <Search className="h-3.5 w-3.5" />
-              <span className="flex-1 text-left text-xs">Search assets…</span>
-              <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-zinc-200 dark:border-zinc-600 bg-white dark:bg-zinc-700 px-1.5 py-0.5 text-[10px] text-zinc-400 dark:text-zinc-400">
-                <span>⌘</span>K
-              </kbd>
-            </button>
-
-            <div className="flex items-center gap-3">
-              {/* Dark mode toggle */}
-              <button
-                onClick={toggle}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
-                aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-                title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
-              >
-                {theme === 'dark'
-                  ? <Sun className="h-3.5 w-3.5" />
-                  : <Moon className="h-3.5 w-3.5" />}
-              </button>
-
-              <div className="h-8 w-px bg-zinc-200 dark:bg-zinc-700" />
-
-              <Link
-                href="/profile"
-                className="flex items-center gap-2.5 rounded-lg p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors group"
-                title="View & Edit Profile"
-              >
-                <div className="text-right hidden sm:block">
-                  <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                    {profile?.full_name ?? 'User'}
-                  </p>
-                  <p className="text-[10px] text-zinc-400 dark:text-zinc-500 capitalize">
-                    {profile?.role?.replace('_', ' ')}
-                  </p>
-                </div>
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900 text-xs font-semibold text-indigo-700 dark:text-indigo-300 group-hover:ring-2 group-hover:ring-indigo-500 transition-all">
-                  {(profile?.full_name ?? 'U')
-                    .split(' ')
-                    .map((n) => n[0])
-                    .join('')
-                    .toUpperCase()
-                    .slice(0, 2)}
-                </div>
-              </Link>
-            </div>
-          </header>
-
-          {/* Page content */}
-          <main className="relative z-10 flex-1 overflow-y-auto p-6">
-            {children}
-          </main>
-        </div>
+        {/* Site Footer with Built by Aryan Singh */}
+        <SiteFooter />
       </div>
 
-      {/* Command palette */}
+      {/* Command Palette (⌘K) */}
       <CommandPalette open={open} onClose={() => setOpen(false)} />
     </ToastRoot>
   );
