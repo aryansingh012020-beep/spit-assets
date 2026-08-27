@@ -79,6 +79,10 @@ export interface Profile {
   avatar_url: string | null;
   employee_id: string | null;
   department: string | null;
+  phone_number?: string | null;
+  designation?: string | null;
+  status?: string | null;
+  bio?: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Search, Moon, Sun } from 'lucide-react';
 import { Sidebar } from '@/components/sidebar';
@@ -93,13 +94,28 @@ export function DashboardShell({ children, profile, pendingCount = 0 }: Dashboar
 
               <div className="h-8 w-px bg-zinc-200 dark:bg-zinc-700" />
 
-              <div className="text-right">
-                <p className="text-xs font-medium text-zinc-900 dark:text-zinc-100">{profile?.full_name ?? 'User'}</p>
-                <p className="text-[10px] text-zinc-400 dark:text-zinc-500 capitalize">{profile?.role?.replace('_', ' ')}</p>
-              </div>
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900 text-xs font-semibold text-indigo-700 dark:text-indigo-300">
-                {(profile?.full_name ?? 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-              </div>
+              <Link
+                href="/profile"
+                className="flex items-center gap-2.5 rounded-lg p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors group"
+                title="View & Edit Profile"
+              >
+                <div className="text-right hidden sm:block">
+                  <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                    {profile?.full_name ?? 'User'}
+                  </p>
+                  <p className="text-[10px] text-zinc-400 dark:text-zinc-500 capitalize">
+                    {profile?.role?.replace('_', ' ')}
+                  </p>
+                </div>
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900 text-xs font-semibold text-indigo-700 dark:text-indigo-300 group-hover:ring-2 group-hover:ring-indigo-500 transition-all">
+                  {(profile?.full_name ?? 'U')
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                    .toUpperCase()
+                    .slice(0, 2)}
+                </div>
+              </Link>
             </div>
           </header>
 

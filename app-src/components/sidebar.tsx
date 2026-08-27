@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Package, Tag, Building2, Layers, DoorOpen,
   CheckSquare, ArrowRightLeft, History, Settings, Users, FileText,
-  Upload, ChevronDown, ChevronRight, LogOut
+  Upload, ChevronDown, ChevronRight, LogOut, User
 } from 'lucide-react';
 import { cn, getRoleLabel, getInitials } from '@/lib/utils';
 import { UserRole, Profile } from '@/lib/types';
@@ -34,7 +34,7 @@ function buildNavItems(role: UserRole, pendingCount: number): NavItem[] {
       icon: <LayoutDashboard className="h-4 w-4" />,
     },
     {
-      label: 'Inventory',
+      label: 'Assets',
       href: '/inventory',
       icon: <Package className="h-4 w-4" />,
       children: [
@@ -71,6 +71,11 @@ function buildNavItems(role: UserRole, pendingCount: number): NavItem[] {
       label: 'History',
       href: '/history',
       icon: <History className="h-4 w-4" />,
+    },
+    {
+      label: 'My Profile',
+      href: '/profile',
+      icon: <User className="h-4 w-4" />,
     },
     ...(role === 'approver'
       ? [
@@ -204,23 +209,30 @@ export function Sidebar({ profile, pendingCount = 0, onSignOut }: SidebarProps) 
       </nav>
 
       {/* User footer */}
-      <div className="border-t border-zinc-100 dark:border-zinc-800 p-3">
-        <div className="flex items-center gap-2.5 rounded-lg px-2 py-2">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-xs font-semibold text-indigo-700 dark:text-indigo-300">
-            {getInitials(profile?.full_name ?? profile?.id?.slice(0, 6) ?? 'U')}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">
-              {profile?.full_name ?? 'User'}
-            </p>
-            <p className="text-xs text-zinc-400 dark:text-zinc-500 truncate capitalize">
-              {getRoleLabel(role)}
-            </p>
-          </div>
+      <div className="border-t border-zinc-100 dark:border-zinc-800 p-2.5">
+        <div className="flex items-center gap-2 rounded-lg p-1.5 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors">
+          <Link
+            href="/profile"
+            className="flex items-center gap-2.5 min-w-0 flex-1 group"
+            title="My Profile & Settings"
+          >
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-xs font-semibold text-indigo-700 dark:text-indigo-300 group-hover:ring-2 group-hover:ring-indigo-500 transition-all">
+              {getInitials(profile?.full_name ?? profile?.id?.slice(0, 6) ?? 'U')}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                {profile?.full_name ?? 'User'}
+              </p>
+              <p className="text-[10px] text-zinc-400 dark:text-zinc-500 truncate capitalize">
+                {getRoleLabel(role)}
+              </p>
+            </div>
+          </Link>
           <button
             onClick={onSignOut}
-            className="shrink-0 rounded-md p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            className="shrink-0 rounded-md p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
             aria-label="Sign out"
+            title="Sign out"
           >
             <LogOut className="h-3.5 w-3.5" />
           </button>
