@@ -339,21 +339,8 @@ export function TopNavbar({
           )}
         </nav>
 
-        {/* ── Right Actions (Search, Theme, Profile) ───────────────── */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Quick Search / Command Palette */}
-          <button
-            onClick={onOpenCommandPalette}
-            className="flex items-center gap-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 px-2.5 py-1.5 text-xs text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
-            title="Open command palette (⌘K)"
-          >
-            <Search className="h-3.5 w-3.5" />
-            <span className="hidden md:inline">Quick search…</span>
-            <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-zinc-200 dark:border-zinc-600 bg-white dark:bg-zinc-700 px-1 py-0.5 text-[9px] text-zinc-400">
-              ⌘K
-            </kbd>
-          </button>
-
+        {/* ── Right Actions (Theme, Profile) ──────────────────────── */}
+        <div className="flex items-center gap-2.5 sm:gap-3">
           {/* Theme switcher */}
           <button
             onClick={toggle}
