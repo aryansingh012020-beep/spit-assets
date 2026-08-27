@@ -12,6 +12,7 @@ import { useToast } from '@/components/ui/toast';
 import { buildLocationString } from '@/lib/utils';
 import { Package, ChevronLeft, ChevronRight, ArrowRightLeft, Trash2, Download, CheckSquare, Square, X } from 'lucide-react';
 import { InventoryRowActions } from './inventory-row-actions';
+import { AssetInspectorDrawer } from './asset-inspector-drawer';
 import { submitBatchTransferRequest, submitBatchDeleteRequest } from '@/lib/actions/requests';
 
 interface SearchParams {
@@ -46,12 +47,29 @@ export function InventoryTableClient({
   roomName,
 }: InventoryTableClientProps) {
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
+  const [inspectingAssetId, setInspectingAssetId] = React.useState<string | null>(null);
   const [batchTransferOpen, setBatchTransferOpen] = React.useState(false);
   const [batchDeleteOpen, setBatchDeleteOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
 
   const { toast } = useToast();
   const router = useRouter();
+
+  const currentInspectorIndex = assets.findIndex((a) => a.id === inspectingAssetId);
+  const hasPrev = currentInspectorIndex > 0;
+  const hasNext = currentInspectorIndex >= 0 && currentInspectorIndex < assets.length - 1;
+
+  function handleNavigatePrev() {
+    if (hasPrev) {
+      setInspectingAssetId(assets[currentInspectorIndex - 1].id);
+    }
+  }
+
+  function handleNavigateNext() {
+    if (hasNext) {
+      setInspectingAssetId(assets[currentInspectorIndex + 1].id);
+    }
+  }
 
   function buildHref(overrides: Partial<SearchParams>) {
     const merged = { ...params, ...overrides };
@@ -203,13 +221,16 @@ export function InventoryTableClient({
               ) : (
                 assets.map((asset: any) => {
                   const isSelected = selectedIds.includes(asset.id);
+                  const isInspecting = inspectingAssetId === asset.id;
                   return (
                     <tr
                       key={asset.id}
-                      onClick={() => toggleSelect(asset.id)}
-                      className={`group transition-colors cursor-pointer select-none ${
-                        isSelected
-                          ? 'bg-indigo-50/70 dark:bg-indigo-950/50'
+                      onClick={() => setInspectingAssetId(asset.id)}
+                      className={`group transition-all cursor-pointer select-none ${
+                        isInspecting
+                          ? 'bg-indigo-50/80 dark:bg-indigo-950/60 ring-1 ring-inset ring-indigo-500/40'
+                          : isSelected
+                          ? 'bg-indigo-50/50 dark:bg-indigo-950/40'
                           : 'hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20'
                       }`}
                     >
@@ -225,20 +246,12 @@ export function InventoryTableClient({
                         />
                       </td>
                       <td className="px-4 py-3">
-                        <Link
-                          href={`/inventory/${asset.id}`}
-                          onClick={(e) => e.stopPropagation()}
-                          className="font-mono text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
-                        >
+                        <span className="font-mono text-xs font-semibold text-indigo-600 dark:text-indigo-400 group-hover:underline">
                           {asset.asset_tag}
-                        </Link>
+                        </span>
                       </td>
                       <td className="px-4 py-3">
-                        <Link
-                          href={`/inventory/${asset.id}`}
-                          onClick={(e) => e.stopPropagation()}
-                          className="block"
-                        >
+                        <div>
                           <p className="text-sm font-medium text-zinc-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                             {asset.name}
                           </p>
@@ -249,7 +262,7 @@ export function InventoryTableClient({
                               asset.room?.name,
                             ])}
                           </p>
-                        </Link>
+                        </div>
                       </td>
                       <td className="px-4 py-3">
                         {asset.category ? (
@@ -494,6 +507,18 @@ export function InventoryTableClient({
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Slide-over Asset Inspector Drawer */}
+      <AssetInspectorDrawer
+        assetId={inspectingAssetId}
+        onClose={() => setInspectingAssetId(null)}
+        onNavigatePrev={handleNavigatePrev}
+        onNavigateNext={handleNavigateNext}
+        hasPrev={hasPrev}
+        hasNext={hasNext}
+        rooms={rooms}
+        canManage={canRequest}
+      />
     </>
   );
 }
