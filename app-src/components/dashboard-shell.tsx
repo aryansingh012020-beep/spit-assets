@@ -38,18 +38,22 @@ export function DashboardShell({ children, profile, pendingCount = 0 }: Dashboar
       <div className="min-h-screen flex flex-col bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 relative">
         {/* Prominent Institutional Watermark */}
         <div
-          className="pointer-events-none fixed inset-0 z-0 flex items-center justify-center overflow-hidden opacity-[0.09] dark:opacity-[0.12] select-none"
+          className="pointer-events-none fixed inset-0 z-0 flex items-center justify-center p-6 overflow-hidden opacity-[0.09] dark:opacity-[0.12] select-none"
           aria-hidden="true"
         >
           <img
             src="/spit-logo-light.jpg"
             alt="SPIT Emblem"
-            className="h-[640px] w-[640px] max-w-[85vw] object-contain grayscale contrast-125 dark:hidden"
+            width={572}
+            height={572}
+            className="w-[min(620px,75vw,75vh)] h-[min(620px,75vw,75vh)] aspect-square object-contain grayscale contrast-125 dark:hidden shrink-0"
           />
           <img
             src="/spit-logo-dark.png"
             alt="SPIT Emblem"
-            className="h-[640px] w-[640px] max-w-[85vw] object-contain hidden dark:block"
+            width={572}
+            height={572}
+            className="w-[min(620px,75vw,75vh)] h-[min(620px,75vw,75vh)] aspect-square object-contain hidden dark:block shrink-0"
           />
         </div>
 
