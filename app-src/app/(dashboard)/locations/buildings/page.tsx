@@ -38,7 +38,7 @@ export default async function BuildingsPage() {
     return <BuildingsContent buildings={[]} />;
   }
 
-  // For each building, run parallel count queries — no row-fetch cap
+  // For each building, fetch counts
   const enriched = await Promise.all(
     buildings.map(async (b: any) => {
       const [
@@ -102,10 +102,23 @@ function BuildingsContent({ buildings }: { buildings: any[] }) {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {buildings.map((b: any) => (
             <Link key={b.id} href={`/locations/floors?building=${b.id}`}>
-              <Card className="hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-700 transition-all cursor-pointer group h-full flex flex-col justify-between">
-                <CardContent className="p-6 space-y-4">
+              <Card className="relative overflow-hidden hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-300 cursor-pointer group h-full flex flex-col justify-between">
+                {/* ── SPIT Entrance Photo Watermark Overlay ────────────── */}
+                <div
+                  className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none"
+                  aria-hidden="true"
+                >
+                  <img
+                    src="/spit-entrance.jpg"
+                    alt={b.name}
+                    className="h-full w-full object-cover object-center opacity-15 dark:opacity-20 grayscale contrast-125 group-hover:opacity-25 group-hover:scale-105 transition-all duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-white via-white/85 to-white/40 dark:from-zinc-900 dark:via-zinc-900/90 dark:to-zinc-900/50" />
+                </div>
+
+                <CardContent className="relative z-10 p-6 space-y-4">
                   <div className="flex items-start gap-3.5">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-200/60 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-xs">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-indigo-50/90 dark:bg-indigo-950/90 backdrop-blur-xs border border-indigo-200/70 dark:border-indigo-800/70 text-indigo-700 dark:text-indigo-300 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-xs">
                       <Building2 className="h-6 w-6" />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -122,13 +135,13 @@ function BuildingsContent({ buildings }: { buildings: any[] }) {
                   </div>
 
                   {b.address && (
-                    <p className="flex items-start gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 pl-0.5">
-                      <MapPin className="h-3.5 w-3.5 shrink-0 mt-0.5 text-zinc-400" />
+                    <p className="flex items-start gap-1.5 text-xs text-zinc-600 dark:text-zinc-300 pl-0.5 font-medium">
+                      <MapPin className="h-3.5 w-3.5 shrink-0 mt-0.5 text-indigo-500 dark:text-indigo-400" />
                       {b.address}
                     </p>
                   )}
 
-                  <div className="grid grid-cols-3 divide-x divide-zinc-100 dark:divide-zinc-800/80 border border-zinc-100 dark:border-zinc-800/80 rounded-xl overflow-hidden bg-zinc-50/70 dark:bg-zinc-800/40">
+                  <div className="grid grid-cols-3 divide-x divide-zinc-200/70 dark:divide-zinc-700/70 border border-zinc-200/80 dark:border-zinc-700/80 rounded-xl overflow-hidden bg-white/70 dark:bg-zinc-800/60 backdrop-blur-xs shadow-2xs">
                     {[
                       { label: 'Floors', value: b.floor_count, icon: <Layers className="h-3 w-3" /> },
                       { label: 'Rooms', value: b.room_count, icon: <DoorOpen className="h-3 w-3" /> },
@@ -138,7 +151,7 @@ function BuildingsContent({ buildings }: { buildings: any[] }) {
                         <p className="text-lg font-bold text-zinc-900 dark:text-white">
                           {stat.value.toLocaleString()}
                         </p>
-                        <p className="text-[10px] text-zinc-400 dark:text-zinc-500 flex items-center justify-center gap-1 mt-0.5 font-medium">
+                        <p className="text-[10px] text-zinc-500 dark:text-zinc-400 flex items-center justify-center gap-1 mt-0.5 font-semibold">
                           {stat.icon} {stat.label}
                         </p>
                       </div>
@@ -153,4 +166,3 @@ function BuildingsContent({ buildings }: { buildings: any[] }) {
     </div>
   );
 }
-
