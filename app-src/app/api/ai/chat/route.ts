@@ -104,7 +104,7 @@ ${dynamicContext || 'Database context loaded: 2,662 active assets across 7 floor
             ],
             generationConfig: {
               temperature: 0.2,
-              maxOutputTokens: 1000,
+              maxOutputTokens: 8192,
             },
           }),
         }
