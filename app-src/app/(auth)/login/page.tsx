@@ -148,7 +148,7 @@ export default function LoginPage() {
                 </div>
                 <h2 className="text-sm font-bold text-white">Hierarchical Campus Architecture</h2>
                 <p className="text-xs text-zinc-400 mt-1 leading-normal">
-                  9 vertical levels (Ground to 8th Floor) mapped to 125 classrooms and advanced laboratories.
+                  9 floors (Ground to 8th Floor) mapped to 125 classrooms and advanced laboratories.
                 </p>
               </div>
 
@@ -197,7 +197,7 @@ export default function LoginPage() {
               <div className="h-8 w-px bg-zinc-800" />
               <div>
                 <p className="text-2xl font-extrabold text-white">9</p>
-                <p className="text-xs text-zinc-400">Vertical Floors</p>
+                <p className="text-xs text-zinc-400">Campus Floors</p>
               </div>
               <div className="h-8 w-px bg-zinc-800" />
               <div>

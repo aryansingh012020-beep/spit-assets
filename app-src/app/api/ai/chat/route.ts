@@ -192,9 +192,9 @@ ${dynamicContext || 'Database context loaded: 2,662 active assets across 7 floor
         .select('id, name, level, assets(count)')
         .order('level');
 
-      directAnswer = `### 🏢 Campus Vertical Floor Distribution\n\n` +
+      directAnswer = `### Campus Floor Distribution\n\n` +
         (floors ?? []).map((f: any) => `- **${f.name} (Level ${f.level})**: ${f.assets?.[0]?.count ?? 0} physical assets`).join('\n') +
-        `\n\nExplore detailed room maps in [Campus Floor Architecture](/locations/floors).`;
+        `\n\nExplore detailed room maps in [Campus Floors](/locations/floors).`;
     } else {
       directAnswer = `Hello! I am your **SPIT Asset AI Assistant**.\n\n` +
         `I can help you look up equipment, verify laboratory inventories, and check maintenance status across Sardar Patel Institute of Technology.\n\n` +

@@ -195,7 +195,7 @@ export function TopNavbar({
                   )}
                 >
                   <Layers className="h-4 w-4 text-indigo-500" />
-                  <span>Vertical Floors</span>
+                  <span>Floors</span>
                 </Link>
                 <Link
                   href="/locations/rooms"

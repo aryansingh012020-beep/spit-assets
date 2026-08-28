@@ -24,8 +24,8 @@ The SPIT Asset Management System provides institutional-grade tracking and lifec
 ## Core Features
 
 ### 1. Hierarchical Infrastructure Mapping
-- Multi-tier relational structure: Campus -> Buildings -> Vertical Floors -> Departmental Rooms -> Assets.
-- Full institutional mapping encompassing 9 vertical levels (Ground through 8th Floor), 125 rooms/laboratories, and 2,660+ registered physical assets.
+- Multi-tier relational structure: Campus -> Buildings -> Floors -> Departmental Rooms -> Assets.
+- Full institutional mapping encompassing 9 floors (Ground through 8th Floor), 125 rooms/laboratories, and 2,660+ registered physical assets.
 - Real-time floor capacity and density calculations based on total campus asset volume.
 
 ### 2. Role-Based Access Control and Governance
@@ -69,7 +69,7 @@ The underlying PostgreSQL database implements 10 relational tables protected by 
 
 - `institutions`: Root organization record.
 - `buildings`: Campus facilities and geographical addresses.
-- `floors`: Vertical level ordering and floor designations.
+- `floors`: Floor designations and level ordering.
 - `rooms`: Laboratory, classroom, office, and storage definitions with room types.
 - `asset_categories`: Hierarchical categorization codes (Computing, Lab Equipment, Networking, AV, Furniture).
 - `assets`: Primary catalog with tags, serial numbers, specifications, operational status, and room linkages.

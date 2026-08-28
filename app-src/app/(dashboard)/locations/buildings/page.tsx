@@ -81,7 +81,7 @@ function BuildingsContent({ buildings }: { buildings: any[] }) {
             href="/locations/floors"
             className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-xs font-semibold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors shadow-xs"
           >
-            <Layers className="h-3.5 w-3.5" /> Vertical Floors
+            <Layers className="h-3.5 w-3.5" /> Campus Floors
           </Link>
           <Link
             href="/locations/rooms"

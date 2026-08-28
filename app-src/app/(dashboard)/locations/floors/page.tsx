@@ -82,7 +82,7 @@ export default async function FloorsPage({ searchParams }: { searchParams: Promi
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">{title}</h1>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-            {enriched.length} vertical levels · {totalFloorRooms} active rooms · {totalFloorAssets.toLocaleString()} physical assets
+            {enriched.length} floors · {totalFloorRooms} active rooms · {totalFloorAssets.toLocaleString()} physical assets
           </p>
         </div>
 
