@@ -346,3 +346,25 @@ export interface PaginatedResult<T> {
   pageSize: number;
   totalPages: number;
 }
+
+// ============================================================
+// Account Onboarding Requests
+// ============================================================
+
+export interface AccountRequest {
+  id: string;
+  institution_id?: string | null;
+  full_name: string;
+  email: string;
+  requested_role: UserRole;
+  department: string;
+  designation?: string | null;
+  phone_number?: string | null;
+  employee_id?: string | null;
+  reason?: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  reviewed_by?: string | null;
+  reviewed_at?: string | null;
+  created_at: string;
+  updated_at: string;
+}
