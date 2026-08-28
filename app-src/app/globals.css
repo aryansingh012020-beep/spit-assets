@@ -4,7 +4,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
 }
 
@@ -18,34 +18,42 @@ html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
   height: 100%;
-  font-size: 0.95rem;
+  font-size: 0.9375rem;
   line-height: 1.55;
+  letter-spacing: -0.011em;
 }
 
-/* Custom scrollbar */
+/* Tactile button press feedback */
+button, [role="button"], a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom modern scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: #d4d4d8;
-  border-radius: 3px;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #a1a1aa;
 }
 .dark ::-webkit-scrollbar-thumb {
-  background: #3f3f46;
+  background: #27272a;
+  border-radius: 9999px;
 }
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #52525b;
+  background: #3f3f46;
 }
 
 /* Focus ring consistency */
@@ -56,9 +64,9 @@ body {
 
 /* Smooth transitions */
 * {
-  transition-property: color, background-color, border-color, box-shadow;
-  transition-duration: 150ms;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-duration: 140ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Animation utilities */
@@ -67,7 +75,7 @@ body {
   to   { transform: rotate(360deg); }
 }
 .animate-spin {
-  animation: spin 1s linear infinite;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes pulse {
@@ -78,15 +86,15 @@ body {
 }
 
 /* Radix UI animation classes */
-@keyframes fade-in { from { opacity: 0 } to { opacity: 1 } }
-@keyframes fade-out { from { opacity: 1 } to { opacity: 0 } }
-@keyframes zoom-in-95 { from { transform: scale(0.95); opacity: 0 } to { transform: scale(1); opacity: 1 } }
-@keyframes zoom-out-95 { from { transform: scale(1); opacity: 1 } to { transform: scale(0.95); opacity: 0 } }
+@keyframes fade-in { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+@keyframes fade-out { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.98); } }
+@keyframes zoom-in-95 { from { transform: scale(0.96); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+@keyframes zoom-out-95 { from { transform: scale(1); opacity: 1 } to { transform: scale(0.96); opacity: 0 } }
 @keyframes slide-in-from-right { from { transform: translateX(100%) } to { transform: translateX(0) } }
 @keyframes slide-out-to-right  { from { transform: translateX(0) } to { transform: translateX(100%) } }
-@keyframes slide-in-from-bottom-2 { from { transform: translateY(8px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+@keyframes slide-in-from-bottom-2 { from { transform: translateY(6px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
 
-.data-\[state\=open\]\:animate-in[data-state="open"]    { animation-name: fade-in; animation-duration: 150ms; animation-fill-mode: both; }
+.data-\[state\=open\]\:animate-in[data-state="open"]    { animation-name: fade-in; animation-duration: 140ms; animation-fill-mode: both; }
 .data-\[state\=closed\]\:animate-out[data-state="closed"] { animation-name: fade-out; animation-duration: 100ms; animation-fill-mode: both; }
 .data-\[state\=open\]\:fade-in-0[data-state="open"]    { animation-name: fade-in; }
 .data-\[state\=closed\]\:fade-out-0[data-state="closed"] { animation-name: fade-out; }

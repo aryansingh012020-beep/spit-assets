@@ -6,7 +6,7 @@ export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
   return (
     <div
       className={cn(
-        'rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm',
+        'rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-900/90 shadow-xs backdrop-blur-xs transition-all duration-150',
         className
       )}
       {...props}
@@ -16,14 +16,14 @@ export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
 
 export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn('flex flex-col space-y-1 p-6 pb-0', className)} {...props} />
+    <div className={cn('flex flex-col space-y-1.5 p-6 pb-0', className)} {...props} />
   );
 }
 
 export function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
-      className={cn('text-base font-semibold text-zinc-900 dark:text-zinc-100 leading-none tracking-tight', className)}
+      className={cn('text-base font-bold text-zinc-900 dark:text-zinc-100 leading-tight tracking-tight', className)}
       {...props}
     />
   );
@@ -31,7 +31,7 @@ export function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHead
 
 export function CardDescription({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={cn('text-sm text-zinc-500 dark:text-zinc-400', className)} {...props} />
+    <p className={cn('text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 leading-normal', className)} {...props} />
   );
 }
 
@@ -41,7 +41,7 @@ export function CardContent({ className, ...props }: React.HTMLAttributes<HTMLDi
 
 export function CardFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn('flex items-center p-6 pt-0', className)} {...props} />
+    <div className={cn('flex items-center p-6 pt-0 border-t border-zinc-100 dark:border-zinc-800/60 mt-4', className)} {...props} />
   );
 }
 
@@ -60,14 +60,14 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="space-y-1.5">
         {label && (
-          <label htmlFor={inputId} className="block text-sm font-medium text-zinc-700">
+          <label htmlFor={inputId} className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
             {label}
             {props.required && <span className="ml-1 text-red-500" aria-hidden="true">*</span>}
           </label>
         )}
         <div className="relative">
           {leftIcon && (
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-400">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-zinc-400">
               {leftIcon}
             </div>
           )}
@@ -75,15 +75,15 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             ref={ref}
             className={cn(
-              'block w-full rounded-lg border bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100',
+              'block w-full rounded-xl border bg-zinc-50/50 dark:bg-zinc-950/60 px-3.5 py-2.5 text-xs sm:text-sm text-zinc-900 dark:text-zinc-100',
               'placeholder:text-zinc-400 dark:placeholder:text-zinc-600',
-              'transition-colors duration-150',
-              'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500',
+              'transition-all duration-150',
+              'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white dark:focus:bg-zinc-900',
               error
-                ? 'border-red-300 focus:border-red-400 focus:ring-red-400'
-                : 'border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600',
-              leftIcon && 'pl-9',
-              rightIcon && 'pr-9',
+                ? 'border-red-300 dark:border-red-800 focus:border-red-400 focus:ring-red-400'
+                : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700',
+              leftIcon && 'pl-10',
+              rightIcon && 'pr-10',
               className
             )}
             aria-invalid={!!error}
@@ -91,18 +91,18 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {rightIcon && (
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-400">
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-zinc-400">
               {rightIcon}
             </div>
           )}
         </div>
         {error && (
-          <p id={`${inputId}-error`} className="text-xs text-red-600" role="alert">
+          <p id={`${inputId}-error`} className="text-xs text-red-600 dark:text-red-400" role="alert">
             {error}
           </p>
         )}
         {hint && !error && (
-          <p id={`${inputId}-hint`} className="text-xs text-zinc-500">
+          <p id={`${inputId}-hint`} className="text-xs text-zinc-500 dark:text-zinc-400">
             {hint}
           </p>
         )}
@@ -124,7 +124,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className="space-y-1.5">
         {label && (
-          <label htmlFor={inputId} className="block text-sm font-medium text-zinc-700">
+          <label htmlFor={inputId} className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
             {label}
             {props.required && <span className="ml-1 text-red-500" aria-hidden="true">*</span>}
           </label>
@@ -133,20 +133,20 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           id={inputId}
           ref={ref}
           className={cn(
-            'block w-full rounded-lg border bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100',
-            'placeholder:text-zinc-400 dark:placeholder:text-zinc-600 resize-y min-h-[80px]',
-            'transition-colors duration-150',
-            'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500',
+            'block w-full rounded-xl border bg-zinc-50/50 dark:bg-zinc-950/60 px-3.5 py-2.5 text-xs sm:text-sm text-zinc-900 dark:text-zinc-100',
+            'placeholder:text-zinc-400 dark:placeholder:text-zinc-600 resize-y min-h-[85px]',
+            'transition-all duration-150',
+            'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white dark:focus:bg-zinc-900',
             error
-              ? 'border-red-300 focus:ring-red-400'
-              : 'border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600',
+              ? 'border-red-300 dark:border-red-800 focus:ring-red-400'
+              : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700',
             className
           )}
           aria-invalid={!!error}
           {...props}
         />
         {error && (
-          <p className="text-xs text-red-600" role="alert">
+          <p className="text-xs text-red-600 dark:text-red-400" role="alert">
             {error}
           </p>
         )}
@@ -170,7 +170,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     return (
       <div className="space-y-1.5">
         {label && (
-          <label htmlFor={inputId} className="block text-sm font-medium text-zinc-700">
+          <label htmlFor={inputId} className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
             {label}
             {props.required && <span className="ml-1 text-red-500" aria-hidden="true">*</span>}
           </label>
@@ -179,12 +179,12 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           id={inputId}
           ref={ref}
           className={cn(
-            'block w-full rounded-lg border bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100',
-            'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500',
-            'transition-colors duration-150 cursor-pointer',
+            'block w-full rounded-xl border bg-zinc-50/50 dark:bg-zinc-950/60 px-3.5 py-2.5 text-xs sm:text-sm text-zinc-900 dark:text-zinc-100',
+            'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white dark:focus:bg-zinc-900',
+            'transition-all duration-150 cursor-pointer',
             error
-              ? 'border-red-300 focus:ring-red-400'
-              : 'border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600',
+              ? 'border-red-300 dark:border-red-800 focus:ring-red-400'
+              : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700',
             className
           )}
           aria-invalid={!!error}
@@ -198,7 +198,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           ))}
         </select>
         {error && (
-          <p className="text-xs text-red-600" role="alert">
+          <p className="text-xs text-red-600 dark:text-red-400" role="alert">
             {error}
           </p>
         )}
@@ -212,7 +212,7 @@ Select.displayName = 'Select';
 export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn('animate-pulse rounded-md bg-zinc-200 dark:bg-zinc-800', className)}
+      className={cn('animate-pulse rounded-xl bg-zinc-200/80 dark:bg-zinc-800/80', className)}
       {...props}
     />
   );
@@ -227,7 +227,7 @@ export function Separator({
   return (
     <div
       className={cn(
-        'shrink-0 bg-zinc-200 dark:bg-zinc-700',
+        'shrink-0 bg-zinc-200/80 dark:bg-zinc-800',
         orientation === 'horizontal' ? 'h-px w-full' : 'h-full w-px',
         className
       )}
@@ -250,13 +250,13 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
       {icon && (
-        <div className="mb-4 rounded-full bg-zinc-100 dark:bg-zinc-800 p-4 text-zinc-400 dark:text-zinc-600">
+        <div className="mb-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800/80 p-4 text-zinc-400 dark:text-zinc-500 border border-zinc-200/60 dark:border-zinc-700/60">
           {icon}
         </div>
       )}
-      <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">{title}</h3>
+      <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">{title}</h3>
       {description && (
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400 max-w-sm">{description}</p>
+        <p className="mt-1 text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 max-w-sm">{description}</p>
       )}
       {action && <div className="mt-6">{action}</div>}
     </div>
@@ -274,27 +274,30 @@ export interface StatCardProps {
 
 export function StatCard({ title, value, delta, icon, trend }: StatCardProps) {
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-sm transition-all group">
       <CardContent className="p-5 sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-xs sm:text-sm font-semibold text-zinc-500 dark:text-zinc-400 tracking-wide">{title}</p>
-            <p className="mt-2 text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white tabular-nums tracking-tight">{value}</p>
+            <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 tracking-wider uppercase">{title}</p>
+            <p className="mt-2 text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white tabular-nums tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+              {value}
+            </p>
             {delta && (
               <p
                 className={cn(
-                  'mt-1.5 text-xs sm:text-sm font-medium',
+                  'mt-1.5 text-xs font-semibold flex items-center gap-1',
                   trend === 'up'   && 'text-emerald-600 dark:text-emerald-400',
                   trend === 'down' && 'text-red-600 dark:text-red-400',
                   trend === 'neutral' && 'text-zinc-500 dark:text-zinc-400'
                 )}
               >
-                {delta.value > 0 ? '+' : ''}{delta.value} {delta.label}
+                <span>{delta.value > 0 ? '+' : ''}{delta.value}</span>
+                <span className="font-normal text-zinc-400">{delta.label}</span>
               </p>
             )}
           </div>
           {icon && (
-            <div className="rounded-xl bg-indigo-50 dark:bg-indigo-950/60 p-3 text-indigo-600 dark:text-indigo-400 [&_svg]:h-5 [&_svg]:w-5 shrink-0 shadow-2xs">
+            <div className="rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 p-3 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50 [&_svg]:h-5 [&_svg]:w-5 shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
               {icon}
             </div>
           )}
