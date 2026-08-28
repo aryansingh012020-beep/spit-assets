@@ -127,10 +127,10 @@ export function TopNavbar({
             </div>
             <div className="flex flex-col">
               <span className="text-base font-bold tracking-tight text-zinc-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                SPIT Assets
+                SPIT Asset Management
               </span>
               <span className="text-xs text-zinc-400 dark:text-zinc-500 font-medium -mt-0.5 hidden sm:inline">
-                Sardar Patel Institute
+                Sardar Patel Institute of Technology
               </span>
             </div>
           </Link>

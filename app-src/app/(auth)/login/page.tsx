@@ -99,7 +99,7 @@ export default function LoginPage() {
             </div>
             <div>
               <span className="text-base font-bold tracking-tight text-white flex items-center gap-1.5">
-                SPIT Asset Platform
+                SPIT Asset Management
               </span>
               <p className="text-[11px] text-zinc-400 font-medium hidden sm:block">
                 Sardar Patel Institute of Technology · Mumbai
