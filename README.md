@@ -54,8 +54,7 @@ The SPIT Asset Management System provides institutional-grade tracking and lifec
 - **Restricted Administrative Notes**: Confidential governance and procurement remarks restricted exclusively to Approvers via PostgreSQL Row Level Security (RLS) policies.
 - Immutable event stream logging all creation, update, relocation, maintenance, and retirement events.
 
-### 7. Global Search and Command Palette
-- Keyboard-triggered Command Palette (`Cmd+K` / `Ctrl+K`) for rapid navigation.
+### 7. Global Inventory Search
 - High-performance fuzzy search across asset tags, serial numbers, room codes, categories, and custodians utilizing PostgreSQL `pg_trgm` GIN indexes.
 
 ### 8. Bulk Ingestion and Uncapped CSV Exports
@@ -132,7 +131,7 @@ npm start
 | Capability | Viewer | Asset Manager | Approver / Admin |
 | :--- | :---: | :---: | :---: |
 | Browse Inventory & Locations | Yes | Yes | Yes |
-| Perform Global Search (Cmd+K) | Yes | Yes | Yes |
+| Perform Inventory Search | Yes | Yes | Yes |
 | Export CSV Register | Yes | Yes | Yes |
 | Post Public Comments | Yes | Yes | Yes |
 | View Admin-Only Comments | No | No | Yes |

@@ -36,14 +36,12 @@ import { useTheme } from '@/components/theme-provider';
 interface TopNavbarProps {
   profile: Profile | null;
   pendingCount?: number;
-  onOpenCommandPalette: () => void;
   onSignOut: () => void;
 }
 
 export function TopNavbar({
   profile,
   pendingCount = 0,
-  onOpenCommandPalette,
   onSignOut,
 }: TopNavbarProps) {
   const pathname = usePathname();

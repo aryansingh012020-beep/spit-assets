@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { TopNavbar } from '@/components/top-navbar';
 import { SiteFooter } from '@/components/site-footer';
 import { AIAssistantDrawer } from '@/components/ai-assistant-drawer';
-import { CommandPalette, useCommandPalette } from '@/components/command-palette';
 import { ToastRoot } from '@/components/ui/toast';
 import { Profile } from '@/lib/types';
 import { createClient } from '@/lib/supabase/client';
@@ -18,7 +17,6 @@ interface DashboardShellProps {
 
 export function DashboardShell({ children, profile, pendingCount = 0 }: DashboardShellProps) {
   const router = useRouter();
-  const { open, setOpen } = useCommandPalette();
 
   async function handleSignOut() {
     if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
@@ -61,7 +59,6 @@ export function DashboardShell({ children, profile, pendingCount = 0 }: Dashboar
         <TopNavbar
           profile={profile}
           pendingCount={pendingCount}
-          onOpenCommandPalette={() => setOpen(true)}
           onSignOut={handleSignOut}
         />
 
@@ -76,9 +73,6 @@ export function DashboardShell({ children, profile, pendingCount = 0 }: Dashboar
         {/* Floating SPIT AI Assistant */}
         <AIAssistantDrawer />
       </div>
-
-      {/* Command Palette (⌘K) */}
-      <CommandPalette open={open} onClose={() => setOpen(false)} />
     </ToastRoot>
   );
 }
