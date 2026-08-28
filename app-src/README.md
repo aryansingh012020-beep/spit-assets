@@ -1,298 +1,150 @@
-# SPIT Asset Management System
+# SPIT Institutional Asset Management System
 
-A production-ready, modern web-based asset management system for **Sardar Patel Institute of Technology (SPIT)**, built to track, manage, and audit physical assets across buildings, floors, and rooms.
-
-## Technology Stack
-
-- **Next.js 15** (App Router) + **TypeScript** (strict)
-- **Tailwind CSS v4** + custom Radix UI components
-- **Supabase** — PostgreSQL, Auth, Storage, Row Level Security
-- **Deployment** — Vercel-ready
+A centralized physical asset governance, inventory tracking, and audit verification platform engineered for Sardar Patel Institute of Technology (S.P.I.T.), Mumbai.
 
 ---
 
-## Features
+## Overview
 
-- 🏛 **Hierarchical location browser** — Building → Floor → Room → Asset
-- 🔄 **Approval workflow** — All changes require explicit approval by an Approver
-- 🔒 **Three roles** — Viewer, Asset Manager, Approver
-- 📜 **Immutable history** — Every change is permanently logged
-- 🔍 **Global search** — `pg_trgm`-indexed ILIKE search across all assets
-- 📸 **Photo management** — Supabase Storage with signed URLs
-- 📥 **Excel importer** — One-time migration from the existing register
-- 🛡 **DB-enforced security** — RLS policies + SECURITY DEFINER functions
-- ⌨ **Command palette** — `⌘K` / `Ctrl+K` global search
+The SPIT Asset Management System provides institutional-grade tracking and lifecycle governance for physical hardware, laboratory equipment, computing infrastructure, and furniture across the campus. The platform enforces strict Role-Based Access Control (RBAC), multi-tier change request approval workflows, audit trails, and automated compliance reporting for accreditation bodies such as NAAC and NBA.
 
 ---
 
-## Prerequisites
+## System Architecture and Technology Stack
 
-- Node.js 18+
-- A [Supabase](https://supabase.com) project (free tier works)
-- Git
+- **Application Framework**: Next.js 16 (React 19, App Router, Server Components, Turbopack)
+- **Programming Language**: TypeScript 5 (Strict Mode)
+- **Database & Authentication**: Supabase (PostgreSQL 15, Row Level Security, pg_trgm Extensions)
+- **Styling & Design System**: Tailwind CSS v4, Radix UI Primitives, Lucide Icons
+- **AI Engine**: Google Gemini 3.6 Flash via Server-Side Retrieval-Augmented Generation (RAG)
+- **Data Processing**: SheetJS (Excel Parser), PapaParse (CSV Processing), KaTeX (Mathematical Formulas)
 
 ---
 
-## Setup
+## Core Features
 
-### 1. Clone and install dependencies
+### 1. Hierarchical Infrastructure Mapping
+- Multi-tier relational structure: Campus -> Buildings -> Vertical Floors -> Departmental Rooms -> Assets.
+- Full institutional mapping encompassing 9 vertical levels (Ground through 8th Floor), 125 rooms/laboratories, and 2,660+ registered physical assets.
+- Real-time floor capacity and density calculations based on total campus asset volume.
 
+### 2. Role-Based Access Control and Governance
+- **Viewer**: Read-only catalog exploration, advanced filter search, and data export.
+- **Asset Manager**: Propose asset creation, maintenance requests, inter-departmental transfers, and disposals.
+- **Approver / Administrator**: Authorize or reject change requests, oversee user permissions, perform bulk data migrations, and manage institutional stocktakes.
+- **Enforced Two-Person Rule**: Approvers cannot authorize self-submitted requests, ensuring strict organizational compliance.
+
+### 3. Change Request and Approval Workflow
+- Lifecycle states: Pending, Approved, Rejected, Cancelled.
+- Atomic PostgreSQL transactions: Approving a transfer instantly updates the asset record, creates an immutable audit trail entry, and logs the movement ledger.
+- Dedicated Approval Center with live pending badges and status filtering.
+
+### 4. Physical Stocktake and Accreditation Audit Mode
+- Digital stocktaking interface for annual physical verification across departments and laboratories.
+- Real-time status reconciliation: Present, Damaged, Missing, or Misplaced.
+- Automated generation of printable NAAC/NBA Stock Verification Certificates complete with summary statistics, discrepancy registers, and institutional sign-off sections.
+
+### 5. Institutional AI Assistant
+- Server-side RAG pipeline powered by Google Gemini 3.6 Flash.
+- Executes dynamic database queries to answer inventory lookups, equipment comparisons, and utilization statistics.
+- Supports GitHub-flavored Markdown tables and LaTeX mathematical formulations for density metrics.
+
+### 6. Dual-Visibility Asset Comments and Historical Ledger
+- **Public Discussion**: General maintenance notes and operational commentary accessible to all authenticated staff.
+- **Restricted Administrative Notes**: Confidential governance and procurement remarks restricted exclusively to Approvers via PostgreSQL Row Level Security (RLS) policies.
+- Immutable event stream logging all creation, update, relocation, maintenance, and retirement events.
+
+### 7. Global Search and Command Palette
+- Keyboard-triggered Command Palette (`Cmd+K` / `Ctrl+K`) for rapid navigation.
+- High-performance fuzzy search across asset tags, serial numbers, room codes, categories, and custodians utilizing PostgreSQL `pg_trgm` GIN indexes.
+
+### 8. Bulk Ingestion and Uncapped CSV Exports
+- Excel spreadsheet parser supporting bulk asset registration, automatic category and room resolution, and dry-run validation.
+- Uncapped server-side CSV export generator supporting selective multi-row exports and filtered datasets.
+
+---
+
+## Database Schema and Security Architecture
+
+The underlying PostgreSQL database implements 10 relational tables protected by strict Row Level Security (RLS) policies:
+
+- `institutions`: Root organization record.
+- `buildings`: Campus facilities and geographical addresses.
+- `floors`: Vertical level ordering and floor designations.
+- `rooms`: Laboratory, classroom, office, and storage definitions with room types.
+- `asset_categories`: Hierarchical categorization codes (Computing, Lab Equipment, Networking, AV, Furniture).
+- `assets`: Primary catalog with tags, serial numbers, specifications, operational status, and room linkages.
+- `asset_movements`: Permanent movement log for transfers between rooms and custodians.
+- `change_requests`: Pre-approval modification requests with JSONB diff payloads.
+- `asset_comments`: Dual-visibility commentary system (Public vs Admin-only).
+- `asset_history`: Immutable global audit trail recording performer IDs, timestamps, and action types.
+
+---
+
+## Installation and Deployment
+
+### Prerequisites
+- Node.js 18.18 or higher
+- npm, pnpm, or yarn
+- Active Supabase project instance
+
+### 1. Repository Setup
 ```bash
-git clone <repo-url>
-cd app-src
+git clone https://github.com/aryansingh012020-beep/spit-assets.git
+cd spit-assets/app-src
 npm install
 ```
 
-### 2. Configure environment variables
-
-```bash
-cp .env.example .env.local
-```
-
-Edit `.env.local` and fill in:
+### 2. Environment Configuration
+Create a `.env.local` file inside the `app-src` directory:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key   # Keep this server-only, never expose to client
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+GEMINI_API_KEY=your-gemini-api-key
+NEXT_PUBLIC_DEMO_MODE=false
 ```
 
-You can find these in your Supabase project under **Settings → API**.
+### 3. Database Migration
+Execute the migration scripts in sequence within the Supabase SQL Editor:
+1. `supabase/migrations/001_schema.sql`
+2. `supabase/migrations/002_indexes.sql`
+3. `supabase/migrations/003_rls.sql`
+4. `supabase/migrations/004_functions.sql`
 
-### 3. Run database migrations
-
-In the Supabase SQL Editor (or using the Supabase CLI), run each migration file in order:
-
-```sql
--- Copy-paste each file into the SQL editor, in order:
-supabase/migrations/001_schema.sql
-supabase/migrations/002_indexes.sql
-supabase/migrations/003_rls.sql
-supabase/migrations/004_functions.sql
-```
-
-Or using Supabase CLI:
-```bash
-supabase db push
-```
-
-### 4. Set up Supabase Storage
-
-In the Supabase dashboard, go to **Storage** and create a bucket:
-- **Name**: `asset-photos`  
-- **Public**: ❌ (private)
-- **File size limit**: 8 MB
-- **Allowed MIME types**: `image/jpeg, image/png, image/webp`
-
-### 5. Seed demo data
-
-Run the seed script in the Supabase SQL Editor:
-
-```sql
--- Copy-paste: supabase/seed.sql
-```
-
-This creates:
-- Institution: Sardar Patel Institute of Technology (SPIT)
-- Main Building with all floors (Ground → 8th)
-- 6 sample rooms
-- 10 asset categories
-- 15 realistic sample assets
-
-### 6. Create your first user
-
-In Supabase Auth → Users, create a user manually, then update their role in the SQL Editor:
-
-```sql
--- Make a user an approver (use their auth.users UUID)
-UPDATE public.profiles 
-SET role = 'approver', institution_id = '00000000-0000-0000-0000-000000000001'
-WHERE id = 'your-user-uuid-here';
-```
-
-### 7. Run locally
-
+### 4. Running the Development Server
 ```bash
 npm run dev
 ```
+Access the application at `http://localhost:3000`.
 
-Open [http://localhost:3000](http://localhost:3000)
-
----
-
-## Excel Import (Migration)
-
-To import the existing asset register from the Excel file:
-
+### 5. Production Build
 ```bash
-# Place the Excel file at the project root or pass the path as argument
-npm run import:excel
-# or:
-dotenv -e .env.local -- tsx scripts/import-excel.ts /path/to/asset_management_sheet.xlsx
+npm run build
+npm start
 ```
-
-The import script:
-1. Reads all 39 sheets
-2. Detects floor/room sections automatically
-3. Expands quantity rows into individual assets (e.g. `Qty: 20, R-01 to R-20` → 20 rows)
-4. Preserves original asset codes byte-for-byte
-5. Flags ambiguous/missing tags to the `import_issues` table
-6. Is **fully idempotent** — re-running skips already-imported codes
-7. Prints a summary report
-
-**After importing**, review flagged records at `/admin/import`.
 
 ---
 
-## Running Tests
+## Role Permissions Matrix
 
-The test suite covers core approval workflow invariants:
-
-```bash
-# Requires NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local
-npm run test:approvals
-```
-
-Tests verify:
-- ✅ Asset manager cannot approve their own request (DB-enforced)
-- ✅ Double-approval fails gracefully (request already approved)
-- ✅ Rejected transfer does not mutate inventory
-- ✅ Pending conflict blocks a second request for the same asset
-
----
-
-## Deployment (Vercel)
-
-1. Push to GitHub
-2. Import the repo in [Vercel](https://vercel.com)
-3. Add the three environment variables in Vercel project settings
-4. Deploy
+| Capability | Viewer | Asset Manager | Approver / Admin |
+| :--- | :---: | :---: | :---: |
+| Browse Inventory & Locations | Yes | Yes | Yes |
+| Perform Global Search (Cmd+K) | Yes | Yes | Yes |
+| Export CSV Register | Yes | Yes | Yes |
+| Post Public Comments | Yes | Yes | Yes |
+| View Admin-Only Comments | No | No | Yes |
+| Submit Change & Transfer Requests | No | Yes | Yes |
+| Authorize / Reject Change Requests | No | No | Yes |
+| Conduct Annual Stocktake & Audits | No | No | Yes |
+| Generate NAAC/NBA Certificates | No | No | Yes |
+| Bulk Excel Data Ingestion | No | No | Yes |
+| User Directory & Role Management | No | No | Yes |
 
 ---
 
-## Database Schema Overview
+## Institutional License
 
-```
-institutions
-  └── buildings
-        └── floors
-              └── rooms
-                    └── assets
-                          ├── asset_photos
-                          ├── asset_history    (immutable)
-                          └── asset_movements  (denormalized transfers)
-
-profiles (extends auth.users)
-change_requests (pending workflow)
-audit_logs (system-wide, immutable)
-import_issues (flagged Excel rows)
-```
-
-### Search Indexing
-
-Search is powered by **PostgreSQL `pg_trgm`** GIN indexes on:
-- `assets.name` — `gin_trgm_ops`
-- `assets.asset_tag` — `gin_trgm_ops`
-- `assets.description` — `gin_trgm_ops`
-- `rooms.name` / `rooms.room_number` — `gin_trgm_ops`
-
-Queries use `ILIKE '%term%'` which the trgm index accelerates to near-constant time even for large datasets.
-
-### Security Model
-
-| Table | SELECT | INSERT | UPDATE | DELETE |
-|---|---|---|---|---|
-| `assets` | Any authenticated user | SECURITY DEFINER fn only | SECURITY DEFINER fn only | ❌ Never |
-| `asset_history` | Any authenticated user | SECURITY DEFINER fn only | ❌ Never | ❌ Never |
-| `audit_logs` | Approver only | SECURITY DEFINER fn only | ❌ Never | ❌ Never |
-| `change_requests` | Own (manager) / All (approver) | asset_manager, approver | Approver, not own request | ❌ Never |
-
-The "Asset Manager cannot approve own request" rule is enforced at the **database policy level** — it is not just a UI restriction.
-
----
-
-## User Roles
-
-| Role | Can Do |
-|---|---|
-| **Viewer** | Read-only access to all assets, history, photos |
-| **Asset Manager** | Submit add/transfer/edit/delete requests |
-| **Approver** | Review and approve/reject requests, manage users, view audit log |
-
----
-
-## Asset Statuses
-
-| Status | Description |
-|---|---|
-| `active` | Normal operational state |
-| `under_maintenance` | Temporarily offline for repair |
-| `missing` | Cannot be located |
-| `damaged` | Non-functional, needs assessment |
-| `transferred` | Moved (in-transit or awaiting confirmation) |
-| `retired` | Decommissioned, kept for record |
-| `disposed` | Permanently removed from service |
-
-Assets are **never hard-deleted** — only status-transitioned.
-
----
-
-## Asset Tag Format
-
-**Existing assets**: Original Excel codes preserved verbatim (e.g. `SPIT/ASH/001/2024-25/S.B./01`)
-
-**New assets** (no existing code):
-```
-SPIT/{CATEGORY_CODE}/{YYYY}/{SEQUENCE_5DIGITS}
-e.g. SPIT/FURN/2026/00147
-```
-Sequence is a DB-managed atomic counter — no race conditions.
-
----
-
-## Project Structure
-
-```
-app-src/
-├── app/
-│   ├── (auth)/login/          # Login page
-│   ├── (dashboard)/           # All protected pages
-│   │   ├── dashboard/
-│   │   ├── inventory/
-│   │   │   └── [assetId]/
-│   │   ├── locations/
-│   │   │   ├── buildings/
-│   │   │   ├── floors/
-│   │   │   └── rooms/
-│   │   ├── approvals/
-│   │   ├── transfers/
-│   │   ├── history/
-│   │   └── admin/
-│   │       ├── import/
-│   │       ├── users/
-│   │       └── audit/
-│   └── api/
-│       └── search/
-├── components/
-│   ├── ui/                    # Badge, Button, Dialog, Toast, primitives
-│   ├── sidebar.tsx
-│   ├── command-palette.tsx
-│   ├── dashboard-shell.tsx
-│   └── status-badge.tsx
-├── lib/
-│   ├── supabase/              # client, server, middleware clients
-│   ├── actions/               # Server actions
-│   ├── types/                 # TypeScript types
-│   └── utils.ts
-├── scripts/
-│   └── import-excel.ts        # One-time Excel migration
-├── supabase/
-│   ├── migrations/
-│   │   ├── 001_schema.sql
-│   │   ├── 002_indexes.sql
-│   │   ├── 003_rls.sql
-│   │   └── 004_functions.sql
-│   └── seed.sql
-└── __tests__/
-    └── approval-workflow.test.ts
-```
+Proprietary Software — Internal Institutional Infrastructure for Sardar Patel Institute of Technology (S.P.I.T.), Munshi Nagar, Andheri West, Mumbai, Maharashtra 400058.
