@@ -26,11 +26,6 @@ const IS_DEMO = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 const DEMO_EMAIL = 'demo@spit.ac.in';
 const DEMO_PASS  = 'demo1234';
 
-const QUICK_ACCOUNTS = [
-  { label: 'Admin', email: 'admin@spit.ac.in', pass: 'Password@123', role: 'Approver' },
-  { label: 'Dr Deepak Karia', email: 'deepak.karia@spit.ac.in', pass: 'admin@2026', role: 'Approver' },
-];
-
 const DEPARTMENTS = [
   'Computer Engineering',
   'Information Technology',
@@ -123,12 +118,6 @@ export default function LoginPage() {
     } finally {
       setReqLoading(false);
     }
-  }
-
-  function handleQuickFill(acc: typeof QUICK_ACCOUNTS[0]) {
-    setEmail(acc.email);
-    setPassword(acc.pass);
-    setError('');
   }
 
   return (
@@ -302,28 +291,6 @@ export default function LoginPage() {
                     <p className="text-xs text-zinc-400 mt-0.5">
                       Enter your official SPIT credentials to access the platform.
                     </p>
-                  </div>
-
-                  {/* Quick Account Fill Selector */}
-                  <div className="space-y-1.5">
-                    <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
-                      Quick Autofill for Verification:
-                    </p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {QUICK_ACCOUNTS.map((acc) => (
-                        <button
-                          key={acc.email}
-                          type="button"
-                          onClick={() => handleQuickFill(acc)}
-                          className="text-left rounded-xl border border-zinc-800 bg-zinc-950/70 p-2 hover:border-indigo-500/60 hover:bg-indigo-950/30 transition-all group cursor-pointer"
-                        >
-                          <p className="text-xs font-bold text-white group-hover:text-indigo-400 transition-colors truncate">
-                            {acc.label}
-                          </p>
-                          <p className="text-[10px] text-zinc-500 truncate">{acc.role}</p>
-                        </button>
-                      ))}
-                    </div>
                   </div>
 
                   {error && (
