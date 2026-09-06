@@ -1,17 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/server';
 import * as XLSX from 'xlsx';
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const supabase = createAdminClient();
 
     const { searchParams } = new URL(req.url);
     const roomId = searchParams.get('roomId');
@@ -96,7 +89,7 @@ export async function GET(req: NextRequest) {
     XLSX.utils.book_append_sheet(workbook, ingestionSheet, 'Asset Ingestion');
 
     // ── 2. Reference Sheet: Valid Categories ────────────────────────────────────
-    const categoryRows = categories.map((c) => ({
+    const categoryRows = categories.map((c: any) => ({
       'Category Name': c.name,
       'Category Code': c.code,
       Description: c.description || '—',
