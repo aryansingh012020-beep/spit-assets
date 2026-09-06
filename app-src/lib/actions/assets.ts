@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { getAssetPhotoUrl } from '@/lib/utils';
 
 export async function fetchAssetInspectorDetails(assetId: string) {
   const supabase = await createClient();
@@ -17,7 +18,7 @@ export async function fetchAssetInspectorDetails(assetId: string) {
           room:rooms(id, name, room_number),
           floor:floors(id, name, level),
           building:buildings(id, name),
-          photos:asset_photos(id, url, is_primary, uploaded_at)
+          photos:asset_photos!asset_photos_asset_id_fkey(id, storage_path, file_name, is_primary, uploaded_at)
         `)
         .eq('id', assetId)
         .maybeSingle(),
@@ -46,6 +47,13 @@ export async function fetchAssetInspectorDetails(assetId: string) {
     ]);
 
   const profileData = (profile as any)?.data;
+
+  if (asset?.photos && Array.isArray(asset.photos)) {
+    asset.photos = asset.photos.map((p: any) => ({
+      ...p,
+      url: p.url || getAssetPhotoUrl({ storage_path: p.storage_path }),
+    }));
+  }
 
   return {
     asset,

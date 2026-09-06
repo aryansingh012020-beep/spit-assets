@@ -106,3 +106,18 @@ export function getInitials(name: string): string {
     .join('')
     .toUpperCase();
 }
+
+export function getAssetPhotoUrl(
+  photo?: { storage_path?: string | null; url?: string | null } | null
+): string {
+  if (!photo) return '';
+  if (photo.url && (photo.url.startsWith('http://') || photo.url.startsWith('https://'))) {
+    return photo.url;
+  }
+  if (photo.storage_path) {
+    const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://pdxvsqjafsqomcqeqbqu.supabase.co';
+    return `${baseUrl}/storage/v1/object/public/asset-photos/${photo.storage_path}`;
+  }
+  return '';
+}
+

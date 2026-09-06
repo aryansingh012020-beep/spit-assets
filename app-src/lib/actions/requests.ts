@@ -200,6 +200,67 @@ export async function submitDeleteRequest(data: DeleteRequestFormData) {
 }
 
 // ============================================================
+// Submit PHOTO Approval request
+// ============================================================
+export async function submitPhotoApprovalRequest({
+  assetId,
+  storagePath,
+  publicUrl,
+  reason,
+  fileName,
+  fileSize,
+  mimeType,
+}: {
+  assetId: string;
+  storagePath: string;
+  publicUrl: string;
+  reason?: string;
+  fileName?: string;
+  fileSize?: number;
+  mimeType?: string;
+}) {
+  const { user, profile, supabase } = await getCurrentUserAndProfile();
+
+  if (!['asset_manager', 'approver'].includes(profile.role)) {
+    throw new Error('Unauthorized: You must be an Asset Manager or Approver to submit photos.');
+  }
+
+  const { data: asset } = await supabase
+    .from('assets')
+    .select('id, name, asset_tag')
+    .eq('id', assetId)
+    .single();
+
+  if (!asset) throw new Error('Asset not found');
+
+  const { error } = await supabase.from('change_requests').insert({
+    institution_id: profile.institution_id,
+    type:           'edit',
+    status:         'pending',
+    asset_id:       assetId,
+    requested_by:   user.id,
+    reason:         reason?.trim() || `Physical asset photo verification for ${asset.asset_tag}`,
+    photo_path:     storagePath,
+    new_values: {
+      is_photo_approval: true,
+      storage_path:      storagePath,
+      photo_url:         publicUrl,
+      file_name:         fileName || 'equipment-photo.jpg',
+      file_size:         fileSize || 0,
+      mime_type:         mimeType || 'image/jpeg',
+    },
+    old_values: {},
+  });
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath('/approvals');
+  revalidatePath(`/inventory/${assetId}`);
+  revalidatePath('/inventory');
+  return { success: true };
+}
+
+// ============================================================
 // Approve a request (Approver only)
 // ============================================================
 export async function approveRequest(requestId: string) {
@@ -209,13 +270,13 @@ export async function approveRequest(requestId: string) {
     throw new Error('Only approvers can approve requests');
   }
 
-  // Use admin client to call SECURITY DEFINER function
+  // Use admin client to call SECURITY DEFINER function or handle custom approvals
   const admin = createAdminClient();
 
-  // First, get the request type
+  // First, get the request details
   const { data: req } = await admin
     .from('change_requests')
-    .select('type, requested_by')
+    .select('id, type, requested_by, asset_id, reason, photo_path, new_values, old_values')
     .eq('id', requestId)
     .single();
 
@@ -224,7 +285,71 @@ export async function approveRequest(requestId: string) {
     throw new Error('Cannot approve your own request');
   }
 
-  // Call the appropriate SECURITY DEFINER function
+  // Handle Photo Approval Request
+  if (req.new_values && (req.new_values as any).is_photo_approval) {
+    const photoVals = req.new_values as any;
+    const storagePath = photoVals.storage_path || req.photo_path;
+
+    if (!storagePath) throw new Error('Missing photo storage path');
+
+    // 1. Unset existing primary photos for this asset
+    await admin
+      .from('asset_photos')
+      .update({ is_primary: false })
+      .eq('asset_id', req.asset_id);
+
+    // 2. Insert new approved photo into asset_photos
+    const { data: photoRecord, error: photoErr } = await admin
+      .from('asset_photos')
+      .insert({
+        asset_id:     req.asset_id,
+        storage_path: storagePath,
+        file_name:    photoVals.file_name || 'asset-photo.jpg',
+        mime_type:    photoVals.mime_type || 'image/jpeg',
+        file_size:    photoVals.file_size || 0,
+        is_primary:   true,
+        uploaded_by:  req.requested_by,
+      })
+      .select()
+      .single();
+
+    if (photoErr) throw new Error(photoErr.message);
+
+    // 3. Update asset primary_photo_id
+    await admin
+      .from('assets')
+      .update({ primary_photo_id: photoRecord.id })
+      .eq('id', req.asset_id);
+
+    // 4. Mark change request approved
+    await admin
+      .from('change_requests')
+      .update({
+        status:      'approved',
+        reviewed_by: user.id,
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq('id', requestId);
+
+    // 5. Record photo event in asset_history
+    await admin.from('asset_history').insert({
+      asset_id:     req.asset_id,
+      event_type:   'photo_uploaded',
+      performed_by: req.requested_by,
+      approved_by:  user.id,
+      new_value:    { photo_id: photoRecord.id, storage_path: storagePath },
+      reason:       req.reason,
+      metadata:     { request_id: requestId },
+    });
+
+    revalidatePath('/approvals');
+    revalidatePath('/inventory');
+    revalidatePath(`/inventory/${req.asset_id}`);
+    revalidatePath('/dashboard');
+    return { success: true };
+  }
+
+  // Call the appropriate SECURITY DEFINER function for regular requests
   const fnMap: Record<string, string> = {
     addition: 'process_addition_approval',
     transfer: 'process_transfer_approval',

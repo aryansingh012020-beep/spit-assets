@@ -329,6 +329,28 @@ export function AssetInspectorDrawer({
                 {/* ── TAB 1: OVERVIEW ── */}
                 {activeTab === 'overview' && (
                   <div className="space-y-4">
+                    {/* Photo Hero Thumbnail in Drawer */}
+                    {asset.photos && asset.photos.length > 0 && (
+                      <div className="relative aspect-video w-full rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-700 bg-zinc-950 shadow-sm group">
+                        <img
+                          src={asset.photos.find((p: any) => p.is_primary)?.url || asset.photos[0]?.url}
+                          alt={asset.name}
+                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <span className="absolute top-2 left-2 rounded bg-indigo-600/90 text-white text-[9px] font-bold px-1.5 py-0.5 shadow backdrop-blur-sm">
+                          VERIFIED PHOTO
+                        </span>
+                        <a
+                          href={asset.photos.find((p: any) => p.is_primary)?.url || asset.photos[0]?.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="absolute bottom-2 right-2 rounded-md bg-black/70 backdrop-blur-xs text-white text-[10px] px-2 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 font-mono"
+                        >
+                          <ExternalLink className="h-2.5 w-2.5" /> Full Size
+                        </a>
+                      </div>
+                    )}
+
                     {/* Location Card */}
                     <div className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/40 p-3.5 space-y-2">
                       <div className="flex items-center gap-2 text-xs font-semibold text-zinc-700 dark:text-zinc-300">

@@ -8,12 +8,15 @@ import { Badge } from '@/components/ui/badge';
 import { buildLocationString, formatDateTime, formatRelativeTime } from '@/lib/utils';
 import {
   Package, MapPin, Tag, Calendar, ArrowLeft, Clock, History,
-  Camera, Building2, Layers, DoorOpen, FileText, Hash, Info
+  Camera, Building2, Layers, DoorOpen, FileText, Hash, Info, ExternalLink
 } from 'lucide-react';
+import { getAssetPhotoUrl } from '@/lib/utils';
 import { isDemoMode, DEMO_ASSETS, DEMO_HISTORY, DEMO_ROOMS, DEMO_CATEGORIES } from '@/lib/demo-data';
 import { AssetActions } from './asset-actions';
 import { PhotoUpload } from './photo-upload';
 import { AssetComments } from './asset-comments';
+import { AssetCaptureDialog } from '@/components/asset-capture-dialog';
+import { Button } from '@/components/ui/button';
 
 export const dynamic = 'force-dynamic';
 
@@ -80,7 +83,7 @@ export default async function AssetDetailPage({
     .single();
 
   // Fetch asset with all related data safely using maybeSingle
-  const { data: asset, error: assetError } = await supabase
+  const { data: rawAsset, error: assetError } = await supabase
     .from('assets')
     .select(
       `*,
@@ -88,10 +91,20 @@ export default async function AssetDetailPage({
        room:rooms(id, name, room_number),
        floor:floors(id, name),
        building:buildings(id, name),
-       photos:asset_photos(id, url, is_primary, uploaded_at)`
+       photos:asset_photos!asset_photos_asset_id_fkey(id, storage_path, file_name, is_primary, uploaded_at)`
     )
     .eq('id', assetId)
     .maybeSingle();
+
+  const asset = rawAsset
+    ? {
+        ...rawAsset,
+        photos: (rawAsset.photos || []).map((p: any) => ({
+          ...p,
+          url: getAssetPhotoUrl({ storage_path: p.storage_path }),
+        })),
+      }
+    : null;
 
   if (!asset) {
     return (
@@ -218,19 +231,38 @@ function AssetDetail({
           <ArrowLeft className="h-3.5 w-3.5" /> Back to Inventory
         </Link>
 
-        <AssetActions
-          assetId={asset.id}
-          assetName={asset.name}
-          assetTag={asset.asset_tag}
-          currentRoomId={asset.room?.id}
-          currentName={asset.name}
-          currentDescription={asset.description}
-          currentYear={asset.acquisition_year}
-          currentCategoryId={asset.category?.id}
-          rooms={rooms}
-          categories={categories}
-          canManage={canManage}
-        />
+        <div className="flex items-center gap-2">
+          {canManage && (
+            <AssetCaptureDialog
+              assetId={asset.id}
+              assetName={asset.name}
+              assetTag={asset.asset_tag}
+              trigger={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5 text-xs text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/60"
+                >
+                  <Camera className="h-3.5 w-3.5" />
+                  <span>Snap Photo</span>
+                </Button>
+              }
+            />
+          )}
+          <AssetActions
+            assetId={asset.id}
+            assetName={asset.name}
+            assetTag={asset.asset_tag}
+            currentRoomId={asset.room?.id}
+            currentName={asset.name}
+            currentDescription={asset.description}
+            currentYear={asset.acquisition_year}
+            currentCategoryId={asset.category?.id}
+            rooms={rooms}
+            categories={categories}
+            canManage={canManage}
+          />
+        </div>
       </div>
 
       {/* ── Header ──────────────────────────────────────────────── */}
@@ -243,6 +275,44 @@ function AssetDetail({
         </div>
         <StatusBadge status={asset.status} className="text-sm" />
       </div>
+
+      {/* ── Verified Equipment Hero Image ───────────────────────── */}
+      {asset.photos && asset.photos.length > 0 && (
+        <div className="overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-900/90 shadow-md relative group">
+          <div className="relative aspect-[21/9] sm:aspect-[24/9] w-full max-h-72 overflow-hidden flex items-center justify-center bg-zinc-950">
+            <img
+              src={
+                asset.photos.find((p: any) => p.is_primary)?.url ||
+                asset.photos[0]?.url
+              }
+              alt={asset.name}
+              className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+            <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between pointer-events-none">
+              <div className="flex items-center gap-2">
+                <span className="rounded-md bg-indigo-600/90 backdrop-blur-sm px-2 py-0.5 text-[10px] font-bold text-white uppercase tracking-wide">
+                  Verified Photo
+                </span>
+                <span className="text-xs text-zinc-300 font-mono">
+                  {asset.asset_tag}
+                </span>
+              </div>
+              <a
+                href={
+                  asset.photos.find((p: any) => p.is_primary)?.url ||
+                  asset.photos[0]?.url
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="pointer-events-auto inline-flex items-center gap-1 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur-md px-2.5 py-1 text-xs font-medium text-white transition-colors"
+              >
+                <ExternalLink className="h-3 w-3" /> Full View
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Main Grid: Details + Governance ─────────────────────── */}
       <div className="grid gap-6 lg:grid-cols-3">
@@ -378,6 +448,8 @@ function AssetDetail({
         <CardContent className="pt-4">
           <PhotoUpload
             assetId={asset.id}
+            assetName={asset.name}
+            assetTag={asset.asset_tag}
             initialPhotos={asset.photos ?? []}
             canManage={canManage}
           />

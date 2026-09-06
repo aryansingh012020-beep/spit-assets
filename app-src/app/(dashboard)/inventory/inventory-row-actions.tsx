@@ -7,8 +7,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input, Textarea } from '@/components/ui/primitives';
 import { useToast } from '@/components/ui/toast';
 import { submitTransferRequest, submitDeleteRequest } from '@/lib/actions/requests';
-import { ArrowRightLeft, Trash2, MoreHorizontal, ExternalLink } from 'lucide-react';
+import { ArrowRightLeft, Trash2, MoreHorizontal, ExternalLink, Camera } from 'lucide-react';
 import Link from 'next/link';
+import { AssetCaptureDialog } from '@/components/asset-capture-dialog';
 
 interface InventoryRowActionsProps {
   assetId: string;
@@ -81,6 +82,13 @@ export function InventoryRowActions({
 
   return (
     <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+      {/* Quick Action: Take / Upload Photo */}
+      <AssetCaptureDialog
+        assetId={assetId}
+        assetName={assetName}
+        assetTag={assetTag}
+      />
+
       {/* Quick Action: Shift / Transfer */}
       <button
         type="button"
