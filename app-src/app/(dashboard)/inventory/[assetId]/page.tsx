@@ -270,7 +270,7 @@ function AssetDetail({
         <div>
           <h1 className="text-xl font-bold text-zinc-900 dark:text-white">{asset.name}</h1>
           <p className="mt-1 font-mono text-sm text-zinc-500 dark:text-zinc-400">
-            {asset.asset_tag}
+            {asset.asset_tag || '— (No Tag Assigned)'}
           </p>
         </div>
         <StatusBadge status={asset.status} className="text-sm" />
@@ -295,7 +295,7 @@ function AssetDetail({
                   Verified Photo
                 </span>
                 <span className="text-xs text-zinc-300 font-mono">
-                  {asset.asset_tag}
+                  {asset.asset_tag || 'Unassigned'}
                 </span>
               </div>
               <a
@@ -327,7 +327,7 @@ function AssetDetail({
                 icon={<Hash className="h-4 w-4" />}
                 label="Asset Tag"
                 value={
-                  <span className="font-mono text-sm">{asset.asset_tag}</span>
+                  <span className="font-mono text-sm">{asset.asset_tag || '— (Not Tagged)'}</span>
                 }
               />
               <DetailRow

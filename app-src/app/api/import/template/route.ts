@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
       {
         'Asset Name *': 'Dell OptiPlex 7090 Desktop',
         'Category *': 'Computer',
-        'Asset Tag (Leave blank to auto-generate)': '',
+        'Asset Tag (Optional — leave blank if unassigned)': '',
         'Acquisition Year': 2024,
         'Status (Active/Maintenance/Damaged/Retired)': 'Active',
         'Description / Specifications': 'Core i7 11th Gen, 16GB RAM, 512GB SSD',
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
       {
         'Asset Name *': 'Sony High-Res LCD Projector',
         'Category *': 'Projector',
-        'Asset Tag (Leave blank to auto-generate)': 'SPIT/PROJ/2023/001',
+        'Asset Tag (Optional — leave blank if unassigned)': 'SPIT/PROJ/2023/001',
         'Acquisition Year': 2023,
         'Status (Active/Maintenance/Damaged/Retired)': 'Active',
         'Description / Specifications': 'Ceiling mounted with HDMI/VGA switchbox',
@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
       {
         'Asset Name *': 'Daikin 2.0 Ton Split Air Conditioner',
         'Category *': 'Air Conditioner',
-        'Asset Tag (Leave blank to auto-generate)': '',
+        'Asset Tag (Optional — leave blank if unassigned)': '',
         'Acquisition Year': 2022,
         'Status (Active/Maintenance/Damaged/Retired)': 'Active',
         'Description / Specifications': 'Inverter Model, Outdoor compressor on Terrace',
@@ -138,9 +138,9 @@ export async function GET(req: NextRequest) {
           'Every row MUST have "Asset Name" and "Category". Missing values will trigger a pre-flight railroad stop.',
       },
       {
-        'Safety Railroad Rule': '2. Smart Asset Tag Generation',
+        'Safety Railroad Rule': '2. Optional Asset Tags (Blank Tags Allowed)',
         'Details & Guardrails':
-          'Leave the "Asset Tag" blank to let SPIT auto-generate compliant tags: SPIT/{CATEGORY}/{YEAR}/{COUNTER}. If you provide custom tags, the pre-flight check validates uniqueness against the database.',
+          'Asset tags are optional. If items do not have barcode tags assigned yet, leave the "Asset Tag" column blank. If you enter tags, the pre-flight check validates uniqueness against the database.',
       },
       {
         'Safety Railroad Rule': '3. Quantity Auto-Expansion',

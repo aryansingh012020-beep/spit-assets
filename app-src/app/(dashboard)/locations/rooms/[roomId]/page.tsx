@@ -383,7 +383,7 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ roo
                           href={`/inventory/${asset.id}`}
                           className="font-mono text-[11px] font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
                         >
-                          {asset.asset_tag}
+                          {asset.asset_tag || '— (No Tag)'}
                         </Link>
                       </td>
                       <td className="px-4 py-2.5">

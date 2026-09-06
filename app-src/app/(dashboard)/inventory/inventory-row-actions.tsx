@@ -14,7 +14,7 @@ import { AssetCaptureDialog } from '@/components/asset-capture-dialog';
 interface InventoryRowActionsProps {
   assetId: string;
   assetName: string;
-  assetTag: string;
+  assetTag?: string | null;
   currentRoomId?: string;
   rooms: { id: string; name: string; room_number: string | null }[];
   canManage: boolean;

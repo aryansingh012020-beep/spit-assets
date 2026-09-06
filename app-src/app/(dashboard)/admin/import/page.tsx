@@ -134,10 +134,10 @@ export default async function ImportPage() {
           <div className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-800/80 p-3.5 space-y-1.5">
             <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-xs font-bold">
               <Sparkles className="h-4 w-4 shrink-0" />
-              <span>2. Smart Auto-Tagging</span>
+              <span>2. Optional Blank Tags</span>
             </div>
             <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-normal">
-              Leave tags blank to auto-allocate institutional codes: <code className="text-[10px] font-mono font-semibold">SPIT/CAT/YYYY/00001</code>.
+              Tags are optional. Leave them blank and items will be registered with no tag so you can physical barcode them later.
             </p>
           </div>
 

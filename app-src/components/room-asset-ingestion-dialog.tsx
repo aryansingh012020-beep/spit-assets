@@ -357,7 +357,7 @@ export function RoomAssetIngestionDialog({
                       <strong>Smart Serial Expansion:</strong> Rows with Quantity &gt; 1 automatically expand into distinct individual physical units.
                     </li>
                     <li>
-                      <strong>Automatic Tagging:</strong> Missing tags are auto-generated as compliant <code className="font-mono text-indigo-600 dark:text-indigo-400">SPIT/CAT/YYYY/XXXXX</code> codes.
+                      <strong>Blank Tag Support:</strong> Leave tags blank if items are unassigned. They will be saved with no tag so you can barcode them later.
                     </li>
                   </ul>
                 </div>
@@ -521,12 +521,14 @@ export function RoomAssetIngestionDialog({
                             </Badge>
                           </td>
                           <td className="px-3 py-2 font-mono text-[11px]">
-                            {row.willAutoTag ? (
-                              <span className="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-1.5 py-0.5 rounded">
-                                <Sparkles className="h-2.5 w-2.5" /> Auto-Generated
+                            {row.assetTag ? (
+                              <span className="font-semibold text-zinc-800 dark:text-zinc-200">
+                                {row.assetTag}
                               </span>
                             ) : (
-                              row.assetTag
+                              <span className="inline-flex items-center text-zinc-400 dark:text-zinc-500 bg-zinc-100 dark:bg-zinc-800/80 px-1.5 py-0.5 rounded text-[10px]">
+                                — (Blank)
+                              </span>
                             )}
                           </td>
                           <td className="px-3 py-2 text-zinc-600 dark:text-zinc-300 text-[11px]">

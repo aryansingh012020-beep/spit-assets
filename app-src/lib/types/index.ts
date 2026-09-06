@@ -143,7 +143,7 @@ export interface AssetCategory {
 export interface Asset {
   id: string;
   institution_id: string;
-  asset_tag: string;
+  asset_tag: string | null;
   name: string;
   description: string | null;
   category_id: string | null;

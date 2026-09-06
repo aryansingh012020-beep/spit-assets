@@ -277,11 +277,13 @@ export async function validateAssetImport({
       }
 
       // Tag validation & collision detection
+      // Tag validation & collision detection
       let finalTag: string | null = null;
-      let willAutoTag = false;
+      const willAutoTag = false;
 
       if (!rawTag) {
-        willAutoTag = true;
+        // User requirement: Leave asset tags blank if not provided in the spreadsheet
+        finalTag = null;
       } else {
         // If quantity was > 1, append suffix to explicit tag to prevent intra-sheet collisions
         const tagCandidate = parsedQty > 1 ? `${rawTag}-${itemIdx}` : rawTag;
@@ -373,26 +375,10 @@ export async function commitAssetImport({
 
   const admin = createAdminClient();
 
-  // 1. Fetch next sequence value for auto-tag generation
-  const yearStr = new Date().getFullYear().toString();
-  const { data: counterData } = await admin
-    .from('asset_tag_counters')
-    .select('next_val')
-    .eq('institution_id', profile.institution_id)
-    .single();
-
-  let nextSequence = Number(counterData?.next_val ?? 1);
-
   const assetsToInsert: any[] = [];
 
   for (const item of candidates) {
-    let finalTag = item.assetTag;
-    if (item.willAutoTag || !finalTag) {
-      const code = (item.categoryCode || 'GEN').toUpperCase();
-      const paddedNum = String(nextSequence).padStart(5, '0');
-      finalTag = `SPIT/${code}/${item.acquisitionYear || yearStr}/${paddedNum}`;
-      nextSequence++;
-    }
+    const finalTag = item.assetTag && item.assetTag.trim() !== '' ? item.assetTag.trim() : null;
 
     assetsToInsert.push({
       institution_id: profile.institution_id,
@@ -409,15 +395,7 @@ export async function commitAssetImport({
     });
   }
 
-  // Update tag counter
-  await admin
-    .from('asset_tag_counters')
-    .upsert({
-      institution_id: profile.institution_id,
-      next_val: nextSequence,
-    });
-
-  // 2. Batch Insert into Assets table in chunks of 50
+  // Batch Insert into Assets table in chunks of 50
   const CHUNK_SIZE = 50;
   const insertedAssets: any[] = [];
 
@@ -430,6 +408,11 @@ export async function commitAssetImport({
 
     if (insertErr) {
       console.error('Batch insert error:', insertErr);
+      if (insertErr.message?.includes('null value in column "asset_tag"') || insertErr.code === '23502') {
+        throw new Error(
+          'Database constraint error: asset_tag currently has NOT NULL enabled in Supabase. Please run "ALTER TABLE public.assets ALTER COLUMN asset_tag DROP NOT NULL;" in your Supabase SQL editor to allow blank asset tags.'
+        );
+      }
       throw new Error(`Database insert failed: ${insertErr.message}`);
     }
 

@@ -26,7 +26,7 @@ import {
 
 interface AssetCaptureDialogProps {
   assetId: string;
-  assetTag: string;
+  assetTag?: string | null;
   assetName: string;
   trigger?: React.ReactNode;
 }
@@ -127,7 +127,7 @@ export function AssetCaptureDialog({
       }
 
       toast.success(
-        `Photo for ${assetTag} submitted! It will appear after Approver verification.`,
+        `Photo for ${assetTag || assetName} submitted! It will appear after Approver verification.`,
         { duration: 5000 }
       );
 
@@ -171,7 +171,7 @@ export function AssetCaptureDialog({
           type="button"
           onClick={() => setOpen(true)}
           className="flex h-7 items-center gap-1 rounded-md px-2 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 transition-colors"
-          title={`Take or upload photo for ${assetTag}`}
+          title={`Take or upload photo for ${assetTag || assetName}`}
         >
           <Camera className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">Photo</span>
@@ -189,8 +189,8 @@ export function AssetCaptureDialog({
             </div>
             <DialogDescription className="text-xs text-zinc-500 dark:text-zinc-400">
               Capture or upload an image for{' '}
-              <strong className="text-zinc-800 dark:text-zinc-200 font-semibold">{assetName}</strong>{' '}
-              <span className="font-mono text-zinc-500">({assetTag})</span>.
+              <strong className="text-zinc-800 dark:text-zinc-200 font-semibold">{assetName}</strong>
+              {assetTag ? <span className="font-mono text-zinc-500"> ({assetTag})</span> : ''}.
             </DialogDescription>
           </DialogHeader>
 
