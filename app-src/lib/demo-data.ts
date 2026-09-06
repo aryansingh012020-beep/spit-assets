@@ -44,16 +44,16 @@ export const DEMO_FLOORS = [
 ];
 
 export const DEMO_ROOMS = [
-  { id: 'rm-001', name: 'Computer Lab 1',      room_number: '001', room_type: 'lab',            floor_id: 'fl-0', floor: { name: 'Ground Floor', building: { name: 'Main Building' } } },
-  { id: 'rm-002', name: 'Principal Office',    room_number: '002', room_type: 'office',          floor_id: 'fl-0', floor: { name: 'Ground Floor', building: { name: 'Main Building' } } },
-  { id: 'rm-003', name: 'Classroom 101',       room_number: '101', room_type: 'classroom',       floor_id: 'fl-1', floor: { name: 'First Floor',  building: { name: 'Main Building' } } },
-  { id: 'rm-004', name: 'Classroom 102',       room_number: '102', room_type: 'classroom',       floor_id: 'fl-1', floor: { name: 'First Floor',  building: { name: 'Main Building' } } },
-  { id: 'rm-005', name: 'Electronics Lab',     room_number: '201', room_type: 'lab',             floor_id: 'fl-2', floor: { name: 'Second Floor', building: { name: 'Main Building' } } },
-  { id: 'rm-006', name: 'Faculty Room',        room_number: '202', room_type: 'faculty_room',    floor_id: 'fl-2', floor: { name: 'Second Floor', building: { name: 'Main Building' } } },
-  { id: 'rm-007', name: 'Seminar Hall',        room_number: '301', room_type: 'seminar_hall',    floor_id: 'fl-3', floor: { name: 'Third Floor',  building: { name: 'Main Building' } } },
-  { id: 'rm-008', name: 'Library',             room_number: '401', room_type: 'library',         floor_id: 'fl-4', floor: { name: 'Fourth Floor', building: { name: 'Main Building' } } },
-  { id: 'rm-009', name: 'Advanced Comp Lab',   room_number: '501', room_type: 'lab',             floor_id: 'fl-5', floor: { name: 'Fifth Floor',  building: { name: 'Main Building' } } },
-  { id: 'rm-010', name: 'Conference Room',     room_number: '601', room_type: 'conference_room', floor_id: 'fl-6', floor: { name: 'Sixth Floor',  building: { name: 'Main Building' } } },
+  { id: 'rm-001', name: 'Computer Lab 1',      room_number: '001', room_type: 'lab',            floor_id: 'fl-0', floor: { name: 'Ground Floor', building: { name: 'Main Building' } }, in_charge: { id: 'u-1', full_name: 'Dr. Aarti M. Karande', role: 'approver', department: 'Computer Engineering', designation: 'Associate Professor & Lab In-Charge' } },
+  { id: 'rm-002', name: 'Principal Office',    room_number: '002', room_type: 'office',          floor_id: 'fl-0', floor: { name: 'Ground Floor', building: { name: 'Main Building' } }, in_charge: { id: 'u-2', full_name: 'Dr. B. N. Chaudhari', role: 'approver', department: 'Dean / Principal Office', designation: 'Principal' } },
+  { id: 'rm-003', name: 'Classroom 101',       room_number: '101', room_type: 'classroom',       floor_id: 'fl-1', floor: { name: 'First Floor',  building: { name: 'Main Building' } }, in_charge: { id: 'u-3', full_name: 'Prof. Anand Godbole', role: 'asset_manager', department: 'Information Technology', designation: 'Assistant Professor' } },
+  { id: 'rm-004', name: 'Classroom 102',       room_number: '102', room_type: 'classroom',       floor_id: 'fl-1', floor: { name: 'First Floor',  building: { name: 'Main Building' } }, in_charge: null },
+  { id: 'rm-005', name: 'Electronics Lab',     room_number: '201', room_type: 'lab',             floor_id: 'fl-2', floor: { name: 'Second Floor', building: { name: 'Main Building' } }, in_charge: { id: 'u-4', full_name: 'Dr. Deepak C. Karia', role: 'approver', department: 'Electronics & Telecommunication', designation: 'Professor & Lab In-Charge' } },
+  { id: 'rm-006', name: 'Faculty Room',        room_number: '202', room_type: 'faculty_room',    floor_id: 'fl-2', floor: { name: 'Second Floor', building: { name: 'Main Building' } }, in_charge: null },
+  { id: 'rm-007', name: 'Seminar Hall',        room_number: '301', room_type: 'seminar_hall',    floor_id: 'fl-3', floor: { name: 'Third Floor',  building: { name: 'Main Building' } }, in_charge: { id: 'u-5', full_name: 'Dr. Y. S. Rao', role: 'approver', department: 'Dean / Principal Office', designation: 'Vice Principal & In-Charge' } },
+  { id: 'rm-008', name: 'Library',             room_number: '401', room_type: 'library',         floor_id: 'fl-4', floor: { name: 'Fourth Floor', building: { name: 'Main Building' } }, in_charge: { id: 'u-6', full_name: 'Mrs. Manjusha P.', role: 'asset_manager', department: 'Library & Information Resource', designation: 'Chief Librarian' } },
+  { id: 'rm-009', name: 'Advanced Comp Lab',   room_number: '501', room_type: 'lab',             floor_id: 'fl-5', floor: { name: 'Fifth Floor',  building: { name: 'Main Building' } }, in_charge: { id: 'u-7', full_name: 'Prof. Dayanand Ambawade', role: 'approver', department: 'Computer Engineering', designation: 'Professor & Lab In-Charge' } },
+  { id: 'rm-010', name: 'Conference Room',     room_number: '601', room_type: 'conference_room', floor_id: 'fl-6', floor: { name: 'Sixth Floor',  building: { name: 'Main Building' } }, in_charge: null },
 ];
 
 export const DEMO_ASSETS = [

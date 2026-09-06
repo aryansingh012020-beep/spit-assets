@@ -15,13 +15,19 @@ import {
   RotateCcw,
   Maximize2,
   Minimize2,
+  DoorOpen,
+  Package,
+  ExternalLink,
+  ArrowRight,
 } from 'lucide-react';
 import { Button } from './ui/button';
+import { AICard } from '@/lib/types';
 
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  cards?: AICard[];
   timestamp: Date;
 }
 
@@ -41,7 +47,29 @@ export function AIAssistantDrawer() {
     {
       id: 'welcome',
       role: 'assistant',
-      content: 'Hello! How can I help you with SPIT equipment, labs, or inventory today?',
+      content: 'Hello! I am your SPIT Asset AI Concierge. How can I help you with equipment, laboratory in-charge details, or inventory audits today?',
+      cards: [
+        {
+          id: 'welcome-rooms',
+          type: 'room',
+          title: 'Campus Room Facilities',
+          subtitle: 'Check in-charge staff, room capacities, and allocated hardware',
+          linkUrl: '/locations/rooms',
+          linkText: 'Explore Rooms →',
+          actionLabel: 'Lab 603 In-Charge',
+          actionQuery: 'Who is in charge of Lab 603?',
+        },
+        {
+          id: 'welcome-damaged',
+          type: 'quick_action',
+          title: 'Maintenance & Flagged Items',
+          subtitle: 'Audit damaged, missing, or repair-flagged assets',
+          linkUrl: '/inventory?status=damaged',
+          linkText: 'Open Inventory →',
+          actionLabel: 'Check Damaged',
+          actionQuery: 'Show all damaged or missing equipment',
+        },
+      ],
       timestamp: new Date(),
     },
   ]);
@@ -99,6 +127,7 @@ export function AIAssistantDrawer() {
         id: String(Date.now() + 1),
         role: 'assistant',
         content: data.reply || 'No response received from assistant.',
+        cards: data.cards || [],
         timestamp: new Date(),
       };
 
@@ -271,6 +300,112 @@ export function AIAssistantDrawer() {
                       >
                         {m.content}
                       </ReactMarkdown>
+
+                      {/* Interactive UI Cards (Assets, Rooms, Quick Actions) */}
+                      {m.cards && m.cards.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-zinc-200/70 dark:border-zinc-700/70 space-y-2">
+                          <p className="text-[10px] uppercase font-bold tracking-wider text-zinc-400 dark:text-zinc-500 flex items-center gap-1">
+                            <Sparkles className="h-3 w-3 text-indigo-500" />
+                            <span>Interactive Facility & Asset Cards</span>
+                          </p>
+                          <div className="grid gap-2">
+                            {m.cards.map((card) => (
+                              <div
+                                key={card.id}
+                                className="rounded-xl border border-zinc-200/90 dark:border-zinc-700/90 bg-white dark:bg-zinc-900 p-2.5 shadow-2xs hover:border-indigo-400 dark:hover:border-indigo-600 transition-all text-xs"
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="min-w-0 flex-1">
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                      {card.type === 'room' ? (
+                                        <DoorOpen className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
+                                      ) : card.type === 'asset' ? (
+                                        <Package className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
+                                      ) : (
+                                        <Sparkles className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
+                                      )}
+                                      <h4 className="font-bold text-zinc-900 dark:text-white truncate">
+                                        {card.title}
+                                      </h4>
+                                      {card.badge && (
+                                        <span className="font-mono text-[9px] px-1 py-0.2 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-semibold">
+                                          {card.badge}
+                                        </span>
+                                      )}
+                                    </div>
+                                    {card.subtitle && (
+                                      <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">
+                                        {card.subtitle}
+                                      </p>
+                                    )}
+                                  </div>
+
+                                  {card.status && (
+                                    <span
+                                      className={`shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                                        card.statusVariant === 'active'
+                                          ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60'
+                                          : card.statusVariant === 'danger'
+                                          ? 'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-300 border border-red-200/60 dark:border-red-800/60'
+                                          : 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60'
+                                      }`}
+                                    >
+                                      <span
+                                        className={`h-1.5 w-1.5 rounded-full ${
+                                          card.statusVariant === 'active'
+                                            ? 'bg-emerald-500 animate-pulse'
+                                            : card.statusVariant === 'danger'
+                                            ? 'bg-red-500'
+                                            : 'bg-amber-500'
+                                        }`}
+                                      />
+                                      <span className="truncate max-w-[130px]">{card.status}</span>
+                                    </span>
+                                  )}
+                                </div>
+
+                                {card.metadata && card.metadata.length > 0 && (
+                                  <div className="flex items-center gap-2.5 mt-2 pt-1.5 border-t border-zinc-100 dark:border-zinc-800 text-[10px] text-zinc-500 dark:text-zinc-400 flex-wrap">
+                                    {card.metadata.map((meta, idx) => (
+                                      <span key={idx}>
+                                        <span className="opacity-70">{meta.label}:</span>{' '}
+                                        <strong className="text-zinc-700 dark:text-zinc-300 font-medium">
+                                          {meta.value}
+                                        </strong>
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+
+                                <div className="flex items-center justify-between gap-2 mt-2 pt-1">
+                                  {card.linkUrl ? (
+                                    <Link
+                                      href={card.linkUrl}
+                                      className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                                    >
+                                      <span>{card.linkText || 'Inspect →'}</span>
+                                      <ExternalLink className="h-2.5 w-2.5" />
+                                    </Link>
+                                  ) : (
+                                    <div />
+                                  )}
+
+                                  {card.actionQuery && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSend(card.actionQuery)}
+                                      className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-950/60 dark:hover:text-indigo-400 transition-colors"
+                                    >
+                                      <ArrowRight className="h-2.5 w-2.5" />
+                                      <span>{card.actionLabel || 'Ask AI'}</span>
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

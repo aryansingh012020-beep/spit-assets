@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { Card, CardContent, EmptyState } from '@/components/ui/primitives';
 import { Badge } from '@/components/ui/badge';
-import { DoorOpen, Package, ArrowLeft, ChevronRight } from 'lucide-react';
+import { DoorOpen, Package, ArrowLeft, ChevronRight, UserCheck } from 'lucide-react';
 import { isDemoMode, DEMO_ROOMS, DEMO_ASSETS } from '@/lib/demo-data';
 
 export const dynamic = 'force-dynamic';
@@ -70,24 +70,47 @@ export default async function RoomsPage({ searchParams }: { searchParams: Promis
   }
 
   let query = supabase.from('rooms')
-    .select(`id,name,room_number,room_type,capacity,floor:floors(id,name,building:buildings(id,name)),assets(count)`);
+    .select(`
+      id, name, room_number, room_type, capacity, in_charge_user_id,
+      floor:floors(id, name, building:buildings(id, name)),
+      assets(count),
+      in_charge:profiles!in_charge_user_id(id, full_name, department, designation, role)
+    `);
 
   if (params.q) query = query.or(`name.ilike.%${params.q}%,room_number.ilike.%${params.q}%`);
   if (params.type) query = query.eq('room_type', params.type);
   if (params.floor) query = query.eq('floor_id', params.floor);
 
-  const { data: rawRooms } = await query.order('room_number').limit(200);
+  let rawRooms: any[] = [];
+  const { data: primaryRooms, error: roomsErr } = await query.order('room_number').limit(200);
+
+  // Fallback if migration 009 has not been executed yet in Supabase
+  if (roomsErr) {
+    let fallbackQuery = supabase.from('rooms')
+      .select(`id,name,room_number,room_type,capacity,floor:floors(id,name,building:buildings(id,name)),assets(count)`);
+    if (params.q) fallbackQuery = fallbackQuery.or(`name.ilike.%${params.q}%,room_number.ilike.%${params.q}%`);
+    if (params.type) fallbackQuery = fallbackQuery.eq('room_type', params.type);
+    if (params.floor) fallbackQuery = fallbackQuery.eq('floor_id', params.floor);
+    const fallbackRes = await fallbackQuery.order('room_number').limit(200);
+    rawRooms = fallbackRes.data ?? [];
+  } else {
+    rawRooms = primaryRooms ?? [];
+  }
 
   // Filter by building if specified (rooms don't have building_id directly)
-  let filteredRooms = rawRooms ?? [];
+  let filteredRooms = rawRooms;
   if (params.building) {
     filteredRooms = filteredRooms.filter((r: any) => r.floor?.building?.id === params.building);
   }
 
-  const rooms = filteredRooms.map((r: any) => ({
-    ...r,
-    asset_count: r.assets?.[0]?.count ?? 0,
-  }));
+  const rooms = filteredRooms.map((r: any) => {
+    const inCharge = r.in_charge ? (Array.isArray(r.in_charge) ? r.in_charge[0] : r.in_charge) : null;
+    return {
+      ...r,
+      in_charge: inCharge,
+      asset_count: r.assets?.[0]?.count ?? 0,
+    };
+  });
 
   return <RoomsContent rooms={rooms} params={params} floorName={floorName} buildingName={buildingName} />;
 }
@@ -217,6 +240,17 @@ function RoomsContent({ rooms, params, floorName, buildingName }: {
                       </p>
                     </div>
                     <ChevronRight className="h-4 w-4 text-zinc-300 dark:text-zinc-600 group-hover:text-indigo-500 transition-colors shrink-0 mt-0.5" />
+                  </div>
+
+                  {/* Room In-Charge Information (Visible to all) */}
+                  <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-800/60 px-2 py-1 rounded-md">
+                    <UserCheck className={`h-3 w-3 shrink-0 ${room.in_charge ? 'text-indigo-500' : 'text-zinc-400'}`} />
+                    <span className="truncate">
+                      In-Charge:{' '}
+                      <strong className={`font-semibold ${room.in_charge ? 'text-zinc-700 dark:text-zinc-200' : 'text-zinc-400 font-normal italic'}`}>
+                        {room.in_charge?.full_name ?? 'Unassigned'}
+                      </strong>
+                    </span>
                   </div>
 
                   <div className="flex items-center justify-between pt-2 border-t border-zinc-100 dark:border-zinc-800/80 text-xs">

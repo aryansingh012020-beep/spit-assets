@@ -5,8 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle, EmptyState } from '@/componen
 import { StatusBadge } from '@/components/status-badge';
 import { Badge } from '@/components/ui/badge';
 import { buildLocationString } from '@/lib/utils';
-import { ArrowLeft, DoorOpen, Package, MapPin, Users, Layers, Building2 } from 'lucide-react';
+import { ArrowLeft, DoorOpen, Package, MapPin, Users, Layers, Building2, UserCheck } from 'lucide-react';
 import { InventoryRowActions } from '@/app/(dashboard)/inventory/inventory-row-actions';
+import { RoomInChargeDialog } from '@/components/room-in-charge-dialog';
+import { RoomInChargeProfile } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,15 +26,8 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ roo
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const [{ data: room }, { data: assets }, { data: allRooms }, { data: profile }] = await Promise.all([
-    supabase
-      .from('rooms')
-      .select(`
-        id, name, room_number, room_type, capacity,
-        floor:floors(id, name, level, building:buildings(id, name, code))
-      `)
-      .eq('id', roomId)
-      .single(),
+  const [{ data: profile }, { data: assets }, { data: allRooms }] = await Promise.all([
+    supabase.from('profiles').select('role').eq('id', user.id).single(),
     supabase
       .from('assets')
       .select(`
@@ -42,12 +37,57 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ roo
       .eq('room_id', roomId)
       .order('asset_tag'),
     supabase.from('rooms').select('id, name, room_number').order('name'),
-    supabase.from('profiles').select('role').eq('id', user.id).single(),
   ]);
 
-  if (!room) notFound();
-
+  const isApprover = profile?.role === 'approver';
   const canManage = ['asset_manager', 'approver'].includes(profile?.role ?? '');
+
+  // Fetch room with in_charge profile safely
+  let rawRoom: any = null;
+  const { data: primaryRoom, error: roomErr } = await supabase
+    .from('rooms')
+    .select(`
+      id, name, room_number, room_type, capacity, in_charge_user_id,
+      floor:floors(id, name, level, building:buildings(id, name, code)),
+      in_charge:profiles!in_charge_user_id(id, full_name, department, designation, role, employee_id, phone_number)
+    `)
+    .eq('id', roomId)
+    .single();
+
+  if (roomErr) {
+    const { data: fallbackRoom } = await supabase
+      .from('rooms')
+      .select(`
+        id, name, room_number, room_type, capacity,
+        floor:floors(id, name, level, building:buildings(id, name, code))
+      `)
+      .eq('id', roomId)
+      .single();
+    rawRoom = fallbackRoom;
+  } else {
+    rawRoom = primaryRoom;
+  }
+
+  if (!rawRoom) notFound();
+
+  const inCharge: RoomInChargeProfile | null = rawRoom.in_charge
+    ? (Array.isArray(rawRoom.in_charge) ? rawRoom.in_charge[0] : rawRoom.in_charge)
+    : null;
+
+  const room = {
+    ...rawRoom,
+    in_charge: inCharge,
+  };
+
+  // If user is approver, fetch all profiles for room in-charge assignment
+  let allProfiles: any[] = [];
+  if (isApprover) {
+    const { data: profs } = await supabase
+      .from('profiles')
+      .select('id, full_name, role, department, designation, employee_id')
+      .order('full_name');
+    allProfiles = profs ?? [];
+  }
 
   const floor = (room as any).floor;
   const building = floor?.building;
@@ -117,6 +157,76 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ roo
             </Badge>
           )}
         </div>
+      </div>
+
+      {/* Room In-Charge Card (Visible to All, Editable by Approvers) */}
+      <div className="rounded-2xl border border-zinc-200/90 dark:border-zinc-800 bg-linear-to-r from-white via-zinc-50/50 to-indigo-50/30 dark:from-zinc-900 dark:via-zinc-900 dark:to-indigo-950/20 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5 min-w-0">
+          <div
+            className={`h-11 w-11 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs ${
+              room.in_charge
+                ? 'bg-indigo-600 text-white shadow-indigo-500/20'
+                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 border border-dashed border-zinc-300 dark:border-zinc-700'
+            }`}
+          >
+            {room.in_charge ? (
+              (room.in_charge.full_name || 'U')
+                .split(' ')
+                .map((n: string) => n[0])
+                .slice(0, 2)
+                .join('')
+                .toUpperCase()
+            ) : (
+              <UserCheck className="h-5 w-5" />
+            )}
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                Official Room In-Charge
+              </p>
+              {room.in_charge ? (
+                <Badge variant="default" className="text-[9px] py-0 px-1.5 font-mono">
+                  {room.in_charge.role === 'approver'
+                    ? 'Approver'
+                    : room.in_charge.role === 'asset_manager'
+                    ? 'Manager'
+                    : 'Staff'}
+                </Badge>
+              ) : (
+                <Badge variant="neutral" className="text-[9px] py-0 px-1.5 text-zinc-400">
+                  Unassigned
+                </Badge>
+              )}
+            </div>
+            <h2 className="text-base font-bold text-zinc-900 dark:text-white mt-0.5 truncate">
+              {room.in_charge?.full_name ?? 'No Faculty or Staff Assigned'}
+            </h2>
+            {(room.in_charge?.designation || room.in_charge?.department) && (
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">
+                {room.in_charge?.designation ? `${room.in_charge.designation} · ` : ''}
+                {room.in_charge?.department ?? ''}
+              </p>
+            )}
+            {room.in_charge?.employee_id && (
+              <p className="text-[10px] text-zinc-400 font-mono mt-0.5">
+                Emp ID: {room.in_charge.employee_id}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Approver Action Button */}
+        {isApprover && (
+          <div className="shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-zinc-200/60 dark:border-zinc-800 flex items-center">
+            <RoomInChargeDialog
+              roomId={room.id}
+              roomName={room.name}
+              currentInCharge={room.in_charge}
+              profiles={allProfiles}
+            />
+          </div>
+        )}
       </div>
 
       {/* Stats row */}

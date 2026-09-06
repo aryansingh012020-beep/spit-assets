@@ -107,6 +107,17 @@ export interface Floor {
   updated_at: string;
 }
 
+export interface RoomInChargeProfile {
+  id: string;
+  full_name: string | null;
+  role: string;
+  department?: string | null;
+  designation?: string | null;
+  employee_id?: string | null;
+  phone_number?: string | null;
+  avatar_url?: string | null;
+}
+
 export interface Room {
   id: string;
   floor_id: string;
@@ -115,6 +126,8 @@ export interface Room {
   room_number: string | null;
   room_type: RoomType;
   capacity: number | null;
+  in_charge_user_id?: string | null;
+  in_charge?: RoomInChargeProfile | null;
   created_at: string;
   updated_at: string;
 }
@@ -368,3 +381,23 @@ export interface AccountRequest {
   created_at: string;
   updated_at: string;
 }
+
+// ============================================================
+// AI Assistant Interactive UI Cards
+// ============================================================
+
+export interface AICard {
+  id: string;
+  type: 'room' | 'asset' | 'quick_action';
+  title: string;
+  subtitle?: string;
+  status?: string;
+  statusVariant?: 'active' | 'warning' | 'danger' | 'info' | 'neutral';
+  badge?: string;
+  metadata?: { label: string; value: string }[];
+  linkUrl?: string;
+  linkText?: string;
+  actionLabel?: string;
+  actionQuery?: string;
+}
+
