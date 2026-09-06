@@ -5,9 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle, EmptyState } from '@/componen
 import { StatusBadge } from '@/components/status-badge';
 import { Badge } from '@/components/ui/badge';
 import { buildLocationString } from '@/lib/utils';
-import { ArrowLeft, DoorOpen, Package, MapPin, Users, Layers, Building2, UserCheck } from 'lucide-react';
+import { ArrowLeft, DoorOpen, Package, MapPin, Users, Layers, Building2, UserCheck, Upload } from 'lucide-react';
 import { InventoryRowActions } from '@/app/(dashboard)/inventory/inventory-row-actions';
 import { RoomInChargeDialog } from '@/components/room-in-charge-dialog';
+import { RoomAssetIngestionDialog } from '@/components/room-asset-ingestion-dialog';
+import { Button } from '@/components/ui/button';
 import { RoomInChargeProfile } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -146,7 +148,15 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ roo
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {canManage && (
+            <RoomAssetIngestionDialog
+              roomId={room.id}
+              roomName={room.name}
+              roomNumber={room.room_number}
+              rooms={allRooms ?? []}
+            />
+          )}
           <Badge variant="default">
             {ROOM_TYPE_LABELS[room.room_type] ?? room.room_type}
           </Badge>
@@ -289,13 +299,37 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ roo
         <Card className="lg:col-span-3">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm">Assets in this Room</CardTitle>
-              <Link
-                href={`/inventory?room=${room.id}`}
-                className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
-              >
-                Open in Inventory →
-              </Link>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-sm">Assets in this Room</CardTitle>
+                <span className="text-xs text-zinc-400 font-mono">({(assets ?? []).length})</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {canManage && (
+                  <RoomAssetIngestionDialog
+                    roomId={room.id}
+                    roomName={room.name}
+                    roomNumber={room.room_number}
+                    rooms={allRooms ?? []}
+                    trigger={
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="gap-1.5 text-xs text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/60"
+                      >
+                        <Upload className="h-3.5 w-3.5" />
+                        <span>Ingest Excel</span>
+                      </Button>
+                    }
+                  />
+                )}
+                <Link
+                  href={`/inventory?room=${room.id}`}
+                  className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
+                >
+                  Open in Inventory →
+                </Link>
+              </div>
             </div>
           </CardHeader>
           <div className="overflow-x-auto">
@@ -317,12 +351,28 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ roo
               <tbody className="divide-y divide-zinc-50 dark:divide-zinc-800/60">
                 {(assets ?? []).length === 0 ? (
                   <tr>
-                    <td colSpan={canManage ? 6 : 5} className="py-12">
+                    <td colSpan={canManage ? 6 : 5} className="py-12 text-center">
                       <EmptyState
                         icon={<Package className="h-7 w-7" />}
                         title="No assets in this room"
                         description="Assets assigned to this room will appear here"
                       />
+                      {canManage && (
+                        <div className="mt-4 flex justify-center">
+                          <RoomAssetIngestionDialog
+                            roomId={room.id}
+                            roomName={room.name}
+                            roomNumber={room.room_number}
+                            rooms={allRooms ?? []}
+                            trigger={
+                              <Button size="sm" className="gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs">
+                                <Upload className="h-3.5 w-3.5" />
+                                <span>Ingest Assets from Excel Spreadsheet</span>
+                              </Button>
+                            }
+                          />
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ) : (
