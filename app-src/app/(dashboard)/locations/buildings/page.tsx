@@ -6,7 +6,7 @@ import { Building2, MapPin, DoorOpen, Layers, Package, ChevronRight } from 'luci
 import Link from 'next/link';
 import { isDemoMode, DEMO_BUILDING, DEMO_FLOORS, DEMO_ROOMS, DEMO_ASSETS } from '@/lib/demo-data';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60; // revalidate every 60s
 
 export default async function BuildingsPage() {
   // ── Demo mode ────────────────────────────────────────────────────

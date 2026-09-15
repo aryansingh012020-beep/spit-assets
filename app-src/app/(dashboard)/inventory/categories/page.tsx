@@ -5,7 +5,7 @@ import { Card, CardContent, EmptyState } from '@/components/ui/primitives';
 import { Badge } from '@/components/ui/badge';
 import { Tag, Package } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60; // revalidate every 60s
 
 export default async function CategoriesPage() {
   const supabase = await createClient();

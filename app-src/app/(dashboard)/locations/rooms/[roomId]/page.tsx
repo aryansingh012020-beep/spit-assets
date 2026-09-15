@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle, EmptyState } from '@/componen
 import { StatusBadge } from '@/components/status-badge';
 import { Badge } from '@/components/ui/badge';
 import { buildLocationString } from '@/lib/utils';
-import { ArrowLeft, DoorOpen, Package, MapPin, Users, Layers, Building2, UserCheck, Upload } from 'lucide-react';
+import { ArrowLeft, DoorOpen, Package, MapPin, Users, Layers, Building2, UserCheck, Upload, Plus } from 'lucide-react';
 import { InventoryRowActions } from '@/app/(dashboard)/inventory/inventory-row-actions';
 import { RoomInChargeDialog } from '@/components/room-in-charge-dialog';
 import { RoomAssetIngestionDialog } from '@/components/room-asset-ingestion-dialog';
+import { AddAssetDialog } from '@/app/(dashboard)/inventory/add-asset-dialog';
 import { Button } from '@/components/ui/button';
 import { RoomInChargeProfile } from '@/lib/types';
 
@@ -28,7 +29,7 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ roo
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const [{ data: profile }, { data: assets }, { data: allRooms }] = await Promise.all([
+  const [{ data: profile }, { data: assets }, { data: allRooms }, { data: categories }] = await Promise.all([
     supabase.from('profiles').select('role').eq('id', user.id).single(),
     supabase
       .from('assets')
@@ -38,7 +39,8 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ roo
       `)
       .eq('room_id', roomId)
       .order('asset_tag'),
-    supabase.from('rooms').select('id, name, room_number').order('name'),
+    supabase.from('rooms').select('id, name, room_number, floor_id, building_id').order('name'),
+    supabase.from('asset_categories').select('id, name').order('name'),
   ]);
 
   const isApprover = profile?.role === 'approver';
@@ -150,12 +152,27 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ roo
 
         <div className="flex flex-wrap items-center gap-2">
           {canManage && (
-            <RoomAssetIngestionDialog
-              roomId={room.id}
-              roomName={room.name}
-              roomNumber={room.room_number}
-              rooms={allRooms ?? []}
-            />
+            <>
+              <AddAssetDialog
+                categories={categories ?? []}
+                rooms={allRooms ?? []}
+                defaultRoomId={room.id}
+                defaultBuildingId={building?.id}
+                defaultFloorId={floor?.id}
+                trigger={
+                  <Button size="sm" className="gap-1.5 text-xs">
+                    <Plus className="h-3.5 w-3.5" />
+                    Add Asset
+                  </Button>
+                }
+              />
+              <RoomAssetIngestionDialog
+                roomId={room.id}
+                roomName={room.name}
+                roomNumber={room.room_number}
+                rooms={allRooms ?? []}
+              />
+            </>
           )}
           <Badge variant="default">
             {ROOM_TYPE_LABELS[room.room_type] ?? room.room_type}
@@ -305,23 +322,42 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ roo
               </div>
               <div className="flex items-center gap-2">
                 {canManage && (
-                  <RoomAssetIngestionDialog
-                    roomId={room.id}
-                    roomName={room.name}
-                    roomNumber={room.room_number}
-                    rooms={allRooms ?? []}
-                    trigger={
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="gap-1.5 text-xs text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/60"
-                      >
-                        <Upload className="h-3.5 w-3.5" />
-                        <span>Ingest Excel</span>
-                      </Button>
-                    }
-                  />
+                  <>
+                    <AddAssetDialog
+                      categories={categories ?? []}
+                      rooms={allRooms ?? []}
+                      defaultRoomId={room.id}
+                      defaultBuildingId={building?.id}
+                      defaultFloorId={floor?.id}
+                      trigger={
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="gap-1.5 text-xs"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          <span>Add Asset</span>
+                        </Button>
+                      }
+                    />
+                    <RoomAssetIngestionDialog
+                      roomId={room.id}
+                      roomName={room.name}
+                      roomNumber={room.room_number}
+                      rooms={allRooms ?? []}
+                      trigger={
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="gap-1.5 text-xs text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/60"
+                        >
+                          <Upload className="h-3.5 w-3.5" />
+                          <span>Ingest Excel</span>
+                        </Button>
+                      }
+                    />
+                  </>
                 )}
                 <Link
                   href={`/inventory?room=${room.id}`}
@@ -358,16 +394,29 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ roo
                         description="Assets assigned to this room will appear here"
                       />
                       {canManage && (
-                        <div className="mt-4 flex justify-center">
+                        <div className="mt-4 flex flex-wrap justify-center gap-2">
+                          <AddAssetDialog
+                            categories={categories ?? []}
+                            rooms={allRooms ?? []}
+                            defaultRoomId={room.id}
+                            defaultBuildingId={building?.id}
+                            defaultFloorId={floor?.id}
+                            trigger={
+                              <Button size="sm" className="gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs">
+                                <Plus className="h-3.5 w-3.5" />
+                                <span>Add Single Asset</span>
+                              </Button>
+                            }
+                          />
                           <RoomAssetIngestionDialog
                             roomId={room.id}
                             roomName={room.name}
                             roomNumber={room.room_number}
                             rooms={allRooms ?? []}
                             trigger={
-                              <Button size="sm" className="gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs">
+                              <Button size="sm" variant="outline" className="gap-2 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 text-xs">
                                 <Upload className="h-3.5 w-3.5" />
-                                <span>Ingest Assets from Excel Spreadsheet</span>
+                                <span>Ingest from Excel</span>
                               </Button>
                             }
                           />

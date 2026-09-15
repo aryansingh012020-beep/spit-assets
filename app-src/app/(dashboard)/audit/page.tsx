@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { isDemoMode, DEMO_ROOMS, DEMO_ASSETS } from '@/lib/demo-data';
 import { AuditSessionClient } from './audit-session-client';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60; // revalidate every 60s
 
 interface AuditSearchParams {
   room?: string;

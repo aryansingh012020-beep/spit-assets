@@ -4,8 +4,8 @@ import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { Card, CardContent, EmptyState } from '@/components/ui/primitives';
 import { Badge } from '@/components/ui/badge';
-import { formatDateTime, formatRelativeTime, getAssetPhotoUrl } from '@/lib/utils';
-import { CheckSquare, Clock, Camera, ExternalLink } from 'lucide-react';
+import { formatDateTime, getAssetPhotoUrl } from '@/lib/utils';
+import { CheckSquare, Clock, Camera, ExternalLink, PackagePlus, MapPin, Tag, Layers } from 'lucide-react';
 import { ApprovalActions } from './approval-actions';
 import { isDemoMode, DEMO_PENDING_REQUESTS } from '@/lib/demo-data';
 
@@ -105,6 +105,7 @@ function ApprovalsContent({ requests, role, userId, params }: { requests: any[];
         : (
           <div className="space-y-3">
             {requests.map((req: any) => {
+              const isAdditionRequest = req.type === 'addition';
               const isPhotoRequest = Boolean(req.new_values?.is_photo_approval || req.photo_path);
               const typeBadge = isPhotoRequest
                 ? { variant: 'info' as const, label: 'Photo Verification' }
@@ -113,6 +114,8 @@ function ApprovalsContent({ requests, role, userId, params }: { requests: any[];
               const photoUrl = isPhotoRequest
                 ? (req.new_values?.photo_url || getAssetPhotoUrl({ storage_path: req.new_values?.storage_path || req.photo_path }))
                 : null;
+
+              const nv = req.new_values || {};
 
               return (
                 <Card key={req.id}>
@@ -133,8 +136,59 @@ function ApprovalsContent({ requests, role, userId, params }: { requests: any[];
                             <Link href={`/inventory/${req.asset.id}`} className="font-mono text-xs text-indigo-600 dark:text-indigo-400 hover:underline">{req.asset.asset_tag}</Link>
                           )}
                         </div>
+
+                        {/* Existing asset name */}
                         {req.asset && <p className="text-sm font-semibold text-zinc-900 dark:text-white">{req.asset.name}</p>}
+
+                        {/* Reason */}
                         <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">{req.reason}</p>
+
+                        {/* ── Addition Preview Card ── */}
+                        {isAdditionRequest && !isPhotoRequest && (
+                          <div className="mt-3 rounded-xl border border-indigo-100 dark:border-indigo-900/60 bg-indigo-50/60 dark:bg-indigo-950/20 p-3.5">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-500 dark:text-indigo-400 mb-2.5 flex items-center gap-1.5">
+                              <PackagePlus className="h-3 w-3" />
+                              New Asset to be Added
+                            </p>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
+                              {/* Name */}
+                              {nv.name && (
+                                <div className="col-span-2 sm:col-span-3">
+                                  <p className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Asset Name</p>
+                                  <p className="text-sm font-semibold text-zinc-900 dark:text-white">{nv.name}</p>
+                                </div>
+                              )}
+                              {/* Asset Tag */}
+                              <div>
+                                <p className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide flex items-center gap-1"><Tag className="h-2.5 w-2.5" />Asset Tag</p>
+                                <p className="text-xs font-mono text-zinc-900 dark:text-white">
+                                  {nv.asset_tag || <span className="text-zinc-400 italic">— (none)</span>}
+                                </p>
+                              </div>
+                              {/* Status */}
+                              <div>
+                                <p className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Status</p>
+                                <p className="text-xs font-medium capitalize text-zinc-900 dark:text-white">
+                                  {(nv.status || 'active').replace(/_/g, ' ')}
+                                </p>
+                              </div>
+                              {/* Year */}
+                              {nv.acquisition_year && (
+                                <div>
+                                  <p className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Acq. Year</p>
+                                  <p className="text-xs text-zinc-900 dark:text-white">{nv.acquisition_year}</p>
+                                </div>
+                              )}
+                              {/* Description */}
+                              {nv.description && (
+                                <div className="col-span-2 sm:col-span-3">
+                                  <p className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Description</p>
+                                  <p className="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed">{nv.description}</p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
 
                         {/* Photo Request Card preview */}
                         {isPhotoRequest && photoUrl && (
@@ -170,12 +224,13 @@ function ApprovalsContent({ requests, role, userId, params }: { requests: any[];
                           </div>
                         )}
 
-                        {!isPhotoRequest && req.type === 'edit' && req.old_values && req.new_values && (
+                        {!isPhotoRequest && !isAdditionRequest && req.type === 'edit' && req.old_values && req.new_values && (
                           <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
                             <span className="rounded bg-red-50 dark:bg-red-950/50 px-2 py-1 text-red-700 dark:text-red-400 font-mono">Before: {JSON.stringify(req.old_values).slice(0, 80)}</span>
                             <span className="rounded bg-emerald-50 dark:bg-emerald-950/50 px-2 py-1 text-emerald-700 dark:text-emerald-400 font-mono">After: {JSON.stringify(req.new_values).slice(0, 80)}</span>
                           </div>
                         )}
+
                         <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-2 flex items-center gap-1.5">
                           <Clock className="h-3 w-3" />
                           {req.requester?.full_name ?? 'Unknown'} · {formatDateTime(req.created_at)}

@@ -36,7 +36,7 @@ import {
   DEMO_CATEGORIES,
 } from '@/lib/demo-data';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 30; // revalidate every 30s
 
 const EVENT_LABELS: Record<string, string> = {
   addition_approved:  'Asset added',
@@ -263,7 +263,7 @@ function DashboardContent({
   const activeRate = stats.totalAssets > 0 ? ((stats.activeAssets / stats.totalAssets) * 100).toFixed(1) : '100';
 
   return (
-    <div className="space-y-6 w-full max-w-7xl mx-auto pb-10">
+    <div className="space-y-5 w-full pb-8">
       {/* ── Top Hero & Actions Bar ───────────────────────────────── */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-zinc-200/80 dark:border-zinc-800 pb-5">
         <div>
@@ -315,90 +315,64 @@ function DashboardContent({
         </div>
       </div>
 
-      {/* ── Key Performance Metric Cards & Unified Workflow Block ── */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-        {/* 4 Core Infrastructure Stats (8 cols on lg) */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:col-span-8">
-          <StatCard
-            title="Total Catalog"
-            value={stats.totalAssets.toLocaleString()}
-            icon={<Package className="h-4 w-4" />}
-            trend="neutral"
-          />
-          <StatCard
-            title="Active Assets"
-            value={stats.activeAssets.toLocaleString()}
-            icon={<Activity className="h-4 w-4" />}
-            trend="up"
-          />
-          <StatCard
-            title="Campus Rooms"
-            value={stats.totalRooms.toLocaleString()}
-            icon={<DoorOpen className="h-4 w-4" />}
-          />
-          <StatCard
-            title="Buildings"
-            value={stats.totalBuildings.toLocaleString()}
-            icon={<Building2 className="h-4 w-4" />}
-          />
-        </div>
-
-        {/* Unified Merged Approvals & Transfers Block (4 cols on lg) */}
-        <Card className="lg:col-span-4 overflow-hidden border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-indigo-50/40 via-white to-purple-50/20 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-900/60 shadow-xs flex flex-col justify-center">
-          <CardContent className="p-3.5">
-            <div className="grid grid-cols-2 divide-x divide-zinc-200/80 dark:divide-zinc-800">
-              {/* Approvals side */}
-              <Link
-                href="/approvals"
-                className="pr-3 group hover:opacity-85 transition-opacity block"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors flex items-center gap-1">
-                    <CheckSquare className="h-3.5 w-3.5 text-indigo-500" /> Approvals
-                  </span>
-                  {stats.pendingApprovals > 0 ? (
-                    <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 text-white text-[10px] font-bold px-1 animate-pulse">
-                      {stats.pendingApprovals}
-                    </span>
-                  ) : (
-                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">Clear</span>
-                  )}
-                </div>
-                <div className="mt-1.5 flex items-baseline gap-1.5">
-                  <span className="text-2xl font-extrabold text-zinc-900 dark:text-white">
-                    {stats.pendingApprovals}
-                  </span>
-                  <span className="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium">pending</span>
-                </div>
-              </Link>
-
-              {/* Transfers side */}
-              <Link
-                href="/transfers"
-                className="pl-3 group hover:opacity-85 transition-opacity block"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors flex items-center gap-1">
-                    <ArrowRightLeft className="h-3.5 w-3.5 text-indigo-500" /> Transfers
-                  </span>
-                  <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold">30d</span>
-                </div>
-                <div className="mt-1.5 flex items-baseline gap-1.5">
-                  <span className="text-2xl font-extrabold text-zinc-900 dark:text-white">
-                    {stats.recentTransfers}
-                  </span>
-                  <span className="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium">relocations</span>
-                </div>
-              </Link>
+      {/* ── Stat Cards + Workflow ─────────────────────────────────── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <StatCard
+          title="Total Assets"
+          value={stats.totalAssets.toLocaleString()}
+          icon={<Package className="h-4 w-4" />}
+          trend="neutral"
+        />
+        <StatCard
+          title="Active"
+          value={stats.activeAssets.toLocaleString()}
+          icon={<Activity className="h-4 w-4" />}
+          trend="up"
+        />
+        <StatCard
+          title="Rooms"
+          value={stats.totalRooms.toLocaleString()}
+          icon={<DoorOpen className="h-4 w-4" />}
+        />
+        <StatCard
+          title="Buildings"
+          value={stats.totalBuildings.toLocaleString()}
+          icon={<Building2 className="h-4 w-4" />}
+        />
+        {/* Approvals */}
+        <Link href="/approvals" className="block group">
+          <div className="h-full rounded-xl border border-amber-200/70 dark:border-amber-800/50 bg-amber-50/60 dark:bg-amber-950/20 p-3.5 hover:border-amber-400 dark:hover:border-amber-600 transition-colors">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                <CheckSquare className="h-3.5 w-3.5" /> Approvals
+              </span>
+              {stats.pendingApprovals > 0 && (
+                <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+              )}
             </div>
-          </CardContent>
-        </Card>
+            <p className="text-2xl font-extrabold text-zinc-900 dark:text-white tabular-nums">{stats.pendingApprovals}</p>
+            <p className="text-[11px] text-amber-600 dark:text-amber-400 font-medium mt-0.5">pending</p>
+          </div>
+        </Link>
+        {/* Transfers */}
+        <Link href="/transfers" className="block group">
+          <div className="h-full rounded-xl border border-indigo-200/70 dark:border-indigo-800/50 bg-indigo-50/60 dark:bg-indigo-950/20 p-3.5 hover:border-indigo-400 dark:hover:border-indigo-600 transition-colors">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
+                <ArrowRightLeft className="h-3.5 w-3.5" /> Transfers
+              </span>
+              <span className="text-[9px] text-indigo-400 font-mono">30d</span>
+            </div>
+            <p className="text-2xl font-extrabold text-zinc-900 dark:text-white tabular-nums">{stats.recentTransfers}</p>
+            <p className="text-[11px] text-indigo-500 dark:text-indigo-400 font-medium mt-0.5">relocations</p>
+          </div>
+        </Link>
       </div>
 
-      {/* ── Main Bento Grid Layout (2 Col Left + 1 Col Right) ────── */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Left Column (2-Span): Category Segment Bar & Detailed Analytics */}
-        <div className="lg:col-span-2 space-y-6">
+      {/* ── Main Bento Grid (3 left + 2 right) ──────────────────────── */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
+        {/* Left Column (3-Span) */}
+        <div className="lg:col-span-3 space-y-5">
           {/* Category Distribution Bar Card */}
           <Card className="overflow-hidden">
             <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800/80">
@@ -594,8 +568,8 @@ function DashboardContent({
           </Card>
         </div>
 
-        {/* Right Column (1-Span): Campus Floor Density & Approvals Queue */}
-        <div className="space-y-6">
+        {/* Right Column (2-Span) */}
+        <div className="lg:col-span-2 space-y-5">
           {/* Campus Floor Vertical Density Map */}
           <Card>
             <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800/80">
@@ -700,38 +674,6 @@ function DashboardContent({
             </CardContent>
           </Card>
 
-          {/* Quick Institutional Resources Toolkit */}
-          <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-indigo-50/60 to-purple-50/40 dark:from-zinc-900 dark:to-zinc-800/60 p-4 space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
-              Campus Navigator
-            </h3>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <Link
-                href="/locations/buildings"
-                className="flex items-center gap-1.5 p-2 rounded-lg bg-white/80 dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700 font-medium text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors shadow-2xs"
-              >
-                <Building2 className="h-3.5 w-3.5 text-indigo-500" /> Buildings
-              </Link>
-              <Link
-                href="/locations/rooms"
-                className="flex items-center gap-1.5 p-2 rounded-lg bg-white/80 dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700 font-medium text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors shadow-2xs"
-              >
-                <DoorOpen className="h-3.5 w-3.5 text-indigo-500" /> All Rooms
-              </Link>
-              <Link
-                href="/transfers"
-                className="flex items-center gap-1.5 p-2 rounded-lg bg-white/80 dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700 font-medium text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors shadow-2xs"
-              >
-                <ArrowRightLeft className="h-3.5 w-3.5 text-indigo-500" /> Transfers
-              </Link>
-              <Link
-                href="/inventory/categories"
-                className="flex items-center gap-1.5 p-2 rounded-lg bg-white/80 dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700 font-medium text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors shadow-2xs"
-              >
-                <SlidersHorizontal className="h-3.5 w-3.5 text-indigo-500" /> Categories
-              </Link>
-            </div>
-          </div>
         </div>
       </div>
     </div>

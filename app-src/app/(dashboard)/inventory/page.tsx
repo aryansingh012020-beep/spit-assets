@@ -51,6 +51,8 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
       params={params}
       categories={DEMO_CATEGORIES}
       rooms={DEMO_ROOMS}
+      buildings={[]}
+      floors={[]}
       canRequest={true}
       roomName={params.room ? DEMO_ROOMS.find(r => r.id === params.room)?.name : undefined}
     />;
@@ -83,7 +85,12 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
 
   const { data: assets, count } = await query.order('asset_tag').range(offset, offset + PAGE_SIZE - 1);
   const { data: categories } = await supabase.from('asset_categories').select('id, name').order('name');
-  const { data: rooms } = await supabase.from('rooms').select('id, name, room_number').order('name');
+  const { data: rooms } = await supabase
+    .from('rooms')
+    .select('id, name, room_number, floor_id, building_id, floor:floors(name), building:buildings(name)')
+    .order('name');
+  const { data: buildings } = await supabase.from('buildings').select('id, name, code').order('name');
+  const { data: floors } = await supabase.from('floors').select('id, name, building_id').order('name');
 
   return <InventoryTable
     assets={assets ?? []}
@@ -93,15 +100,19 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
     params={params}
     categories={categories ?? []}
     rooms={rooms ?? []}
+    buildings={buildings ?? []}
+    floors={floors ?? []}
     canRequest={canRequest}
     roomName={params.room ? rooms?.find(r => r.id === params.room)?.name : undefined}
   />;
 }
 
-function InventoryTable({ assets, count, page, totalPages, params, categories, rooms, canRequest, roomName }: {
+function InventoryTable({ assets, count, page, totalPages, params, categories, rooms, buildings, floors, canRequest, roomName }: {
   assets: any[]; count: number; page: number; totalPages: number;
   params: SearchParams; categories: { id: string; name: string }[];
-  rooms: { id: string; name: string; room_number: string | null }[];
+  rooms: { id: string; name: string; room_number: string | null; floor_id?: string; building_id?: string }[];
+  buildings: { id: string; name: string; code: string }[];
+  floors: { id: string; name: string; building_id: string }[];
   canRequest: boolean;
   roomName?: string;
 }) {
@@ -139,7 +150,12 @@ function InventoryTable({ assets, count, page, totalPages, params, categories, r
             Export CSV
           </a>
           {canRequest && (
-            <AddAssetDialog categories={categories} rooms={rooms} />
+            <AddAssetDialog
+              categories={categories}
+              rooms={rooms}
+              buildings={buildings}
+              floors={floors}
+            />
           )}
         </div>
       </div>
