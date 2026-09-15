@@ -271,10 +271,6 @@ function DashboardContent({
             <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
               Institutional Asset Command
             </h1>
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800/80 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              {activeRate}% Operational
-            </span>
           </div>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
             Tracking {stats.totalAssets.toLocaleString()} physical assets across {stats.totalRooms} rooms in Sardar Patel Institute of Technology
