@@ -145,6 +145,7 @@ export function DashboardShell({ children, profile, pendingCount = 0 }: Dashboar
             profile={profile}
             pendingCount={pendingCount}
             onMobileMenuToggle={() => setMobileOpen(true)}
+            onSignOut={handleSignOut}
           />
 
           {/* Page content */}

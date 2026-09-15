@@ -6,11 +6,11 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   Moon, Sun, Menu, Search, Bell, X,
   Package, Building2, DoorOpen, Loader2,
-  Users, FileText, Upload,
+  Users, FileText, Upload, LogOut,
 } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
 import { Profile } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { cn, getInitials, getRoleLabel } from '@/lib/utils';
 
 // ── Page title map ───────────────────────────────────────────
 function getPageTitle(pathname: string): string {
@@ -203,11 +203,13 @@ interface AppTopbarProps {
   profile: Profile | null;
   pendingCount?: number;
   onMobileMenuToggle: () => void;
+  onSignOut?: () => void;
 }
 
-export function AppTopbar({ profile, pendingCount = 0, onMobileMenuToggle }: AppTopbarProps) {
+export function AppTopbar({ profile, pendingCount = 0, onMobileMenuToggle, onSignOut }: AppTopbarProps) {
   const pathname = usePathname();
   const { theme, toggle } = useTheme();
+  const role = profile?.role ?? 'viewer';
   const title = getPageTitle(pathname);
 
   return (
@@ -315,6 +317,41 @@ export function AppTopbar({ profile, pendingCount = 0, onMobileMenuToggle }: App
             : <Moon className="h-4 w-4 text-indigo-500" aria-hidden="true" />
           }
         </button>
+
+        {/* Vertical divider */}
+        <div className="h-5 w-px bg-zinc-200 dark:bg-zinc-800 mx-1 hidden sm:block" aria-hidden="true" />
+
+        {/* User Profile */}
+        <div className="hidden sm:flex items-center gap-3">
+          <Link
+            href="/profile"
+            className="flex items-center gap-2 rounded-md px-1.5 py-1 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors group min-w-0"
+          >
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-[11px] font-bold text-indigo-700 dark:text-indigo-300 group-hover:ring-2 group-hover:ring-indigo-400 transition-all">
+              {getInitials(profile?.full_name ?? profile?.id?.slice(0, 2) ?? 'U')}
+            </div>
+            <div className="min-w-0 max-w-[120px]">
+              <p className="text-[12px] font-semibold text-zinc-800 dark:text-zinc-200 truncate leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                {profile?.full_name ?? 'User'}
+              </p>
+              <p className="text-[10px] text-zinc-400 dark:text-zinc-500 truncate capitalize leading-tight">
+                {getRoleLabel(role)}
+              </p>
+            </div>
+          </Link>
+          
+          {onSignOut && (
+            <button
+              type="button"
+              onClick={onSignOut}
+              title="Sign out"
+              className="flex h-8 w-8 items-center justify-center rounded-md text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+              aria-label="Sign out"
+            >
+              <LogOut className="h-4 w-4" aria-hidden="true" />
+            </button>
+          )}
+        </div>
       </div>
     </header>
   );

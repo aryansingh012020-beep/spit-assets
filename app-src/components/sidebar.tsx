@@ -228,46 +228,6 @@ export function Sidebar({ profile, pendingCount = 0, onSignOut, collapsed, onTog
           ))}
         </ul>
       </nav>
-
-      {/* ── User Footer ──────────────────────────────── */}
-      <div className="border-t border-zinc-100 dark:border-zinc-800 p-2">
-        <Link
-          href="/profile"
-          title={collapsed ? (profile?.full_name ?? 'My Profile') : undefined}
-          className={cn(
-            'flex items-center gap-2.5 rounded-md px-2 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors group min-w-0',
-            collapsed ? 'justify-center' : ''
-          )}
-        >
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-[11px] font-bold text-indigo-700 dark:text-indigo-300 group-hover:ring-2 group-hover:ring-indigo-400 transition-all">
-            {getInitials(profile?.full_name ?? profile?.id?.slice(0, 2) ?? 'U')}
-          </div>
-          {!collapsed && (
-            <div className="min-w-0 flex-1">
-              <p className="text-[12px] font-semibold text-zinc-800 dark:text-zinc-200 truncate leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                {profile?.full_name ?? 'User'}
-              </p>
-              <p className="text-[10px] text-zinc-400 dark:text-zinc-500 truncate capitalize leading-tight">
-                {getRoleLabel(role)}
-              </p>
-            </div>
-          )}
-        </Link>
-
-        <button
-          type="button"
-          onClick={onSignOut}
-          title={collapsed ? 'Sign out' : undefined}
-          className={cn(
-            'mt-0.5 flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-[12px] font-medium text-zinc-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer',
-            collapsed ? 'justify-center' : ''
-          )}
-          aria-label="Sign out"
-        >
-          <LogOut className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-          {!collapsed && <span>Sign out</span>}
-        </button>
-      </div>
     </aside>
   );
 }
