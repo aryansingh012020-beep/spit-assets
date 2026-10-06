@@ -23,180 +23,246 @@ async function getCurrentUserAndProfile() {
 // ============================================================
 // Submit ADD request
 // ============================================================
-export async function submitAddRequest(formData: FormData) {
-  const { user, profile, supabase } = await getCurrentUserAndProfile();
+export async function submitAddRequest(data: AddAssetFormData): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { user, profile } = await getCurrentUserAndProfile();
 
-  if (!['asset_manager', 'approver'].includes(profile.role)) {
-    throw new Error('Unauthorized');
+    if (!['asset_manager', 'approver'].includes(profile.role)) {
+      return { success: false, error: 'Unauthorized: You must be an Asset Manager or Approver to submit asset requests.' };
+    }
+
+    const name = data.name?.trim();
+    const roomId = data.room_id?.trim();
+    const categoryId = data.category_id?.trim();
+    const reason = data.reason?.trim();
+
+    if (!name) {
+      return { success: false, error: 'Asset name is required.' };
+    }
+    if (!roomId) {
+      return { success: false, error: 'Location / Room is required.' };
+    }
+    if (!categoryId) {
+      return { success: false, error: 'Category is required.' };
+    }
+    if (!reason) {
+      return { success: false, error: 'Justification / Reason is required.' };
+    }
+
+    const parsedYear = data.acquisition_year
+      ? (typeof data.acquisition_year === 'string' ? parseInt(data.acquisition_year, 10) : data.acquisition_year)
+      : undefined;
+
+    const newValues = {
+      name,
+      asset_tag:        data.asset_tag?.trim() || null,
+      category_id:      categoryId,
+      room_id:          roomId,
+      acquisition_year: (parsedYear && !isNaN(parsedYear)) ? parsedYear : null,
+      status:           data.status || 'active',
+      description:      data.description?.trim() || null,
+    };
+
+    const institutionId = profile.institution_id || '00000000-0000-0000-0000-000000000001';
+
+    const admin = createAdminClient();
+    const { error } = await admin.from('change_requests').insert({
+      institution_id: institutionId,
+      type:           'addition',
+      status:         'pending',
+      requested_by:   user.id,
+      reason,
+      new_values:     newValues,
+      old_values:     {},
+    });
+
+    if (error) {
+      console.error('Error inserting change_request (addition):', error);
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath('/approvals');
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (err: any) {
+    console.error('submitAddRequest uncaught error:', err);
+    return { success: false, error: err.message || 'An unexpected error occurred while submitting the request.' };
   }
-
-  const newValues = {
-    name:             formData.get('name') as string,
-    asset_tag:        formData.get('asset_tag') as string || undefined,
-    category_id:      formData.get('category_id') as string,
-    room_id:          formData.get('room_id') as string,
-    acquisition_year: formData.get('acquisition_year')
-      ? parseInt(formData.get('acquisition_year') as string)
-      : undefined,
-    status:           formData.get('status') as string || 'active',
-    description:      formData.get('description') as string || undefined,
-  };
-
-  const reason = formData.get('reason') as string;
-
-  if (!newValues.name || !newValues.room_id) {
-    throw new Error('Name and room are required');
-  }
-
-  const { error } = await supabase.from('change_requests').insert({
-    institution_id: profile.institution_id,
-    type:           'addition',
-    status:         'pending',
-    requested_by:   user.id,
-    reason,
-    new_values:     newValues,
-    old_values:     {},
-  });
-
-  if (error) throw new Error(error.message);
-
-  revalidatePath('/approvals');
-  revalidatePath('/dashboard');
 }
 
 // ============================================================
 // Submit TRANSFER request
 // ============================================================
-export async function submitTransferRequest(data: TransferRequestFormData) {
-  const { user, profile, supabase } = await getCurrentUserAndProfile();
+export async function submitTransferRequest(data: TransferRequestFormData): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { user, profile } = await getCurrentUserAndProfile();
 
-  if (!['asset_manager', 'approver'].includes(profile.role)) {
-    throw new Error('Unauthorized');
+    if (!['asset_manager', 'approver'].includes(profile.role)) {
+      return { success: false, error: 'Unauthorized: You must be an Asset Manager or Approver.' };
+    }
+
+    const admin = createAdminClient();
+
+    // Check no pending requests already exist for this asset
+    const { data: existing } = await admin
+      .from('change_requests')
+      .select('id, type')
+      .eq('asset_id', data.asset_id)
+      .eq('status', 'pending')
+      .limit(1)
+      .maybeSingle();
+
+    if (existing) {
+      return {
+        success: false,
+        error: `This asset already has a pending ${existing.type} request. Resolve it before submitting a new one.`,
+      };
+    }
+
+    const institutionId = profile.institution_id || '00000000-0000-0000-0000-000000000001';
+
+    const { error } = await admin.from('change_requests').insert({
+      institution_id: institutionId,
+      type:           'transfer',
+      status:         'pending',
+      asset_id:       data.asset_id,
+      requested_by:   user.id,
+      reason:         data.reason?.trim() || 'Asset transfer request',
+      new_values:     { to_room_id: data.to_room_id },
+      old_values:     {},
+    });
+
+    if (error) {
+      console.error('Error inserting change_request (transfer):', error);
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath('/approvals');
+    revalidatePath('/transfers');
+    revalidatePath(`/inventory/${data.asset_id}`);
+    return { success: true };
+  } catch (err: any) {
+    console.error('submitTransferRequest uncaught error:', err);
+    return { success: false, error: err.message || 'Failed to submit transfer request' };
   }
-
-  // Check no pending requests already exist for this asset
-  const { data: existing } = await supabase
-    .from('change_requests')
-    .select('id, type')
-    .eq('asset_id', data.asset_id)
-    .eq('status', 'pending')
-    .limit(1)
-    .maybeSingle();
-
-  if (existing) {
-    throw new Error(
-      `This asset already has a pending ${existing.type} request. Resolve it before submitting a new one.`
-    );
-  }
-
-  const { error } = await supabase.from('change_requests').insert({
-    institution_id: profile.institution_id,
-    type:           'transfer',
-    status:         'pending',
-    asset_id:       data.asset_id,
-    requested_by:   user.id,
-    reason:         data.reason,
-    new_values:     { to_room_id: data.to_room_id },
-    old_values:     {},
-  });
-
-  if (error) throw new Error(error.message);
-
-  revalidatePath('/approvals');
-  revalidatePath('/transfers');
-  revalidatePath(`/inventory/${data.asset_id}`);
 }
 
 // ============================================================
 // Submit EDIT request
 // ============================================================
-export async function submitEditRequest(data: EditRequestFormData) {
-  const { user, profile, supabase } = await getCurrentUserAndProfile();
+export async function submitEditRequest(data: EditRequestFormData): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { user, profile } = await getCurrentUserAndProfile();
 
-  if (!['asset_manager', 'approver'].includes(profile.role)) {
-    throw new Error('Unauthorized');
+    if (!['asset_manager', 'approver'].includes(profile.role)) {
+      return { success: false, error: 'Unauthorized: You must be an Asset Manager or Approver.' };
+    }
+
+    const admin = createAdminClient();
+
+    // Check no pending requests
+    const { data: existing } = await admin
+      .from('change_requests')
+      .select('id, type')
+      .eq('asset_id', data.asset_id)
+      .eq('status', 'pending')
+      .limit(1)
+      .maybeSingle();
+
+    if (existing) {
+      return { success: false, error: `Asset has a pending ${existing.type} request.` };
+    }
+
+    // Capture old values
+    const { data: asset } = await admin
+      .from('assets')
+      .select('name, description, category_id, acquisition_year')
+      .eq('id', data.asset_id)
+      .single();
+
+    const institutionId = profile.institution_id || '00000000-0000-0000-0000-000000000001';
+
+    const { error } = await admin.from('change_requests').insert({
+      institution_id: institutionId,
+      type:           'edit',
+      status:         'pending',
+      asset_id:       data.asset_id,
+      requested_by:   user.id,
+      reason:         data.reason?.trim() || 'Asset details edit request',
+      new_values:     {
+        name:             data.name?.trim(),
+        description:      data.description?.trim() || null,
+        category_id:      data.category_id,
+        acquisition_year: data.acquisition_year || null,
+      },
+      old_values: asset ?? {},
+    });
+
+    if (error) {
+      console.error('Error inserting change_request (edit):', error);
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath('/approvals');
+    revalidatePath(`/inventory/${data.asset_id}`);
+    return { success: true };
+  } catch (err: any) {
+    console.error('submitEditRequest uncaught error:', err);
+    return { success: false, error: err.message || 'Failed to submit edit request' };
   }
-
-  // Check no pending requests
-  const { data: existing } = await supabase
-    .from('change_requests')
-    .select('id, type')
-    .eq('asset_id', data.asset_id)
-    .eq('status', 'pending')
-    .limit(1)
-    .maybeSingle();
-
-  if (existing) {
-    throw new Error(`Asset has a pending ${existing.type} request`);
-  }
-
-  // Capture old values
-  const { data: asset } = await supabase
-    .from('assets')
-    .select('name, description, category_id, acquisition_year')
-    .eq('id', data.asset_id)
-    .single();
-
-  const { error } = await supabase.from('change_requests').insert({
-    institution_id: profile.institution_id,
-    type:           'edit',
-    status:         'pending',
-    asset_id:       data.asset_id,
-    requested_by:   user.id,
-    reason:         data.reason,
-    new_values:     {
-      name:             data.name,
-      description:      data.description,
-      category_id:      data.category_id,
-      acquisition_year: data.acquisition_year,
-    },
-    old_values: asset ?? {},
-  });
-
-  if (error) throw new Error(error.message);
-
-  revalidatePath('/approvals');
-  revalidatePath(`/inventory/${data.asset_id}`);
 }
 
 // ============================================================
 // Submit DELETION request
 // ============================================================
-export async function submitDeleteRequest(data: DeleteRequestFormData) {
-  const { user, profile, supabase } = await getCurrentUserAndProfile();
+export async function submitDeleteRequest(data: DeleteRequestFormData): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { user, profile } = await getCurrentUserAndProfile();
 
-  if (!['asset_manager', 'approver'].includes(profile.role)) {
-    throw new Error('Unauthorized');
+    if (!['asset_manager', 'approver'].includes(profile.role)) {
+      return { success: false, error: 'Unauthorized: You must be an Asset Manager or Approver.' };
+    }
+
+    const admin = createAdminClient();
+
+    // Check no pending requests
+    const { data: existing } = await admin
+      .from('change_requests')
+      .select('id, type')
+      .eq('asset_id', data.asset_id)
+      .eq('status', 'pending')
+      .limit(1)
+      .maybeSingle();
+
+    if (existing) {
+      return { success: false, error: `Asset has a pending ${existing.type} request.` };
+    }
+
+    const institutionId = profile.institution_id || '00000000-0000-0000-0000-000000000001';
+
+    const { error } = await admin.from('change_requests').insert({
+      institution_id: institutionId,
+      type:           'deletion',
+      status:         'pending',
+      asset_id:       data.asset_id,
+      requested_by:   user.id,
+      reason:         data.reason?.trim() || 'Asset disposal request',
+      new_values:     { disposition: data.disposition },
+      old_values:     {},
+    });
+
+    if (error) {
+      console.error('Error inserting change_request (deletion):', error);
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath('/approvals');
+    revalidatePath(`/inventory/${data.asset_id}`);
+    return { success: true };
+  } catch (err: any) {
+    console.error('submitDeleteRequest uncaught error:', err);
+    return { success: false, error: err.message || 'Failed to submit deletion request' };
   }
-
-  // Check no pending requests
-  const { data: existing } = await supabase
-    .from('change_requests')
-    .select('id, type')
-    .eq('asset_id', data.asset_id)
-    .eq('status', 'pending')
-    .limit(1)
-    .maybeSingle();
-
-  if (existing) {
-    throw new Error(`Asset has a pending ${existing.type} request`);
-  }
-
-  const { error } = await supabase.from('change_requests').insert({
-    institution_id: profile.institution_id,
-    type:           'deletion',
-    status:         'pending',
-    asset_id:       data.asset_id,
-    requested_by:   user.id,
-    reason:         data.reason,
-    new_values:     { disposition: data.disposition },
-    old_values:     {},
-  });
-
-  if (error) throw new Error(error.message);
-
-  revalidatePath('/approvals');
-  revalidatePath(`/inventory/${data.asset_id}`);
 }
 
 // ============================================================
@@ -218,46 +284,59 @@ export async function submitPhotoApprovalRequest({
   fileName?: string;
   fileSize?: number;
   mimeType?: string;
-}) {
-  const { user, profile, supabase } = await getCurrentUserAndProfile();
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { user, profile } = await getCurrentUserAndProfile();
 
-  if (!['asset_manager', 'approver'].includes(profile.role)) {
-    throw new Error('Unauthorized: You must be an Asset Manager or Approver to submit photos.');
+    if (!['asset_manager', 'approver'].includes(profile.role)) {
+      return { success: false, error: 'Unauthorized: You must be an Asset Manager or Approver to submit photos.' };
+    }
+
+    const admin = createAdminClient();
+    const { data: asset } = await admin
+      .from('assets')
+      .select('id, name, asset_tag')
+      .eq('id', assetId)
+      .single();
+
+    if (!asset) {
+      return { success: false, error: 'Asset not found.' };
+    }
+
+    const institutionId = profile.institution_id || '00000000-0000-0000-0000-000000000001';
+
+    const { error } = await admin.from('change_requests').insert({
+      institution_id: institutionId,
+      type:           'edit',
+      status:         'pending',
+      asset_id:       assetId,
+      requested_by:   user.id,
+      reason:         reason?.trim() || `Physical asset photo verification for ${asset.asset_tag}`,
+      photo_path:     storagePath,
+      new_values: {
+        is_photo_approval: true,
+        storage_path:      storagePath,
+        photo_url:         publicUrl,
+        file_name:         fileName || 'equipment-photo.jpg',
+        file_size:         fileSize || 0,
+        mime_type:         mimeType || 'image/jpeg',
+      },
+      old_values: {},
+    });
+
+    if (error) {
+      console.error('Error inserting photo change_request:', error);
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath('/approvals');
+    revalidatePath(`/inventory/${assetId}`);
+    revalidatePath('/inventory');
+    return { success: true };
+  } catch (err: any) {
+    console.error('submitPhotoApprovalRequest uncaught error:', err);
+    return { success: false, error: err.message || 'Failed to submit photo verification request' };
   }
-
-  const { data: asset } = await supabase
-    .from('assets')
-    .select('id, name, asset_tag')
-    .eq('id', assetId)
-    .single();
-
-  if (!asset) throw new Error('Asset not found');
-
-  const { error } = await supabase.from('change_requests').insert({
-    institution_id: profile.institution_id,
-    type:           'edit',
-    status:         'pending',
-    asset_id:       assetId,
-    requested_by:   user.id,
-    reason:         reason?.trim() || `Physical asset photo verification for ${asset.asset_tag}`,
-    photo_path:     storagePath,
-    new_values: {
-      is_photo_approval: true,
-      storage_path:      storagePath,
-      photo_url:         publicUrl,
-      file_name:         fileName || 'equipment-photo.jpg',
-      file_size:         fileSize || 0,
-      mime_type:         mimeType || 'image/jpeg',
-    },
-    old_values: {},
-  });
-
-  if (error) throw new Error(error.message);
-
-  revalidatePath('/approvals');
-  revalidatePath(`/inventory/${assetId}`);
-  revalidatePath('/inventory');
-  return { success: true };
 }
 
 // ============================================================

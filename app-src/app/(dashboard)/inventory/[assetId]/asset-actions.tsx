@@ -51,11 +51,16 @@ export function AssetActions({
     setLoading(true);
     try {
       const fd = new FormData(e.currentTarget);
-      await submitTransferRequest({
+      const res = await submitTransferRequest({
         asset_id: assetId,
         to_room_id: fd.get('to_room_id') as string,
         reason: fd.get('reason') as string,
       });
+
+      if (!res.success) {
+        toast({ variant: 'error', title: 'Transfer Failed', description: res.error || 'Could not submit transfer' });
+        return;
+      }
 
       toast({ variant: 'success', title: 'Transfer Requested', description: 'Request submitted for review.' });
       setTransferOpen(false);
@@ -72,14 +77,19 @@ export function AssetActions({
     setLoading(true);
     try {
       const fd = new FormData(e.currentTarget);
-      await submitEditRequest({
+      const res = await submitEditRequest({
         asset_id: assetId,
         name: fd.get('name') as string,
         category_id: fd.get('category_id') as string,
-        acquisition_year: fd.get('acquisition_year') ? parseInt(fd.get('acquisition_year') as string) : undefined,
+        acquisition_year: fd.get('acquisition_year') ? parseInt(fd.get('acquisition_year') as string, 10) : undefined,
         description: fd.get('description') as string,
         reason: fd.get('reason') as string,
       });
+
+      if (!res.success) {
+        toast({ variant: 'error', title: 'Edit Failed', description: res.error || 'Could not submit edit' });
+        return;
+      }
 
       toast({ variant: 'success', title: 'Edit Requested', description: 'Changes submitted for approver review.' });
       setEditOpen(false);
@@ -96,11 +106,16 @@ export function AssetActions({
     setLoading(true);
     try {
       const fd = new FormData(e.currentTarget);
-      await submitDeleteRequest({
+      const res = await submitDeleteRequest({
         asset_id: assetId,
         disposition: fd.get('disposition') as any,
         reason: fd.get('reason') as string,
       });
+
+      if (!res.success) {
+        toast({ variant: 'error', title: 'Request Failed', description: res.error || 'Could not submit retirement' });
+        return;
+      }
 
       toast({ variant: 'success', title: 'Disposition Requested', description: 'Retirement request submitted for review.' });
       setDeleteOpen(false);

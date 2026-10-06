@@ -43,11 +43,16 @@ export function InventoryRowActions({
     setLoading(true);
     try {
       const fd = new FormData(e.currentTarget);
-      await submitTransferRequest({
+      const res = await submitTransferRequest({
         asset_id: assetId,
         to_room_id: fd.get('to_room_id') as string,
         reason: fd.get('reason') as string,
       });
+
+      if (!res.success) {
+        toast({ variant: 'error', title: 'Transfer Failed', description: res.error || 'Could not submit transfer' });
+        return;
+      }
 
       toast({ variant: 'success', title: 'Transfer Requested', description: `Transfer request for ${assetTag} submitted for approval.` });
       setTransferOpen(false);
@@ -64,11 +69,16 @@ export function InventoryRowActions({
     setLoading(true);
     try {
       const fd = new FormData(e.currentTarget);
-      await submitDeleteRequest({
+      const res = await submitDeleteRequest({
         asset_id: assetId,
         disposition: (fd.get('disposition') as any) || 'retired',
         reason: fd.get('reason') as string,
       });
+
+      if (!res.success) {
+        toast({ variant: 'error', title: 'Request Failed', description: res.error || 'Could not submit disposal request' });
+        return;
+      }
 
       toast({ variant: 'success', title: 'Deletion Requested', description: `Disposal request for ${assetTag} submitted for approval.` });
       setDeleteOpen(false);

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { StatusBadge } from '@/components/status-badge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/toast';
 import { buildLocationString, formatDateTime, formatRelativeTime } from '@/lib/utils';
 import { fetchAssetInspectorDetails } from '@/lib/actions/assets';
@@ -77,6 +78,7 @@ export function AssetInspectorDrawer({
   const [loading, setLoading] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState<'overview' | 'comments' | 'history'>('overview');
+  const [viewingPhotoUrl, setViewingPhotoUrl] = React.useState<string | null>(null);
 
   const { toast } = useToast();
 
@@ -340,14 +342,13 @@ export function AssetInspectorDrawer({
                         <span className="absolute top-2 left-2 rounded bg-indigo-600/90 text-white text-[9px] font-bold px-1.5 py-0.5 shadow backdrop-blur-sm">
                           VERIFIED PHOTO
                         </span>
-                        <a
-                          href={asset.photos.find((p: any) => p.is_primary)?.url || asset.photos[0]?.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          type="button"
+                          onClick={() => setViewingPhotoUrl(asset.photos.find((p: any) => p.is_primary)?.url || asset.photos[0]?.url)}
                           className="absolute bottom-2 right-2 rounded-md bg-black/70 backdrop-blur-xs text-white text-[10px] px-2 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 font-mono"
                         >
                           <ExternalLink className="h-2.5 w-2.5" /> Full Size
-                        </a>
+                        </button>
                       </div>
                     )}
 
@@ -475,6 +476,20 @@ export function AssetInspectorDrawer({
           </div>
         </div>
       </div>
+
+      <Dialog open={!!viewingPhotoUrl} onOpenChange={(o) => !o && setViewingPhotoUrl(null)}>
+        <DialogContent className="max-w-4xl p-1 bg-black/95 border-none shadow-2xl h-[90vh] flex flex-col justify-center">
+          <DialogTitle className="sr-only">Asset Photo</DialogTitle>
+          <DialogDescription className="sr-only">Full size view of the asset photo</DialogDescription>
+          {viewingPhotoUrl && (
+            <img
+              src={viewingPhotoUrl}
+              alt="Asset full size"
+              className="w-full h-full object-contain"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

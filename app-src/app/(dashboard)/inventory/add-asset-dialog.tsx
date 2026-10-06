@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input, Textarea } from '@/components/ui/primitives';
 import { useToast } from '@/components/ui/toast';
 import { submitAddRequest } from '@/lib/actions/requests';
+import { AddAssetFormData, AssetStatus } from '@/lib/types';
 import { Plus, PackagePlus, Building2, MapPin, Tag, ClipboardList, Info } from 'lucide-react';
 
 interface AddAssetDialogProps {
@@ -102,7 +103,30 @@ export function AddAssetDialog({
 
     try {
       const formData = new FormData(e.currentTarget);
-      await submitAddRequest(formData);
+      const acqYearRaw = formData.get('acquisition_year') as string;
+      const parsedYear = acqYearRaw ? parseInt(acqYearRaw, 10) : undefined;
+
+      const payload: AddAssetFormData = {
+        name: ((formData.get('name') as string) || '').trim(),
+        asset_tag: ((formData.get('asset_tag') as string) || '').trim() || undefined,
+        category_id: ((formData.get('category_id') as string) || '').trim(),
+        room_id: ((formData.get('room_id') as string) || '').trim(),
+        acquisition_year: Number.isFinite(parsedYear) ? parsedYear : undefined,
+        status: ((formData.get('status') as AssetStatus) || 'active'),
+        description: ((formData.get('description') as string) || '').trim() || undefined,
+        reason: ((formData.get('reason') as string) || '').trim(),
+      };
+
+      const result = await submitAddRequest(payload);
+
+      if (!result.success) {
+        toast({
+          variant: 'error',
+          title: 'Request Failed',
+          description: result.error || 'Failed to submit request',
+        });
+        return;
+      }
 
       toast({
         variant: 'success',
@@ -112,7 +136,11 @@ export function AddAssetDialog({
       handleOpenChange(false);
       router.refresh();
     } catch (err: any) {
-      toast({ variant: 'error', title: 'Request Failed', description: err.message || 'Failed to submit request' });
+      toast({
+        variant: 'error',
+        title: 'Request Failed',
+        description: err.message || 'Failed to submit request',
+      });
     } finally {
       setLoading(false);
     }

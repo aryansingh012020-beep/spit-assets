@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { formatDateTime, getAssetPhotoUrl } from '@/lib/utils';
 import { CheckSquare, Clock, Camera, ExternalLink, PackagePlus, MapPin, Tag, Layers } from 'lucide-react';
 import { ApprovalActions } from './approval-actions';
+import { ImageViewerDialog } from '@/components/image-viewer-dialog';
 import { isDemoMode, DEMO_PENDING_REQUESTS } from '@/lib/demo-data';
 
 export const dynamic = 'force-dynamic';
@@ -193,12 +194,10 @@ function ApprovalsContent({ requests, role, userId, params }: { requests: any[];
                         {/* Photo Request Card preview */}
                         {isPhotoRequest && photoUrl && (
                           <div className="mt-3 flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/60">
-                            <a
-                              href={photoUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
+                            <ImageViewerDialog
+                              url={photoUrl}
+                              alt="Asset verification photo"
                               className="relative h-24 w-36 shrink-0 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700 bg-zinc-900 group"
-                              title="Click to view full size image"
                             >
                               <img
                                 src={photoUrl}
@@ -208,7 +207,7 @@ function ApprovalsContent({ requests, role, userId, params }: { requests: any[];
                               <span className="absolute bottom-1 right-1 rounded bg-black/70 px-1.5 py-0.5 text-[9px] text-white flex items-center gap-1 font-mono">
                                 <ExternalLink className="h-2.5 w-2.5" /> Full Size
                               </span>
-                            </a>
+                            </ImageViewerDialog>
                             <div className="text-xs space-y-1 min-w-0">
                               <p className="font-semibold text-zinc-900 dark:text-white flex items-center gap-1.5">
                                 <Camera className="h-3.5 w-3.5 text-indigo-500" />

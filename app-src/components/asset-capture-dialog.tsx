@@ -123,7 +123,7 @@ export function AssetCaptureDialog({
       });
 
       if (!res?.success) {
-        throw new Error('Failed to record photo approval request.');
+        throw new Error(res?.error || 'Failed to record photo approval request.');
       }
 
       toast.success(

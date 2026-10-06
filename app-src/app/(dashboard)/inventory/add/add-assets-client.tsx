@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/primitives';
 import { submitAddRequest } from '@/lib/actions/requests';
+import { AddAssetFormData, AssetStatus } from '@/lib/types';
 import { useToast } from '@/components/ui/toast';
 import { cn } from '@/lib/utils';
 
@@ -199,17 +200,22 @@ export function AddAssetsClient({ categories, rooms, buildings, floors, isApprov
 
     for (const item of queue) {
       try {
-        const fd = new FormData();
-        fd.set('name', item.name);
-        if (item.asset_tag) fd.set('asset_tag', item.asset_tag);
-        fd.set('category_id', item.category_id);
-        fd.set('room_id', item.room_id);
-        fd.set('status', item.status);
-        if (item.acquisition_year) fd.set('acquisition_year', item.acquisition_year);
-        if (item.description) fd.set('description', item.description);
-        fd.set('reason', item.reason);
-        await submitAddRequest(fd);
-        successCount++;
+        const payload: AddAssetFormData = {
+          name: item.name?.trim(),
+          asset_tag: item.asset_tag?.trim() || undefined,
+          category_id: item.category_id,
+          room_id: item.room_id,
+          status: (item.status as AssetStatus) || 'active',
+          acquisition_year: item.acquisition_year ? parseInt(item.acquisition_year, 10) : undefined,
+          description: item.description?.trim() || undefined,
+          reason: item.reason?.trim(),
+        };
+        const res = await submitAddRequest(payload);
+        if (!res.success) {
+          errors.push(`"${item.name}": ${res.error || 'Submission failed'}`);
+        } else {
+          successCount++;
+        }
       } catch (e: any) {
         errors.push(`"${item.name}": ${e.message}`);
       }
