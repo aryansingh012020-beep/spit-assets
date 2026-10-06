@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, EmptyState } from '@/componen
 import { StatusBadge } from '@/components/status-badge';
 import { Badge } from '@/components/ui/badge';
 import { buildLocationString } from '@/lib/utils';
-import { ArrowLeft, DoorOpen, Package, MapPin, Users, Layers, Building2, UserCheck, Upload, Plus } from 'lucide-react';
+import { ArrowLeft, DoorOpen, Package, MapPin, Users, Layers, Building2, UserCheck, Upload, Plus, PackagePlus, Clock } from 'lucide-react';
 import { InventoryRowActions } from '@/app/(dashboard)/inventory/inventory-row-actions';
 import { RoomInChargeDialog } from '@/components/room-in-charge-dialog';
 import { RoomAssetIngestionDialog } from '@/components/room-asset-ingestion-dialog';
@@ -29,7 +29,13 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ roo
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const [{ data: profile }, { data: assets }, { data: allRooms }, { data: categories }] = await Promise.all([
+  const [
+    { data: profile },
+    { data: assets },
+    { data: allRooms },
+    { data: categories },
+    { data: pendingRoomAdditions },
+  ] = await Promise.all([
     supabase.from('profiles').select('role').eq('id', user.id).single(),
     supabase
       .from('assets')
@@ -41,6 +47,12 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ roo
       .order('asset_tag'),
     supabase.from('rooms').select('id, name, room_number, floor_id, building_id').order('name'),
     supabase.from('asset_categories').select('id, name').order('name'),
+    supabase
+      .from('change_requests')
+      .select('id, reason, created_at, new_values, requester:profiles!requested_by(full_name)')
+      .eq('status', 'pending')
+      .eq('type', 'addition')
+      .contains('new_values', { room_id: roomId }),
   ]);
 
   const isApprover = profile?.role === 'approver';
@@ -159,6 +171,7 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ roo
                 defaultRoomId={room.id}
                 defaultBuildingId={building?.id}
                 defaultFloorId={floor?.id}
+                isApprover={isApprover}
                 trigger={
                   <Button size="sm" className="gap-1.5 text-xs">
                     <Plus className="h-3.5 w-3.5" />
@@ -329,6 +342,7 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ roo
                       defaultRoomId={room.id}
                       defaultBuildingId={building?.id}
                       defaultFloorId={floor?.id}
+                      isApprover={isApprover}
                       trigger={
                         <Button
                           type="button"
@@ -367,6 +381,25 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ roo
                 </Link>
               </div>
             </div>
+
+            {/* Pending Additions Banner for this Room */}
+            {pendingRoomAdditions && pendingRoomAdditions.length > 0 && (
+              <div className="mt-3 flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50/80 px-3.5 py-2.5 text-xs text-amber-900 dark:border-amber-800/60 dark:bg-amber-950/30 dark:text-amber-200">
+                <div className="flex items-center gap-2">
+                  <PackagePlus className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                  <span>
+                    <strong>{pendingRoomAdditions.length} addition request{pendingRoomAdditions.length > 1 ? 's' : ''} pending approval</strong> for this room
+                    {pendingRoomAdditions.map(p => ` — ${(p.new_values as any)?.name || 'Unnamed'}`).join(', ')}.
+                  </span>
+                </div>
+                <Link
+                  href="/approvals?type=addition"
+                  className="font-semibold underline hover:text-amber-700 dark:hover:text-amber-100 shrink-0 ml-2"
+                >
+                  View Approvals →
+                </Link>
+              </div>
+            )}
           </CardHeader>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-zinc-100 dark:divide-zinc-800">
@@ -401,6 +434,7 @@ export default async function RoomDetailPage({ params }: { params: Promise<{ roo
                             defaultRoomId={room.id}
                             defaultBuildingId={building?.id}
                             defaultFloorId={floor?.id}
+                            isApprover={isApprover}
                             trigger={
                               <Button size="sm" className="gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs">
                                 <Plus className="h-3.5 w-3.5" />

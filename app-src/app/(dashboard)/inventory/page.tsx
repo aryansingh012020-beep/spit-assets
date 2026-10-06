@@ -103,17 +103,19 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
     buildings={buildings ?? []}
     floors={floors ?? []}
     canRequest={canRequest}
+    isApprover={profile?.role === 'approver'}
     roomName={params.room ? rooms?.find(r => r.id === params.room)?.name : undefined}
   />;
 }
 
-function InventoryTable({ assets, count, page, totalPages, params, categories, rooms, buildings, floors, canRequest, roomName }: {
+function InventoryTable({ assets, count, page, totalPages, params, categories, rooms, buildings, floors, canRequest, isApprover = false, roomName }: {
   assets: any[]; count: number; page: number; totalPages: number;
   params: SearchParams; categories: { id: string; name: string }[];
   rooms: { id: string; name: string; room_number: string | null; floor_id?: string; building_id?: string }[];
   buildings: { id: string; name: string; code: string }[];
   floors: { id: string; name: string; building_id: string }[];
   canRequest: boolean;
+  isApprover?: boolean;
   roomName?: string;
 }) {
   function buildHref(overrides: Partial<SearchParams>) {
@@ -155,6 +157,7 @@ function InventoryTable({ assets, count, page, totalPages, params, categories, r
               rooms={rooms}
               buildings={buildings}
               floors={floors}
+              isApprover={isApprover}
             />
           )}
         </div>

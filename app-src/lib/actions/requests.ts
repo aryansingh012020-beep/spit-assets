@@ -23,7 +23,13 @@ async function getCurrentUserAndProfile() {
 // ============================================================
 // Submit ADD request
 // ============================================================
-export async function submitAddRequest(data: AddAssetFormData): Promise<{ success: boolean; error?: string }> {
+export async function submitAddRequest(data: AddAssetFormData): Promise<{
+  success: boolean;
+  error?: string;
+  directApproved?: boolean;
+  assetId?: string;
+  assetTag?: string;
+}> {
   try {
     const { user, profile } = await getCurrentUserAndProfile();
 
@@ -53,19 +59,125 @@ export async function submitAddRequest(data: AddAssetFormData): Promise<{ succes
       ? (typeof data.acquisition_year === 'string' ? parseInt(data.acquisition_year, 10) : data.acquisition_year)
       : undefined;
 
+    const acquisitionYear = (parsedYear && !isNaN(parsedYear)) ? parsedYear : null;
+    const institutionId = profile.institution_id || '00000000-0000-0000-0000-000000000001';
+    const admin = createAdminClient();
+
+    // ────────────────────────────────────────────────────────────
+    // If the caller is an APPROVER, directly commit asset to inventory
+    // ────────────────────────────────────────────────────────────
+    if (profile.role === 'approver') {
+      let finalAssetTag = data.asset_tag?.trim() || null;
+
+      // Auto-generate tag if not explicitly supplied
+      if (!finalAssetTag) {
+        const { data: cat } = await admin
+          .from('asset_categories')
+          .select('code')
+          .eq('id', categoryId)
+          .single();
+
+        const catCode = cat?.code || 'GEN';
+        const { data: generatedTag } = await admin.rpc('generate_asset_tag', {
+          p_institution_id: institutionId,
+          p_category_code: catCode,
+          p_year: acquisitionYear,
+        });
+
+        finalAssetTag = generatedTag || null;
+      }
+
+      // Fetch room hierarchy
+      const { data: roomInfo } = await admin
+        .from('rooms')
+        .select('id, floor_id, building_id')
+        .eq('id', roomId)
+        .single();
+
+      // Insert directly into assets
+      const { data: newAsset, error: assetErr } = await admin
+        .from('assets')
+        .insert({
+          institution_id:  institutionId,
+          asset_tag:       finalAssetTag,
+          name:            name,
+          description:     data.description?.trim() || null,
+          category_id:     categoryId,
+          room_id:         roomId,
+          floor_id:        roomInfo?.floor_id || null,
+          building_id:     roomInfo?.building_id || null,
+          status:          data.status || 'active',
+          acquisition_year: acquisitionYear,
+        })
+        .select('id, asset_tag')
+        .single();
+
+      if (assetErr) {
+        console.error('Direct asset creation error:', assetErr);
+        return { success: false, error: assetErr.message };
+      }
+
+      // Log creation in asset_history
+      await admin.from('asset_history').insert({
+        asset_id:     newAsset.id,
+        event_type:   'creation',
+        performed_by: user.id,
+        approved_by:  user.id,
+        to_location:  { room_id: roomId },
+        reason:       reason,
+        new_value:    { asset_tag: newAsset.asset_tag, name: name },
+        metadata:     { direct_creation: true },
+      });
+
+      // Also record an approved change_request for complete institutional audit trail
+      await admin.from('change_requests').insert({
+        institution_id: institutionId,
+        type:           'addition',
+        status:         'approved',
+        asset_id:       newAsset.id,
+        requested_by:   user.id,
+        reviewed_by:    user.id,
+        reviewed_at:    new Date().toISOString(),
+        reason:         reason,
+        new_values: {
+          name,
+          asset_tag:        newAsset.asset_tag,
+          category_id:      categoryId,
+          room_id:          roomId,
+          acquisition_year: acquisitionYear,
+          status:           data.status || 'active',
+          description:      data.description?.trim() || null,
+        },
+        old_values: {},
+      });
+
+      revalidatePath('/inventory');
+      revalidatePath('/locations/rooms');
+      revalidatePath(`/locations/rooms/${roomId}`);
+      revalidatePath('/dashboard');
+      revalidatePath('/approvals');
+
+      return {
+        success: true,
+        directApproved: true,
+        assetId: newAsset.id,
+        assetTag: newAsset.asset_tag,
+      };
+    }
+
+    // ────────────────────────────────────────────────────────────
+    // If the caller is an ASSET MANAGER, create pending change request
+    // ────────────────────────────────────────────────────────────
     const newValues = {
       name,
       asset_tag:        data.asset_tag?.trim() || null,
       category_id:      categoryId,
       room_id:          roomId,
-      acquisition_year: (parsedYear && !isNaN(parsedYear)) ? parsedYear : null,
+      acquisition_year: acquisitionYear,
       status:           data.status || 'active',
       description:      data.description?.trim() || null,
     };
 
-    const institutionId = profile.institution_id || '00000000-0000-0000-0000-000000000001';
-
-    const admin = createAdminClient();
     const { error } = await admin.from('change_requests').insert({
       institution_id: institutionId,
       type:           'addition',
@@ -82,8 +194,9 @@ export async function submitAddRequest(data: AddAssetFormData): Promise<{ succes
     }
 
     revalidatePath('/approvals');
+    revalidatePath(`/locations/rooms/${roomId}`);
     revalidatePath('/dashboard');
-    return { success: true };
+    return { success: true, directApproved: false };
   } catch (err: any) {
     console.error('submitAddRequest uncaught error:', err);
     return { success: false, error: err.message || 'An unexpected error occurred while submitting the request.' };

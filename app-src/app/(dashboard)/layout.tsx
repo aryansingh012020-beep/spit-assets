@@ -45,7 +45,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (role === 'approver') {
     const { count } = await supabase
       .from('change_requests').select('*', { count: 'exact', head: true })
-      .eq('status', 'pending').neq('requested_by', user.id);
+      .eq('status', 'pending');
     pendingCount = count ?? 0;
   } else if (role === 'asset_manager') {
     const { count } = await supabase

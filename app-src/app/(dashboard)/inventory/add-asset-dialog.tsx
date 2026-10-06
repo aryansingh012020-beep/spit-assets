@@ -19,6 +19,8 @@ interface AddAssetDialogProps {
   defaultRoomId?: string;
   defaultBuildingId?: string;
   defaultFloorId?: string;
+  /** Whether current user is an approver with direct asset creation authority */
+  isApprover?: boolean;
   /** Optional custom trigger element — defaults to a standard "Add Asset" button */
   trigger?: React.ReactNode;
 }
@@ -48,6 +50,7 @@ export function AddAssetDialog({
   defaultRoomId,
   defaultBuildingId,
   defaultFloorId,
+  isApprover = false,
   trigger,
 }: AddAssetDialogProps) {
   const [open, setOpen] = React.useState(false);
@@ -122,17 +125,26 @@ export function AddAssetDialog({
       if (!result.success) {
         toast({
           variant: 'error',
-          title: 'Request Failed',
+          title: 'Failed to Add Asset',
           description: result.error || 'Failed to submit request',
         });
         return;
       }
 
-      toast({
-        variant: 'success',
-        title: 'Request Submitted',
-        description: 'Asset addition request submitted for approver review. You can track it in the Approvals section.',
-      });
+      if (result.directApproved) {
+        toast({
+          variant: 'success',
+          title: 'Asset Added to Inventory',
+          description: `"${payload.name}" (${result.assetTag || 'Assigned'}) has been directly committed to the room.`,
+        });
+      } else {
+        toast({
+          variant: 'success',
+          title: 'Request Submitted',
+          description: 'Asset addition request submitted for approver review. You can track it in the Approvals section.',
+        });
+      }
+
       handleOpenChange(false);
       router.refresh();
     } catch (err: any) {
@@ -165,19 +177,31 @@ export function AddAssetDialog({
             <DialogHeader className="pb-2">
               <DialogTitle className="flex items-center gap-2 text-lg">
                 <PackagePlus className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                Request New Asset Addition
+                {isApprover ? 'Add New Asset to Inventory' : 'Request New Asset Addition'}
               </DialogTitle>
               <DialogDescription className="text-sm">
-                Fill in all relevant details. This will be sent for approver review before being added to inventory.
+                {isApprover
+                  ? 'Assign equipment directly to this room. As an Approver, this is added immediately.'
+                  : 'Fill in all relevant details. This will be sent for approver review before being added to inventory.'}
               </DialogDescription>
             </DialogHeader>
 
-            {/* Approval notice banner */}
-            <div className="mx-6 mt-3 mb-1 flex items-start gap-2.5 rounded-lg border border-amber-200 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/30 px-3 py-2.5 text-xs text-amber-800 dark:text-amber-300">
+            {/* Notice banner */}
+            <div className={`mx-6 mt-3 mb-1 flex items-start gap-2.5 rounded-lg border px-3 py-2.5 text-xs ${
+              isApprover
+                ? 'border-emerald-200 dark:border-emerald-800/60 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300'
+                : 'border-amber-200 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300'
+            }`}>
               <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
               <span>
-                This request will be reviewed by an approver before the asset is committed to the database.
-                You can track its status in <strong>Approvals → My Requests</strong>.
+                {isApprover
+                  ? 'Approver Privilege: This asset will be committed directly to official inventory without requiring secondary review.'
+                  : (
+                    <>
+                      This request will be reviewed by an approver before the asset is committed to the database.
+                      You can track its status in <strong>Approvals → My Requests</strong>.
+                    </>
+                  )}
               </span>
             </div>
 
@@ -391,7 +415,7 @@ export function AddAssetDialog({
               </Button>
               <Button type="submit" isLoading={loading} className="gap-2">
                 <PackagePlus className="h-4 w-4" />
-                Submit for Approval
+                {isApprover ? 'Add Asset to Inventory' : 'Submit for Approval'}
               </Button>
             </DialogFooter>
           </form>
