@@ -199,6 +199,7 @@ function InventoryTable({ assets, count, page, totalPages, params, categories, r
         rooms={rooms}
         canRequest={canRequest}
         roomName={roomName}
+        isApprover={isApprover}
       />
     </div>
   );

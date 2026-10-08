@@ -11,8 +11,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { createClient } from '@/lib/supabase/client';
-import { submitPhotoApprovalRequest } from '@/lib/actions/requests';
+import { uploadAssetPhotoAction } from '@/lib/actions/requests';
 import { toast } from 'sonner';
 import {
   Camera,
@@ -24,11 +23,71 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 
+import { useToast } from '@/components/ui/toast';
+
 interface AssetCaptureDialogProps {
   assetId: string;
   assetTag?: string | null;
   assetName: string;
   trigger?: React.ReactNode;
+  onPhotoUploaded?: (photoUrl: string) => void;
+  isApprover?: boolean;
+}
+
+// Client-side image optimizer to keep uploads quick and within body limits
+async function compressImage(file: File, maxDimension = 1920, quality = 0.85): Promise<File> {
+  if (file.size < 400 * 1024) return file;
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      img.src = e.target?.result as string;
+    };
+
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > maxDimension || height > maxDimension) {
+        if (width > height) {
+          height = Math.round((height * maxDimension) / width);
+          width = maxDimension;
+        } else {
+          width = Math.round((width * maxDimension) / height);
+          height = maxDimension;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve(file);
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            resolve(file);
+            return;
+          }
+          const compressed = new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), {
+            type: 'image/jpeg',
+            lastModified: Date.now(),
+          });
+          resolve(compressed);
+        },
+        'image/jpeg',
+        quality
+      );
+    };
+
+    img.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
 }
 
 export function AssetCaptureDialog({
@@ -36,8 +95,11 @@ export function AssetCaptureDialog({
   assetTag,
   assetName,
   trigger,
+  onPhotoUploaded,
+  isApprover = false,
 }: AssetCaptureDialogProps) {
   const router = useRouter();
+  const { toast: uiToast } = useToast();
   const [open, setOpen] = React.useState(false);
   const [file, setFile] = React.useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
@@ -59,11 +121,13 @@ export function AssetCaptureDialog({
 
     if (!selectedFile.type.startsWith('image/')) {
       toast.error('Please select an image file (PNG, JPG, WebP).');
+      uiToast({ variant: 'error', title: 'Invalid File', description: 'Please select an image (PNG, JPG, WebP).' });
       return;
     }
 
-    if (selectedFile.size > 10 * 1024 * 1024) {
-      toast.error('File too large: Max image size is 10MB.');
+    if (selectedFile.size > 15 * 1024 * 1024) {
+      toast.error('File too large: Max image size is 15MB.');
+      uiToast({ variant: 'error', title: 'File Too Large', description: 'Max image size is 15MB.' });
       return;
     }
 
@@ -83,53 +147,44 @@ export function AssetCaptureDialog({
   async function handleSubmit() {
     if (!file) {
       toast.error('Please take or select a photo first.');
+      uiToast({ variant: 'warning', title: 'No Photo Selected', description: 'Please take or choose a photo first.' });
       return;
     }
 
     setUploading(true);
     try {
-      const supabase = createClient();
-      const ext = file.name.split('.').pop() || 'jpg';
-      const cleanExt = ext.toLowerCase().replace(/[^a-z0-9]/g, '');
-      const filename = `${assetId}/${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${cleanExt}`;
-
-      // 1. Upload to Supabase Storage asset-photos bucket
-      const { error: uploadErr } = await supabase.storage
-        .from('asset-photos')
-        .upload(filename, file, {
-          contentType: file.type || 'image/jpeg',
-          cacheControl: '3600',
-          upsert: false,
-        });
-
-      if (uploadErr) {
-        throw new Error(`Storage upload failed: ${uploadErr.message}`);
+      const fileToUpload = await compressImage(file);
+      const formData = new FormData();
+      formData.append('file', fileToUpload);
+      formData.append('assetId', assetId);
+      if (isApprover) {
+        formData.append('directApprove', 'true');
+      }
+      if (reason.trim()) {
+        formData.append('reason', reason.trim());
+      } else {
+        formData.append('reason', `Physical audit photo captured for ${assetTag || assetName}`);
       }
 
-      // 2. Obtain Public URL
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from('asset-photos').getPublicUrl(filename);
-
-      // 3. Submit change request for Approver authorization
-      const res = await submitPhotoApprovalRequest({
-        assetId,
-        storagePath: filename,
-        publicUrl,
-        reason: reason.trim() || `Physical audit photo captured for ${assetTag}`,
-        fileName: file.name,
-        fileSize: file.size,
-        mimeType: file.type,
-      });
+      const res = await uploadAssetPhotoAction(formData);
 
       if (!res?.success) {
-        throw new Error(res?.error || 'Failed to record photo approval request.');
+        throw new Error(res?.error || 'Failed to upload photo.');
       }
 
-      toast.success(
-        `Photo for ${assetTag || assetName} submitted! It will appear after Approver verification.`,
-        { duration: 5000 }
-      );
+      if (res.directApproved) {
+        const msg = `Photo attached and verified for ${assetTag || assetName}!`;
+        toast.success(msg, { duration: 5000 });
+        uiToast({ variant: 'success', title: 'Photo Verified', description: msg });
+      } else {
+        const msg = `Photo for ${assetTag || assetName} submitted for approval! View it in the Approvals queue.`;
+        toast.success(msg, { duration: 5000 });
+        uiToast({ variant: 'success', title: 'Submitted for Approval', description: msg });
+      }
+
+      if (res.publicUrl && onPhotoUploaded) {
+        onPhotoUploaded(res.publicUrl);
+      }
 
       setOpen(false);
       handleClear();
@@ -137,7 +192,9 @@ export function AssetCaptureDialog({
       router.refresh();
     } catch (err: any) {
       console.error('Photo submission error:', err);
-      toast.error(err.message || 'Could not upload photo. Please try again.');
+      const errMsg = err.message || 'Could not upload photo. Please check your connection and try again.';
+      toast.error(errMsg);
+      uiToast({ variant: 'error', title: 'Upload Failed', description: errMsg });
     } finally {
       setUploading(false);
     }
@@ -195,10 +252,19 @@ export function AssetCaptureDialog({
           </DialogHeader>
 
           {/* Verification Notice */}
-          <div className="flex items-start gap-2 rounded-xl bg-amber-50/80 dark:bg-amber-950/30 p-2.5 border border-amber-200/80 dark:border-amber-900/40 text-[11px] text-amber-800 dark:text-amber-300">
-            <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+          <div className={`flex items-start gap-2 rounded-xl p-2.5 border text-[11px] ${
+            isApprover
+              ? 'bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-200/80 dark:border-emerald-900/40 text-emerald-800 dark:text-emerald-300'
+              : 'bg-amber-50/80 dark:bg-amber-950/30 border-amber-200/80 dark:border-amber-900/40 text-amber-800 dark:text-amber-300'
+          }`}>
+            <ShieldAlert className={`h-4 w-4 shrink-0 mt-0.5 ${
+              isApprover ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'
+            }`} />
             <p>
-              Uploaded photos require <strong>Approver authorization</strong> before being linked to the asset and published campus-wide.
+              {isApprover
+                ? <><strong>Approver mode:</strong> This photo will be directly attached and published to the asset immediately — no review queue needed.</>
+                : <>Uploaded photos require <strong>Approver authorization</strong> before being linked to the asset and published campus-wide.</>
+              }
             </p>
           </div>
 
@@ -315,7 +381,7 @@ export function AssetCaptureDialog({
               ) : (
                 <>
                   <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
-                  Submit for Approval
+                  {isApprover ? 'Attach & Verify Photo' : 'Submit for Approval'}
                 </>
               )}
             </Button>

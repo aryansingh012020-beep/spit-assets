@@ -294,6 +294,8 @@ export interface AddAssetFormData {
   status: AssetStatus;
   description?: string;
   reason: string;
+  photo_path?: string;
+  photo_url?: string;
 }
 
 export interface TransferRequestFormData {

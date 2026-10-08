@@ -33,6 +33,7 @@ interface InventoryTableClientProps {
   rooms: { id: string; name: string; room_number: string | null }[];
   canRequest: boolean;
   roomName?: string;
+  isApprover?: boolean;
 }
 
 export function InventoryTableClient({
@@ -45,6 +46,7 @@ export function InventoryTableClient({
   rooms,
   canRequest,
   roomName,
+  isApprover = false,
 }: InventoryTableClientProps) {
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [inspectingAssetId, setInspectingAssetId] = React.useState<string | null>(null);
@@ -295,6 +297,7 @@ export function InventoryTableClient({
                             currentRoomId={asset.room?.id}
                             rooms={rooms}
                             canManage={canRequest}
+                            isApprover={isApprover}
                           />
                         </td>
                       )}

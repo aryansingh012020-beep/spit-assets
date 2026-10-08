@@ -115,8 +115,13 @@ export function getAssetPhotoUrl(
     return photo.url;
   }
   if (photo.storage_path) {
-    const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://pdxvsqjafsqomcqeqbqu.supabase.co';
-    return `${baseUrl}/storage/v1/object/public/asset-photos/${photo.storage_path}`;
+    const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://mczusuhginbtcjymstui.supabase.co';
+    // Clean path of leading slashes or redundant bucket name
+    let cleanPath = photo.storage_path.trim().replace(/^\/+/, '');
+    if (cleanPath.startsWith('asset-photos/')) {
+      cleanPath = cleanPath.replace(/^asset-photos\//, '');
+    }
+    return `${baseUrl}/storage/v1/object/public/asset-photos/${cleanPath}`;
   }
   return '';
 }

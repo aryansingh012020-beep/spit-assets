@@ -14,6 +14,7 @@ interface PhotoUploadProps {
   assetTag?: string;
   initialPhotos: { id: string; url: string; is_primary: boolean; uploaded_at: string }[];
   canManage: boolean;
+  isApprover?: boolean;
 }
 
 export function PhotoUpload({
@@ -22,6 +23,7 @@ export function PhotoUpload({
   assetTag = '',
   initialPhotos,
   canManage,
+  isApprover,
 }: PhotoUploadProps) {
   const [photos, setPhotos] = React.useState(initialPhotos);
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
@@ -61,6 +63,7 @@ export function PhotoUpload({
             assetId={assetId}
             assetName={assetName}
             assetTag={assetTag}
+            isApprover={isApprover}
             trigger={
               <Button
                 type="button"
@@ -95,6 +98,7 @@ export function PhotoUpload({
                 assetId={assetId}
                 assetName={assetName}
                 assetTag={assetTag}
+                isApprover={isApprover}
                 trigger={
                   <Button size="sm" className="gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 text-white">
                     <Camera className="h-3.5 w-3.5" />

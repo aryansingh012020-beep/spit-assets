@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input, Textarea } from '@/components/ui/primitives';
 import { useToast } from '@/components/ui/toast';
-import { submitAddRequest } from '@/lib/actions/requests';
+import { submitAddRequest, uploadAssetPhotoAction } from '@/lib/actions/requests';
 import { AddAssetFormData, AssetStatus } from '@/lib/types';
-import { Plus, PackagePlus, Building2, MapPin, Tag, ClipboardList, Info } from 'lucide-react';
+import { Plus, PackagePlus, Building2, MapPin, Tag, ClipboardList, Info, Camera, UploadCloud, X, Image as ImageIcon } from 'lucide-react';
 
 interface AddAssetDialogProps {
   categories: { id: string; name: string }[];
@@ -61,6 +61,12 @@ export function AddAssetDialog({
   const [selectedFloor, setSelectedFloor] = React.useState(defaultFloorId ?? '');
   const [selectedRoom, setSelectedRoom] = React.useState(defaultRoomId ?? '');
 
+  // Photo state
+  const [photoFile, setPhotoFile] = React.useState<File | null>(null);
+  const [photoPreviewUrl, setPhotoPreviewUrl] = React.useState<string | null>(null);
+  const photoCameraRef = React.useRef<HTMLInputElement>(null);
+  const photoFileRef = React.useRef<HTMLInputElement>(null);
+
   const { toast } = useToast();
   const router = useRouter();
 
@@ -82,6 +88,11 @@ export function AddAssetDialog({
     setSelectedBuilding(defaultBuildingId ?? '');
     setSelectedFloor(defaultFloorId ?? '');
     setSelectedRoom(defaultRoomId ?? '');
+    if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+    setPhotoFile(null);
+    setPhotoPreviewUrl(null);
+    if (photoCameraRef.current) photoCameraRef.current.value = '';
+    if (photoFileRef.current) photoFileRef.current.value = '';
   }
 
   function handleOpenChange(val: boolean) {
@@ -119,6 +130,22 @@ export function AddAssetDialog({
         description: ((formData.get('description') as string) || '').trim() || undefined,
         reason: ((formData.get('reason') as string) || '').trim(),
       };
+
+      // Upload photo if user attached one during asset creation
+      if (photoFile) {
+        const photoFormData = new FormData();
+        photoFormData.append('file', photoFile);
+        photoFormData.append('assetId', 'new');
+        photoFormData.append('reason', payload.reason || 'Initial asset condition photo');
+
+        const photoRes = await uploadAssetPhotoAction(photoFormData);
+        if (photoRes.success && photoRes.storagePath) {
+          payload.photo_path = photoRes.storagePath;
+          payload.photo_url = photoRes.publicUrl;
+        } else if (!photoRes.success) {
+          console.warn('Initial photo upload notice:', photoRes.error);
+        }
+      }
 
       const result = await submitAddRequest(payload);
 
@@ -387,6 +414,104 @@ export function AddAssetDialog({
                     placeholder="Serial number, model number, processor/RAM specs, physical condition notes…"
                   />
                 </div>
+              </div>
+
+              <hr className="border-zinc-100 dark:border-zinc-800" />
+
+              {/* ── Section 4: Equipment Photo (Optional) ── */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className={SECTION_LABEL}>
+                    <ImageIcon className="inline h-3 w-3 mr-1" />
+                    Equipment Photo <span className="normal-case font-normal text-zinc-400 dark:text-zinc-500">(Optional)</span>
+                  </p>
+                  {photoFile && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+                        setPhotoFile(null);
+                        setPhotoPreviewUrl(null);
+                        if (photoCameraRef.current) photoCameraRef.current.value = '';
+                        if (photoFileRef.current) photoFileRef.current.value = '';
+                      }}
+                      className="text-[11px] text-red-500 hover:text-red-600 flex items-center gap-1 font-medium"
+                    >
+                      <X className="h-3 w-3" /> Remove
+                    </button>
+                  )}
+                </div>
+
+                {/* Hidden camera & file inputs */}
+                <input
+                  ref={photoCameraRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) {
+                      setPhotoFile(f);
+                      setPhotoPreviewUrl(URL.createObjectURL(f));
+                    }
+                  }}
+                />
+                <input
+                  ref={photoFileRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/jpg"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) {
+                      setPhotoFile(f);
+                      setPhotoPreviewUrl(URL.createObjectURL(f));
+                    }
+                  }}
+                />
+
+                {photoPreviewUrl ? (
+                  <div className="relative aspect-video w-full max-h-48 rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-700 bg-zinc-950 flex items-center justify-center">
+                    <img
+                      src={photoPreviewUrl}
+                      alt="Asset preview"
+                      className="h-full w-full object-cover"
+                    />
+                    <div className="absolute bottom-2 left-2 right-2 bg-black/70 backdrop-blur-sm rounded-lg px-2.5 py-1 text-[11px] text-white flex justify-between items-center">
+                      <span className="truncate">{photoFile?.name}</span>
+                      <span className="shrink-0 font-mono text-[10px] text-zinc-300">
+                        {photoFile ? (photoFile.size / 1024).toFixed(0) : 0} KB
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => photoCameraRef.current?.click()}
+                      className="gap-1.5 text-xs border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/60"
+                    >
+                      <Camera className="h-3.5 w-3.5" />
+                      Snap Photo
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => photoFileRef.current?.click()}
+                      className="gap-1.5 text-xs text-zinc-600 dark:text-zinc-300"
+                    >
+                      <UploadCloud className="h-3.5 w-3.5" />
+                      Choose Image File
+                    </Button>
+                    <span className="text-[11px] text-zinc-400 dark:text-zinc-500">
+                      JPG, PNG, WebP up to 10MB
+                    </span>
+                  </div>
+                )}
               </div>
 
               <hr className="border-zinc-100 dark:border-zinc-800" />

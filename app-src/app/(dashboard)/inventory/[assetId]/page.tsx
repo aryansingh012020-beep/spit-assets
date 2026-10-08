@@ -237,6 +237,7 @@ function AssetDetail({
               assetId={asset.id}
               assetName={asset.name}
               assetTag={asset.asset_tag}
+              isApprover={role === 'approver'}
               trigger={
                 <Button
                   variant="outline"
@@ -452,6 +453,7 @@ function AssetDetail({
             assetTag={asset.asset_tag}
             initialPhotos={asset.photos ?? []}
             canManage={canManage}
+            isApprover={role === 'approver'}
           />
         </CardContent>
       </Card>

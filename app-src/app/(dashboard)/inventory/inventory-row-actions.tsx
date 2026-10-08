@@ -18,6 +18,7 @@ interface InventoryRowActionsProps {
   currentRoomId?: string;
   rooms: { id: string; name: string; room_number: string | null }[];
   canManage: boolean;
+  isApprover?: boolean;
 }
 
 export function InventoryRowActions({
@@ -27,6 +28,7 @@ export function InventoryRowActions({
   currentRoomId,
   rooms,
   canManage,
+  isApprover = false,
 }: InventoryRowActionsProps) {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [transferOpen, setTransferOpen] = React.useState(false);
@@ -97,6 +99,7 @@ export function InventoryRowActions({
         assetId={assetId}
         assetName={assetName}
         assetTag={assetTag}
+        isApprover={isApprover}
       />
 
       {/* Quick Action: Shift / Transfer */}

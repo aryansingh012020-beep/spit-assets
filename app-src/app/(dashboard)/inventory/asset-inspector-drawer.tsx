@@ -11,6 +11,7 @@ import { buildLocationString, formatDateTime, formatRelativeTime } from '@/lib/u
 import { fetchAssetInspectorDetails } from '@/lib/actions/assets';
 import { AssetComments, CommentItem } from './[assetId]/asset-comments';
 import { InventoryRowActions } from './inventory-row-actions';
+import { AssetCaptureDialog } from '@/components/asset-capture-dialog';
 import {
   X,
   ExternalLink,
@@ -29,6 +30,7 @@ import {
   ArrowRightLeft,
   FileText,
   Info,
+  Camera,
 } from 'lucide-react';
 
 interface AssetInspectorDrawerProps {
@@ -140,6 +142,7 @@ export function AssetInspectorDrawer({
   if (!assetId) return null;
 
   const asset = data?.asset;
+  const isApprover = data?.currentUserRole === 'approver';
   const location = asset
     ? buildLocationString([asset.building?.name, asset.floor?.name, asset.room?.name])
     : '';
@@ -262,6 +265,7 @@ export function AssetInspectorDrawer({
                       currentRoomId={asset.room?.id}
                       rooms={rooms}
                       canManage={canManage}
+                      isApprover={isApprover}
                     />
                   </div>
                 )}
@@ -332,7 +336,7 @@ export function AssetInspectorDrawer({
                 {activeTab === 'overview' && (
                   <div className="space-y-4">
                     {/* Photo Hero Thumbnail in Drawer */}
-                    {asset.photos && asset.photos.length > 0 && (
+                    {asset.photos && asset.photos.length > 0 ? (
                       <div className="relative aspect-video w-full rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-700 bg-zinc-950 shadow-sm group">
                         <img
                           src={asset.photos.find((p: any) => p.is_primary)?.url || asset.photos[0]?.url}
@@ -350,7 +354,47 @@ export function AssetInspectorDrawer({
                           <ExternalLink className="h-2.5 w-2.5" /> Full Size
                         </button>
                       </div>
-                    )}
+                    ) : canManage ? (
+                      <div className="flex items-center justify-between rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30 p-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="h-8 w-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                            <Camera className="h-4 w-4" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">No condition photo attached</p>
+                            <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Capture an image to verify this asset</p>
+                          </div>
+                        </div>
+                        <AssetCaptureDialog
+                          assetId={asset.id}
+                          assetName={asset.name}
+                          assetTag={asset.asset_tag}
+                          isApprover={isApprover}
+                          onPhotoUploaded={(newUrl) => {
+                            setData((prev: any) => {
+                              if (!prev?.asset) return prev;
+                              const updatedPhotos = [
+                                ...(prev.asset.photos || []),
+                                { id: 'temp-' + Date.now(), url: newUrl, is_primary: true },
+                              ];
+                              return {
+                                ...prev,
+                                asset: {
+                                  ...prev.asset,
+                                  photos: updatedPhotos,
+                                },
+                              };
+                            });
+                          }}
+                          trigger={
+                            <Button size="sm" variant="outline" className="text-xs gap-1.5 border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/60">
+                              <Camera className="h-3.5 w-3.5" />
+                              Add Photo
+                            </Button>
+                          }
+                        />
+                      </div>
+                    ) : null}
 
                     {/* Location Card */}
                     <div className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/40 p-3.5 space-y-2">

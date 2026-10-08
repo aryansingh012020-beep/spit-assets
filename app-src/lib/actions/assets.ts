@@ -46,7 +46,7 @@ export async function fetchAssetInspectorDetails(assetId: string) {
         : Promise.resolve({ data: null, error: null }),
     ]);
 
-  const profileData = (profile as any)?.data;
+  const profileData = profile;
 
   if (asset?.photos && Array.isArray(asset.photos)) {
     asset.photos = asset.photos.map((p: any) => ({

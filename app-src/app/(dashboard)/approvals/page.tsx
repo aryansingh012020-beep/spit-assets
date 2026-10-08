@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { Card, CardContent, EmptyState } from '@/components/ui/primitives';
 import { Badge } from '@/components/ui/badge';
 import { formatDateTime, getAssetPhotoUrl } from '@/lib/utils';
@@ -57,24 +57,25 @@ export default async function ApprovalsPage({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+  const admin = createAdminClient();
+  const { data: profile } = await admin.from('profiles').select('role, institution_id').eq('id', user.id).single();
   const role = profile?.role ?? 'viewer';
   if (role === 'viewer') redirect('/dashboard');
 
   const currentScope = params.scope || (role === 'approver' ? 'pending' : 'my_requests');
 
-  // Fetch count badges
+  // Fetch count badges reliably via admin client
   const [
     { count: pendingCount },
     { count: myRequestsCount },
     { count: resolvedCount },
   ] = await Promise.all([
-    supabase.from('change_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-    supabase.from('change_requests').select('*', { count: 'exact', head: true }).eq('requested_by', user.id),
-    supabase.from('change_requests').select('*', { count: 'exact', head: true }).in('status', ['approved', 'rejected']),
+    admin.from('change_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+    admin.from('change_requests').select('*', { count: 'exact', head: true }).eq('requested_by', user.id),
+    admin.from('change_requests').select('*', { count: 'exact', head: true }).in('status', ['approved', 'rejected']),
   ]);
 
-  let query = supabase.from('change_requests')
+  let query = admin.from('change_requests')
     .select(`id,type,status,reason,created_at,rejection_reason,photo_path,new_values,old_values,asset:assets(id,asset_tag,name,status),requester:profiles!requested_by(id,full_name),reviewer:profiles!reviewed_by(full_name),reviewed_at`)
     .order('created_at', { ascending: false });
 
@@ -92,16 +93,18 @@ export default async function ApprovalsPage({
     query = query.eq('requested_by', user.id);
   }
 
-  if (params.type === 'photo') {
-    query = query.eq('type', 'edit').contains('new_values', { is_photo_approval: true });
-  } else if (params.type) {
+  if (params.type && params.type !== 'photo') {
     query = query.eq('type', params.type);
   }
 
-  const { data: rawRequests } = await query.limit(50);
+  const { data: rawRequests } = await query.limit(100);
   let requests = rawRequests ?? [];
 
-  if (params.type === 'edit') {
+  if (params.type === 'photo') {
+    requests = requests.filter((r: any) =>
+      Boolean(r.new_values?.is_photo_approval || r.photo_path || r.new_values?.photo_path || r.new_values?.photo_url)
+    );
+  } else if (params.type === 'edit') {
     requests = requests.filter((r: any) => !r.new_values?.is_photo_approval);
   }
 
@@ -238,17 +241,19 @@ function ApprovalsContent({
           <div className="space-y-3">
             {requests.map((req: any) => {
               const isAdditionRequest = req.type === 'addition';
-              const isPhotoRequest = Boolean(req.new_values?.is_photo_approval || req.photo_path);
-              const typeBadge = isPhotoRequest
-                ? { variant: 'info' as const, label: 'Photo Verification' }
-                : (TYPE_BADGES[req.type] || { variant: 'neutral' as const, label: req.type });
+              const isPhotoVerification = req.type === 'edit' && Boolean(req.new_values?.is_photo_approval || req.photo_path);
+              const hasPhoto = Boolean(req.photo_path || req.new_values?.storage_path || req.new_values?.photo_url || req.new_values?.photo_path);
+              const photoUrl = hasPhoto
+                ? (req.new_values?.photo_url || getAssetPhotoUrl({ storage_path: req.new_values?.storage_path || req.photo_path || req.new_values?.photo_path }))
+                : null;
 
               const isMyRequest = req.requester?.id === userId;
-              const canApprove = role === 'approver' && req.status === 'pending' && !isMyRequest;
+              // Approvers can approve pending requests; photo verifications can also be approved by the capturer
+              const canApprove = role === 'approver' && req.status === 'pending' && (!isMyRequest || isPhotoVerification);
 
-              const photoUrl = isPhotoRequest
-                ? (req.new_values?.photo_url || getAssetPhotoUrl({ storage_path: req.new_values?.storage_path || req.photo_path }))
-                : null;
+              const typeBadge = isPhotoVerification
+                ? { variant: 'info' as const, label: 'Photo Verification' }
+                : (TYPE_BADGES[req.type] || { variant: 'neutral' as const, label: req.type });
 
               const nv = req.new_values || {};
 
@@ -258,11 +263,19 @@ function ApprovalsContent({
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2 mb-2">
-                          {isPhotoRequest ? (
+                          {isPhotoVerification ? (
                             <Badge variant="info" className="bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 flex items-center gap-1">
                               <Camera className="h-3 w-3" />
                               Photo Verification
                             </Badge>
+                          ) : isAdditionRequest && hasPhoto ? (
+                            <div className="flex items-center gap-1">
+                              <Badge variant="info">Addition</Badge>
+                              <Badge variant="neutral" className="bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 flex items-center gap-1 text-[10px]">
+                                <Camera className="h-2.5 w-2.5" />
+                                Photo Attached
+                              </Badge>
+                            </div>
                           ) : (
                             <Badge variant={typeBadge.variant}>{typeBadge.label}</Badge>
                           )}
@@ -293,7 +306,7 @@ function ApprovalsContent({
                         <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">{req.reason}</p>
 
                         {/* ── Addition Preview Card ── */}
-                        {isAdditionRequest && !isPhotoRequest && (
+                        {isAdditionRequest && (
                           <div className="mt-3 rounded-xl border border-indigo-100 dark:border-indigo-900/60 bg-indigo-50/60 dark:bg-indigo-950/20 p-3.5">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-500 dark:text-indigo-400 mb-2.5 flex items-center gap-1.5">
                               <PackagePlus className="h-3 w-3" />
@@ -339,17 +352,17 @@ function ApprovalsContent({
                           </div>
                         )}
 
-                        {/* Photo Request Card preview */}
-                        {isPhotoRequest && photoUrl && (
+                        {/* Photo preview card */}
+                        {hasPhoto && photoUrl && (
                           <div className="mt-3 flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/60">
                             <ImageViewerDialog
                               url={photoUrl}
-                              alt="Asset verification photo"
+                              alt={isPhotoVerification ? "Asset verification photo" : "New asset condition photo"}
                               className="relative h-24 w-36 shrink-0 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700 bg-zinc-900 group"
                             >
                               <img
                                 src={photoUrl}
-                                alt="Asset verification photo"
+                                alt={isPhotoVerification ? "Asset verification photo" : "New asset condition photo"}
                                 className="h-full w-full object-cover group-hover:scale-105 transition-transform"
                               />
                               <span className="absolute bottom-1 right-1 rounded bg-black/70 px-1.5 py-0.5 text-[9px] text-white flex items-center gap-1 font-mono">
@@ -359,19 +372,21 @@ function ApprovalsContent({
                             <div className="text-xs space-y-1 min-w-0">
                               <p className="font-semibold text-zinc-900 dark:text-white flex items-center gap-1.5">
                                 <Camera className="h-3.5 w-3.5 text-indigo-500" />
-                                Captured Asset Photo
+                                {isPhotoVerification ? 'Captured Verification Photo' : 'Initial Asset Condition Photo'}
                               </p>
                               <p className="text-zinc-500 dark:text-zinc-400 font-mono text-[11px] truncate">
                                 File: {req.new_values?.file_name || 'equipment.jpg'} {req.new_values?.file_size ? `(${(req.new_values.file_size / 1024 / 1024).toFixed(2)} MB)` : ''}
                               </p>
                               <p className="text-zinc-600 dark:text-zinc-300 text-[11px] leading-relaxed">
-                                Approving promotes this image to the official register and sets it as the primary equipment image for {req.asset?.asset_tag || 'the asset'}.
+                                {isPhotoVerification
+                                  ? `Approving promotes this image to the official register and sets it as the primary equipment image for ${req.asset?.asset_tag || 'the asset'}.`
+                                  : `Approving commits this asset to inventory and links this image as its official primary photo.`}
                               </p>
                             </div>
                           </div>
                         )}
 
-                        {!isPhotoRequest && !isAdditionRequest && req.type === 'edit' && req.old_values && req.new_values && (
+                        {!isPhotoVerification && !isAdditionRequest && req.type === 'edit' && req.old_values && req.new_values && (
                           <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
                             <span className="rounded bg-red-50 dark:bg-red-950/50 px-2 py-1 text-red-700 dark:text-red-400 font-mono">Before: {JSON.stringify(req.old_values).slice(0, 80)}</span>
                             <span className="rounded bg-emerald-50 dark:bg-emerald-950/50 px-2 py-1 text-emerald-700 dark:text-emerald-400 font-mono">After: {JSON.stringify(req.new_values).slice(0, 80)}</span>
