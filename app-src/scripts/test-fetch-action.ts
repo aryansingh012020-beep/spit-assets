@@ -1,1 +1,0 @@
-﻿import { fetchAssetInspectorDetails } from '../lib/actions/assets.ts'; async function main() { const res = await fetchAssetInspectorDetails('e4b8d017-54b9-47e0-9060-0c23e4690b32'); console.log('Action result:'); console.dir(res, { depth: null }); } main().catch(console.error);
