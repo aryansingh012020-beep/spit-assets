@@ -11,8 +11,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { useToast } from '@/components/ui/toast';
 import { buildLocationString } from '@/lib/utils';
 import { Package, ChevronLeft, ChevronRight, ArrowRightLeft, Trash2, Download, CheckSquare, Square, X } from 'lucide-react';
-import { InventoryRowActions } from './inventory-row-actions';
-import { AssetInspectorDrawer } from './asset-inspector-drawer';
 import { submitBatchTransferRequest, submitBatchDeleteRequest } from '@/lib/actions/requests';
 
 interface SearchParams {
@@ -49,29 +47,12 @@ export function InventoryTableClient({
   isApprover = false,
 }: InventoryTableClientProps) {
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
-  const [inspectingAssetId, setInspectingAssetId] = React.useState<string | null>(null);
   const [batchTransferOpen, setBatchTransferOpen] = React.useState(false);
   const [batchDeleteOpen, setBatchDeleteOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
 
   const { toast } = useToast();
   const router = useRouter();
-
-  const currentInspectorIndex = assets.findIndex((a) => a.id === inspectingAssetId);
-  const hasPrev = currentInspectorIndex > 0;
-  const hasNext = currentInspectorIndex >= 0 && currentInspectorIndex < assets.length - 1;
-
-  function handleNavigatePrev() {
-    if (hasPrev) {
-      setInspectingAssetId(assets[currentInspectorIndex - 1].id);
-    }
-  }
-
-  function handleNavigateNext() {
-    if (hasNext) {
-      setInspectingAssetId(assets[currentInspectorIndex + 1].id);
-    }
-  }
 
   function buildHref(overrides: Partial<SearchParams>) {
     const merged = { ...params, ...overrides };
@@ -223,15 +204,12 @@ export function InventoryTableClient({
               ) : (
                 assets.map((asset: any) => {
                   const isSelected = selectedIds.includes(asset.id);
-                  const isInspecting = inspectingAssetId === asset.id;
                   return (
                     <tr
                       key={asset.id}
-                      onClick={() => setInspectingAssetId(asset.id)}
+                      onClick={() => router.push(`/inventory/${asset.id}`)}
                       className={`group transition-all cursor-pointer select-none ${
-                        isInspecting
-                          ? 'bg-indigo-50/80 dark:bg-indigo-950/60 ring-1 ring-inset ring-indigo-500/40'
-                          : isSelected
+                        isSelected
                           ? 'bg-indigo-50/50 dark:bg-indigo-950/40'
                           : 'hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20'
                       }`}
@@ -290,15 +268,12 @@ export function InventoryTableClient({
                       </td>
                       {canRequest && (
                         <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
-                          <InventoryRowActions
-                            assetId={asset.id}
-                            assetName={asset.name}
-                            assetTag={asset.asset_tag}
-                            currentRoomId={asset.room?.id}
-                            rooms={rooms}
-                            canManage={canRequest}
-                            isApprover={isApprover}
-                          />
+                           <Link
+                             href={`/inventory/${asset.id}`}
+                             className="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-2 py-1 text-[11px] font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
+                           >
+                             View Details
+                           </Link>
                         </td>
                       )}
                     </tr>
@@ -510,18 +485,6 @@ export function InventoryTableClient({
           </form>
         </DialogContent>
       </Dialog>
-
-      {/* Slide-over Asset Inspector Drawer */}
-      <AssetInspectorDrawer
-        assetId={inspectingAssetId}
-        onClose={() => setInspectingAssetId(null)}
-        onNavigatePrev={handleNavigatePrev}
-        onNavigateNext={handleNavigateNext}
-        hasPrev={hasPrev}
-        hasNext={hasNext}
-        rooms={rooms}
-        canManage={canRequest}
-      />
     </>
   );
 }

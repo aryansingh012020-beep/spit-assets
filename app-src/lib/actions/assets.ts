@@ -55,6 +55,7 @@ export async function fetchAssetInspectorDetails(assetId: string) {
     }));
   }
 
+  console.log('fetchAssetInspectorDetails returning asset:', asset?.id, 'history:', history?.length, 'comments:', comments?.length, 'role:', profileData?.role);
   return {
     asset,
     history: history ?? [],
