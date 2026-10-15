@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import * as React from 'react';
 import Link from 'next/link';
@@ -153,6 +153,79 @@ export function TopNavbar({
 
           <div
             className="relative"
+            onMouseEnter={() => handleMouseEnter('locations')}
+            onMouseLeave={handleMouseLeave}
+          >
+            <button
+              type="button"
+              onClick={(e) => handleClickToggle('locations', e)}
+              className={cn(
+                'flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all cursor-pointer',
+                isLocationsActive || openDropdown === 'locations'
+                  ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400'
+                  : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white'
+              )}
+              aria-expanded={openDropdown === 'locations'}
+            >
+              <Building2 className="h-4 w-4" />
+              <span>Locations</span>
+              <ChevronDown
+                className={cn(
+                  'h-3.5 w-3.5 opacity-60 ml-0.5 transition-transform duration-200',
+                  openDropdown === 'locations' ? 'rotate-180 text-indigo-600 dark:text-indigo-400' : ''
+                )}
+              />
+            </button>
+
+            {openDropdown === 'locations' && (
+              <div className="absolute left-0 top-full pt-1.5 z-50 w-52">
+                <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2 shadow-xl shadow-zinc-900/10 animate-in fade-in slide-in-from-top-1">
+                  <Link
+                    href="/locations/floors"
+                    onClick={handleCloseImmediate}
+                    className={cn(
+                      'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+                      pathname === '/locations/floors'
+                        ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold'
+                        : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+                    )}
+                  >
+                    <Layers className="h-4 w-4 text-indigo-500" />
+                    <span>Floors</span>
+                  </Link>
+                  <Link
+                    href="/locations/rooms"
+                    onClick={handleCloseImmediate}
+                    className={cn(
+                      'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+                      pathname === '/locations/rooms'
+                        ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold'
+                        : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+                    )}
+                  >
+                    <DoorOpen className="h-4 w-4 text-indigo-500" />
+                    <span>Campus Rooms</span>
+                  </Link>
+                  <Link
+                    href="/locations/buildings"
+                    onClick={handleCloseImmediate}
+                    className={cn(
+                      'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+                      pathname === '/locations/buildings'
+                        ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold'
+                        : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+                    )}
+                  >
+                    <Building2 className="h-4 w-4 text-indigo-500" />
+                    <span>Campus Buildings</span>
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div
+            className="relative"
             onMouseEnter={() => handleMouseEnter('assets')}
             onMouseLeave={handleMouseLeave}
           >
@@ -205,79 +278,6 @@ export function TopNavbar({
                   >
                     <Tag className="h-4 w-4 text-indigo-500" />
                     <span>Categories Registry</span>
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div
-            className="relative"
-            onMouseEnter={() => handleMouseEnter('locations')}
-            onMouseLeave={handleMouseLeave}
-          >
-            <button
-              type="button"
-              onClick={(e) => handleClickToggle('locations', e)}
-              className={cn(
-                'flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all cursor-pointer',
-                isLocationsActive || openDropdown === 'locations'
-                  ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400'
-                  : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white'
-              )}
-              aria-expanded={openDropdown === 'locations'}
-            >
-              <Building2 className="h-4 w-4" />
-              <span>Locations</span>
-              <ChevronDown
-                className={cn(
-                  'h-3.5 w-3.5 opacity-60 ml-0.5 transition-transform duration-200',
-                  openDropdown === 'locations' ? 'rotate-180 text-indigo-600 dark:text-indigo-400' : ''
-                )}
-              />
-            </button>
-
-            {openDropdown === 'locations' && (
-              <div className="absolute left-0 top-full pt-1.5 z-50 w-52">
-                <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2 shadow-xl shadow-zinc-900/10 animate-in fade-in slide-in-from-top-1">
-                  <Link
-                    href="/locations/buildings"
-                    onClick={handleCloseImmediate}
-                    className={cn(
-                      'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
-                      pathname === '/locations/buildings'
-                        ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold'
-                        : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
-                    )}
-                  >
-                    <Building2 className="h-4 w-4 text-indigo-500" />
-                    <span>Campus Buildings</span>
-                  </Link>
-                  <Link
-                    href="/locations/floors"
-                    onClick={handleCloseImmediate}
-                    className={cn(
-                      'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
-                      pathname === '/locations/floors'
-                        ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold'
-                        : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
-                    )}
-                  >
-                    <Layers className="h-4 w-4 text-indigo-500" />
-                    <span>Floors</span>
-                  </Link>
-                  <Link
-                    href="/locations/rooms"
-                    onClick={handleCloseImmediate}
-                    className={cn(
-                      'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
-                      pathname === '/locations/rooms'
-                        ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold'
-                        : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
-                    )}
-                  >
-                    <DoorOpen className="h-4 w-4 text-indigo-500" />
-                    <span>Campus Rooms</span>
                   </Link>
                 </div>
               </div>
@@ -587,17 +587,6 @@ export function TopNavbar({
             </Link>
 
             <Link
-              href="/inventory"
-              onClick={handleCloseImmediate}
-              className={cn(
-                'flex items-center gap-2 p-2 rounded-lg',
-                pathname === '/inventory' ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 font-bold' : 'text-zinc-700 dark:text-zinc-300'
-              )}
-            >
-              <Package className="h-4 w-4" /> Assets
-            </Link>
-
-            <Link
               href="/locations/buildings"
               onClick={handleCloseImmediate}
               className={cn(
@@ -606,6 +595,17 @@ export function TopNavbar({
               )}
             >
               <Building2 className="h-4 w-4" /> Locations
+            </Link>
+
+            <Link
+              href="/inventory"
+              onClick={handleCloseImmediate}
+              className={cn(
+                'flex items-center gap-2 p-2 rounded-lg',
+                pathname === '/inventory' ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 font-bold' : 'text-zinc-700 dark:text-zinc-300'
+              )}
+            >
+              <Package className="h-4 w-4" /> Assets
             </Link>
 
             {role !== 'viewer' && (

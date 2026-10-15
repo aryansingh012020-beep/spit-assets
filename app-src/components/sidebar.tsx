@@ -45,11 +45,20 @@ function buildNavSections(role: UserRole, pendingCount: number): NavSection[] {
   });
 
   sections.push({
+    label: 'Locations',
+    items: [
+      { label: 'Floors', href: '/locations/floors', icon: <Layers className="h-4 w-4" />, exact: true },
+      { label: 'Rooms', href: '/locations/rooms', icon: <DoorOpen className="h-4 w-4" /> },
+      { label: 'Buildings', href: '/locations/buildings', icon: <Building2 className="h-4 w-4" />, exact: true },
+    ],
+  });
+
+  sections.push({
     label: 'Assets',
     items: [
       { label: 'All Assets', href: '/inventory', icon: <Package className="h-4 w-4" />, exact: true },
-      { label: 'Add Asset', href: '/inventory/add', icon: <PackagePlus className="h-4 w-4" />, exact: true },
       { label: 'Categories', href: '/inventory/categories', icon: <Tag className="h-4 w-4" />, exact: true },
+      { label: 'Add Asset', href: '/inventory/add', icon: <PackagePlus className="h-4 w-4" />, exact: true },
     ],
   });
 
@@ -72,15 +81,6 @@ function buildNavSections(role: UserRole, pendingCount: number): NavSection[] {
       ],
     });
   }
-
-  sections.push({
-    label: 'Locations',
-    items: [
-      { label: 'Buildings', href: '/locations/buildings', icon: <Building2 className="h-4 w-4" />, exact: true },
-      { label: 'Floors', href: '/locations/floors', icon: <Layers className="h-4 w-4" />, exact: true },
-      { label: 'Rooms', href: '/locations/rooms', icon: <DoorOpen className="h-4 w-4" /> },
-    ],
-  });
 
   return sections;
 }
