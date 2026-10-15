@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
@@ -155,7 +155,6 @@ export function AdminUserManager({
 
   return (
     <div className="space-y-6">
-      {/* ── Action Header & Tabs ──────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-5">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">
@@ -178,7 +177,6 @@ export function AdminUserManager({
         </div>
       </div>
 
-      {/* ── Sub Navigation Tabs ───────────────────────────────────── */}
       <div className="flex items-center gap-2 border-b border-zinc-200 dark:border-zinc-800">
         <button
           type="button"
@@ -215,7 +213,6 @@ export function AdminUserManager({
         </button>
       </div>
 
-      {/* ── TAB 1: ACTIVE USER DIRECTORY ─────────────────────────── */}
       {tab === 'users' && (
         <div className="space-y-4">
           {/* Filters strip */}
@@ -309,7 +306,6 @@ export function AdminUserManager({
         </div>
       )}
 
-      {/* ── TAB 2: ONBOARDING REQUESTS ────────────────────────────── */}
       {tab === 'requests' && (
         <div className="space-y-4">
           {requests.length === 0 ? (
@@ -404,7 +400,6 @@ export function AdminUserManager({
         </div>
       )}
 
-      {/* ── MODAL: CREATE USER DIRECTLY ───────────────────────────── */}
       {isCreateOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
           <div className="w-full max-w-lg rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 sm:p-8 shadow-2xl space-y-6">

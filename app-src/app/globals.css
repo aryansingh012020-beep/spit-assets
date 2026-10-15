@@ -125,3 +125,54 @@ button, [role="button"], a {
 .data-\[state\=closed\]\:zoom-out-95[data-state="closed"] { animation-name: zoom-out-95; }
 .data-\[state\=open\]\:slide-in-from-right-full[data-state="open"] { animation-name: slide-in-from-right; }
 .data-\[state\=closed\]\:slide-out-to-right-full[data-state="closed"] { animation-name: slide-out-to-right; }
+
+/* Aurora background animation */
+@keyframes aurora-drift {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(50px, -30px) scale(1.08);
+  }
+  66% {
+    transform: translate(-30px, 40px) scale(0.94);
+  }
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  animation: aurora-drift var(--duration, 14s) ease-in-out infinite;
+  opacity: 0.22;
+}
+
+.aurora-1 {
+  width: 500px;
+  height: 500px;
+  background: #6366f1;
+  top: -100px;
+  right: 15%;
+  --duration: 15s;
+}
+
+.aurora-2 {
+  width: 420px;
+  height: 420px;
+  background: #a855f7;
+  bottom: 5%;
+  left: 10%;
+  --duration: 12s;
+  animation-delay: -4s;
+}
+
+.aurora-3 {
+  width: 380px;
+  height: 380px;
+  background: #3b82f6;
+  top: 35%;
+  left: 45%;
+  --duration: 18s;
+  animation-delay: -9s;
+}
+

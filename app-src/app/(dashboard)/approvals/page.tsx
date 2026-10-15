@@ -9,6 +9,8 @@ import { CheckSquare, Clock, Camera, ExternalLink, PackagePlus, MapPin, Tag, Lay
 import { ApprovalActions } from './approval-actions';
 import { ImageViewerDialog } from '@/components/image-viewer-dialog';
 import { isDemoMode, DEMO_PENDING_REQUESTS } from '@/lib/demo-data';
+import { GlowCard } from '@/components/bits/glow-card';
+import { BlurFade } from '@/components/bits/blur-fade';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,7 +28,6 @@ export default async function ApprovalsPage({
 }) {
   const params = await searchParams;
 
-  // ── Demo mode ────────────────────────────────────────────────────
   if (isDemoMode()) {
     const cookieStore = await cookies();
     if (cookieStore.get('demo_session')?.value !== 'true') redirect('/login');
@@ -52,7 +53,6 @@ export default async function ApprovalsPage({
     );
   }
 
-  // ── Production mode ──────────────────────────────────────────────
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
@@ -85,11 +85,9 @@ export default async function ApprovalsPage({
     } else if (currentScope === 'history') {
       query = query.in('status', ['approved', 'rejected']);
     } else {
-      // Default: all pending requests in the institution
       query = query.eq('status', 'pending');
     }
   } else {
-    // Asset manager: only ever views own requests
     query = query.eq('requested_by', user.id);
   }
 
@@ -161,7 +159,6 @@ function ApprovalsContent({
         </p>
       </div>
 
-      {/* Scope switcher for Approvers */}
       {role === 'approver' && (
         <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/60 w-fit">
           <Link
@@ -216,7 +213,6 @@ function ApprovalsContent({
         </div>
       )}
 
-      {/* Type filter tabs */}
       <div className="border-b border-zinc-200 dark:border-zinc-800">
         <nav className="-mb-px flex gap-4 overflow-x-auto">
           {tabs.map(t => (
@@ -239,7 +235,7 @@ function ApprovalsContent({
         ? <EmptyState icon={<CheckSquare className="h-8 w-8" />} title="No requests found" description="No change requests match this filter" />
         : (
           <div className="space-y-3">
-            {requests.map((req: any) => {
+            {requests.map((req: any, index: number) => {
               const isAdditionRequest = req.type === 'addition';
               const isPhotoVerification = req.type === 'edit' && Boolean(req.new_values?.is_photo_approval || req.photo_path);
               const hasPhoto = Boolean(req.photo_path || req.new_values?.storage_path || req.new_values?.photo_url || req.new_values?.photo_path);
@@ -258,9 +254,13 @@ function ApprovalsContent({
               const nv = req.new_values || {};
 
               return (
-                <Card key={req.id}>
-                  <CardContent className="p-4">
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                <BlurFade key={req.id} delay={index * 50}>
+                  <GlowCard
+                    glowColor={req.status === 'pending' ? 'rgba(245, 158, 11, 0.12)' : 'rgba(99, 102, 241, 0.08)'}
+                    className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
+                  >
+                    <div className="p-4">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2 mb-2">
                           {isPhotoVerification ? (
@@ -280,12 +280,10 @@ function ApprovalsContent({
                             <Badge variant={typeBadge.variant}>{typeBadge.label}</Badge>
                           )}
 
-                          {/* Status Badge */}
                           {req.status === 'pending' && <Badge variant="warning" dot>Pending</Badge>}
                           {req.status === 'approved' && <Badge variant="success">Approved</Badge>}
                           {req.status === 'rejected' && <Badge variant="danger">Rejected</Badge>}
 
-                          {/* Submitted by current user badge */}
                           {isMyRequest && (
                             <Badge variant="neutral" className="text-[10px] bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                               Submitted by You
@@ -299,13 +297,10 @@ function ApprovalsContent({
                           )}
                         </div>
 
-                        {/* Existing asset name */}
                         {req.asset && <p className="text-sm font-semibold text-zinc-900 dark:text-white">{req.asset.name}</p>}
 
-                        {/* Reason */}
                         <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">{req.reason}</p>
 
-                        {/* ── Addition Preview Card ── */}
                         {isAdditionRequest && (
                           <div className="mt-3 rounded-xl border border-indigo-100 dark:border-indigo-900/60 bg-indigo-50/60 dark:bg-indigo-950/20 p-3.5">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-500 dark:text-indigo-400 mb-2.5 flex items-center gap-1.5">
@@ -313,35 +308,30 @@ function ApprovalsContent({
                               New Asset Details
                             </p>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
-                              {/* Name */}
                               {nv.name && (
                                 <div className="col-span-2 sm:col-span-3">
                                   <p className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Asset Name</p>
                                   <p className="text-sm font-semibold text-zinc-900 dark:text-white">{nv.name}</p>
                                 </div>
                               )}
-                              {/* Asset Tag */}
                               <div>
                                 <p className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide flex items-center gap-1"><Tag className="h-2.5 w-2.5" />Asset Tag</p>
                                 <p className="text-xs font-mono text-zinc-900 dark:text-white">
                                   {nv.asset_tag || <span className="text-zinc-400 italic">— (auto-generate)</span>}
                                 </p>
                               </div>
-                              {/* Status */}
                               <div>
                                 <p className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Status</p>
                                 <p className="text-xs font-medium capitalize text-zinc-900 dark:text-white">
                                   {(nv.status || 'active').replace(/_/g, ' ')}
                                 </p>
                               </div>
-                              {/* Year */}
                               {nv.acquisition_year && (
                                 <div>
                                   <p className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Acq. Year</p>
                                   <p className="text-xs text-zinc-900 dark:text-white">{nv.acquisition_year}</p>
                                 </div>
                               )}
-                              {/* Description */}
                               {nv.description && (
                                 <div className="col-span-2 sm:col-span-3">
                                   <p className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Description</p>
@@ -352,7 +342,6 @@ function ApprovalsContent({
                           </div>
                         )}
 
-                        {/* Photo preview card */}
                         {hasPhoto && photoUrl && (
                           <div className="mt-3 flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/60">
                             <ImageViewerDialog
@@ -399,7 +388,6 @@ function ApprovalsContent({
                         </p>
                       </div>
 
-                      {/* Right actions / status feedback */}
                       <div className="shrink-0 flex items-center gap-2">
                         {canApprove && <ApprovalActions requestId={req.id} />}
                         {isMyRequest && req.status === 'pending' && (
@@ -429,9 +417,10 @@ function ApprovalsContent({
                         )}
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              );
+                  </div>
+                </GlowCard>
+              </BlurFade>
+            );
             })}
           </div>
         )}

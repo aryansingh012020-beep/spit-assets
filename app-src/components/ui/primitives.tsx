@@ -266,7 +266,7 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
 // Stat Card
 export interface StatCardProps {
   title: string;
-  value: string | number;
+  value: React.ReactNode;
   delta?: { value: number; label: string };
   icon?: React.ReactNode;
   trend?: 'up' | 'down' | 'neutral';

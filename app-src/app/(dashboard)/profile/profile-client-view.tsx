@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import * as React from 'react';
 import Link from 'next/link';
@@ -115,7 +115,6 @@ export function ProfileClientView({ profile, userEmail, history }: ProfileClient
 
   return (
     <div className="space-y-6 w-full max-w-7xl mx-auto pb-12">
-      {/* ── User Header Card ────────────────────────────────────────── */}
       <Card className="overflow-hidden border-zinc-200/90 dark:border-zinc-800 bg-gradient-to-r from-white via-zinc-50/50 to-indigo-50/30 dark:from-zinc-900 dark:via-zinc-900/90 dark:to-indigo-950/20">
         <CardContent className="p-6 sm:p-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
@@ -198,7 +197,6 @@ export function ProfileClientView({ profile, userEmail, history }: ProfileClient
         </CardContent>
       </Card>
 
-      {/* ── Navigation Tabs ─────────────────────────────────────────── */}
       <div className="border-b border-zinc-200 dark:border-zinc-800">
         <nav className="-mb-px flex gap-6 overflow-x-auto">
           <button
@@ -263,7 +261,6 @@ export function ProfileClientView({ profile, userEmail, history }: ProfileClient
         </nav>
       </div>
 
-      {/* ── TAB 1: EDIT PERSONAL DETAILS ────────────────────────────── */}
       {activeTab === 'edit' && (
         <form onSubmit={handleSave} className="space-y-6">
           <Card>
@@ -389,7 +386,6 @@ export function ProfileClientView({ profile, userEmail, history }: ProfileClient
         </form>
       )}
 
-      {/* ── TAB 2: AUDIT & ACTIVITY HISTORY ─────────────────────────── */}
       {activeTab === 'activity' && (
         <Card>
           <CardHeader>
@@ -439,7 +435,6 @@ export function ProfileClientView({ profile, userEmail, history }: ProfileClient
         </Card>
       )}
 
-      {/* ── TAB 3: MY CHANGE REQUESTS ────────────────────────────────── */}
       {activeTab === 'requests' && (
         <Card>
           <CardHeader>
@@ -490,7 +485,6 @@ export function ProfileClientView({ profile, userEmail, history }: ProfileClient
         </Card>
       )}
 
-      {/* ── TAB 4: MY ASSET SHIFTS ──────────────────────────────────── */}
       {activeTab === 'transfers' && (
         <Card>
           <CardHeader>
@@ -541,7 +535,6 @@ export function ProfileClientView({ profile, userEmail, history }: ProfileClient
         </Card>
       )}
 
-      {/* ── TAB 5: MY DISCUSSION NOTES ──────────────────────────────── */}
       {activeTab === 'comments' && (
         <Card>
           <CardHeader>

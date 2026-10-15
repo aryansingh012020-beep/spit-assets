@@ -1,8 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 
-// ── POST: Public Account Request Submission from Landing Page ───────────
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -94,7 +93,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// ── GET: List Account Requests (Approver Only) ──────────────────────────
 export async function GET(req: NextRequest) {
   try {
     const supabase = await createServerClient();
@@ -137,7 +135,6 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// ── PATCH: Approve or Reject Account Request (Approver Only) ────────────
 export async function PATCH(req: NextRequest) {
   try {
     const supabase = await createServerClient();

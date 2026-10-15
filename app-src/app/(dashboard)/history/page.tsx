@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+﻿import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
@@ -27,14 +27,12 @@ const EVENT_LABELS: Record<string, string> = {
 };
 
 export default async function HistoryPage() {
-  // ── Demo mode ────────────────────────────────────────────────────
   if (isDemoMode()) {
     const cookieStore = await cookies();
     if (cookieStore.get('demo_session')?.value !== 'true') redirect('/login');
     return <HistoryContent events={DEMO_HISTORY} />;
   }
 
-  // ── Production mode ──────────────────────────────────────────────
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

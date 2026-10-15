@@ -106,13 +106,13 @@ function NavLink({
         'group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
         collapsed ? 'justify-center px-2' : '',
         isActive
-          ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300'
+          ? 'bg-indigo-50/90 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 shadow-[inset_0_0_14px_rgba(99,102,241,0.09)] font-semibold'
           : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-900 dark:hover:text-zinc-100'
       )}
     >
-      {/* Active left border indicator */}
+      {/* Active left border indicator with soft glow */}
       {isActive && (
-        <span className="absolute left-0 top-1 bottom-1 w-0.5 rounded-full bg-indigo-500 dark:bg-indigo-400" />
+        <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-indigo-600 dark:bg-indigo-400 shadow-sm shadow-indigo-500/40" />
       )}
 
       <span
@@ -156,7 +156,6 @@ export function Sidebar({ profile, pendingCount = 0, onSignOut, collapsed, onTog
         collapsed ? 'w-14' : 'w-60'
       )}
     >
-      {/* ── Logo / Brand ─────────────────────────────── */}
       <div className={cn(
         'flex items-center border-b border-zinc-100 dark:border-zinc-800',
         collapsed ? 'h-14 justify-center px-0' : 'h-14 gap-2.5 px-4'
@@ -201,7 +200,6 @@ export function Sidebar({ profile, pendingCount = 0, onSignOut, collapsed, onTog
         </button>
       )}
 
-      {/* ── Navigation ───────────────────────────────── */}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2" aria-label="Main navigation">
         <ul className="space-y-4">
           {sections.map((section) => (

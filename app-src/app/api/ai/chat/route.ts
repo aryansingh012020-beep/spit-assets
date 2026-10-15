@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { AICard } from '@/lib/types';
 
@@ -14,7 +14,6 @@ export async function POST(req: NextRequest) {
 
     const supabase = await createClient();
 
-    // ── 1. Retrieve Live Grounding Data from Database ─────────────────
     let dynamicContext = '';
     let directAnswer = '';
     const cards: AICard[] = [];
@@ -252,7 +251,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ── 2. Call Gemini API if Key is Available ────────────────────────
     const geminiApiKey = process.env.GEMINI_API_KEY;
 
     if (geminiApiKey) {
@@ -311,7 +309,6 @@ ${dynamicContext || 'Database context loaded: 2,662 active assets across 7 floor
       }
     }
 
-    // ── 3. Built-In Zero-Cost Intelligent NLP Engine (Fallback) ───────
     if (matchedRooms.length > 0) {
       const rawRoom = matchedRooms[0];
       const assetsList = rawRoom.assets || [];

@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+﻿import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { isDemoMode, DEMO_ROOMS, DEMO_ASSETS } from '@/lib/demo-data';
@@ -19,7 +19,6 @@ export default async function AuditPage({
   const params = await searchParams;
   const academicYear = params.year || '2025-2026';
 
-  // ── Demo mode ────────────────────────────────────────────────────
   if (isDemoMode()) {
     const cookieStore = await cookies();
     if (cookieStore.get('demo_session')?.value !== 'true') redirect('/login');
@@ -54,7 +53,6 @@ export default async function AuditPage({
     );
   }
 
-  // ── Production mode ──────────────────────────────────────────────
   const supabase = await createClient();
   const {
     data: { user },

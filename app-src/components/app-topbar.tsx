@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import * as React from 'react';
 import Link from 'next/link';
@@ -12,7 +12,6 @@ import { useTheme } from '@/components/theme-provider';
 import { Profile } from '@/lib/types';
 import { cn, getInitials, getRoleLabel } from '@/lib/utils';
 
-// ── Page title map ───────────────────────────────────────────
 function getPageTitle(pathname: string): string {
   if (pathname === '/dashboard') return 'Dashboard';
   if (pathname === '/inventory/add') return 'Add Assets';
@@ -34,7 +33,6 @@ function getPageTitle(pathname: string): string {
   return 'SPIT Asset Management';
 }
 
-// ── Search result type (matches /api/search) ─────────────────
 interface SearchResult {
   id: string;
   type: 'asset' | 'room' | 'building';
@@ -50,7 +48,6 @@ function SearchIcon({ type }: { type: SearchResult['type'] }) {
   return <Building2 className="h-3.5 w-3.5 text-amber-500 shrink-0" aria-hidden="true" />;
 }
 
-// ── Global Search Bar ─────────────────────────────────────────
 function GlobalSearch() {
   const router = useRouter();
   const [query, setQuery] = React.useState('');
@@ -198,7 +195,6 @@ function GlobalSearch() {
   );
 }
 
-// ── Main Topbar ───────────────────────────────────────────────
 interface AppTopbarProps {
   profile: Profile | null;
   pendingCount?: number;
@@ -235,10 +231,8 @@ export function AppTopbar({ profile, pendingCount = 0, onMobileMenuToggle, onSig
         {title}
       </h1>
 
-      {/* ── Global Search (desktop) ── */}
       <GlobalSearch />
 
-      {/* ── Right actions ── */}
       <div className="flex items-center gap-1 ml-auto lg:ml-0">
 
         {/* Admin toggles — approvers only */}

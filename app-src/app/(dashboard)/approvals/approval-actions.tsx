@@ -58,6 +58,7 @@ export function ApprovalActions({ requestId }: { requestId: string }) {
         <Button
           variant="success"
           size="sm"
+          shimmer
           isLoading={approvingId === requestId}
           onClick={handleApprove}
           aria-label="Approve request"

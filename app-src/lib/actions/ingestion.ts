@@ -1,4 +1,4 @@
-'use server';
+﻿'use server';
 
 import { revalidatePath } from 'next/cache';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
@@ -36,7 +36,6 @@ export interface ValidationReport {
   rows: ValidatedImportRow[];
 }
 
-// ── Common Category Aliases for Smart Fuzzy Matching ────────────────────────
 const CATEGORY_ALIASES: Record<string, string> = {
   pc: 'computer',
   desktop: 'computer',

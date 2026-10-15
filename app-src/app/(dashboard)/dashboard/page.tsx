@@ -35,6 +35,9 @@ import {
   DEMO_PENDING_REQUESTS,
   DEMO_CATEGORIES,
 } from '@/lib/demo-data';
+import { CountUp } from '@/components/bits/count-up';
+import { GradientText } from '@/components/bits/gradient-text';
+import { BlurFade } from '@/components/bits/blur-fade';
 
 export const revalidate = 30; // revalidate every 30s
 
@@ -70,7 +73,6 @@ const CATEGORY_COLORS = [
 ];
 
 export default async function DashboardPage() {
-  // ── Demo mode ────────────────────────────────────────────────────
   if (isDemoMode()) {
     const cookieStore = await cookies();
     if (cookieStore.get('demo_session')?.value !== 'true') redirect('/login');
@@ -105,7 +107,6 @@ export default async function DashboardPage() {
     );
   }
 
-  // ── Production mode ──────────────────────────────────────────────
   const supabase = await createClient();
   const {
     data: { user },
@@ -183,7 +184,6 @@ export default async function DashboardPage() {
 
   const pendingCount = pendingCountResult?.count ?? 0;
 
-  // Format categories with count
   const formattedCategories = (rawCategories ?? [])
     .map((c: any) => ({
       id: c.id,
@@ -192,7 +192,6 @@ export default async function DashboardPage() {
     }))
     .sort((a, b) => b.count - a.count);
 
-  // Format floors with count
   const formattedFloors = (rawFloors ?? []).map((f: any) => ({
     id: f.id,
     name: f.name,
@@ -264,12 +263,11 @@ function DashboardContent({
 
   return (
     <div className="space-y-5 w-full pb-8">
-      {/* ── Top Hero & Actions Bar ───────────────────────────────── */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-zinc-200/80 dark:border-zinc-800 pb-5">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-              Institutional Asset Command
+              Institutional Asset <GradientText>Command</GradientText>
             </h1>
           </div>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
@@ -277,7 +275,6 @@ function DashboardContent({
           </p>
         </div>
 
-        {/* Quick Launchers */}
         <div className="flex flex-wrap items-center gap-2">
           <Link
             href="/inventory"
@@ -311,31 +308,29 @@ function DashboardContent({
         </div>
       </div>
 
-      {/* ── Stat Cards + Workflow ─────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <StatCard
           title="Total Assets"
-          value={stats.totalAssets.toLocaleString()}
+          value={<CountUp to={stats.totalAssets} />}
           icon={<Package className="h-4 w-4" />}
           trend="neutral"
         />
         <StatCard
           title="Active"
-          value={stats.activeAssets.toLocaleString()}
+          value={<CountUp to={stats.activeAssets} />}
           icon={<Activity className="h-4 w-4" />}
           trend="up"
         />
         <StatCard
           title="Rooms"
-          value={stats.totalRooms.toLocaleString()}
+          value={<CountUp to={stats.totalRooms} />}
           icon={<DoorOpen className="h-4 w-4" />}
         />
         <StatCard
           title="Buildings"
-          value={stats.totalBuildings.toLocaleString()}
+          value={<CountUp to={stats.totalBuildings} />}
           icon={<Building2 className="h-4 w-4" />}
         />
-        {/* Approvals */}
         <Link href="/approvals" className="block group">
           <div className="h-full rounded-xl border border-amber-200/70 dark:border-amber-800/50 bg-amber-50/60 dark:bg-amber-950/20 p-3.5 hover:border-amber-400 dark:hover:border-amber-600 transition-colors">
             <div className="flex items-center justify-between mb-2">
@@ -346,11 +341,12 @@ function DashboardContent({
                 <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
               )}
             </div>
-            <p className="text-2xl font-extrabold text-zinc-900 dark:text-white tabular-nums">{stats.pendingApprovals}</p>
+            <p className="text-2xl font-extrabold text-zinc-900 dark:text-white tabular-nums">
+              <CountUp to={stats.pendingApprovals} />
+            </p>
             <p className="text-[11px] text-amber-600 dark:text-amber-400 font-medium mt-0.5">pending</p>
           </div>
         </Link>
-        {/* Transfers */}
         <Link href="/transfers" className="block group">
           <div className="h-full rounded-xl border border-indigo-200/70 dark:border-indigo-800/50 bg-indigo-50/60 dark:bg-indigo-950/20 p-3.5 hover:border-indigo-400 dark:hover:border-indigo-600 transition-colors">
             <div className="flex items-center justify-between mb-2">
@@ -359,17 +355,16 @@ function DashboardContent({
               </span>
               <span className="text-[9px] text-indigo-400 font-mono">30d</span>
             </div>
-            <p className="text-2xl font-extrabold text-zinc-900 dark:text-white tabular-nums">{stats.recentTransfers}</p>
+            <p className="text-2xl font-extrabold text-zinc-900 dark:text-white tabular-nums">
+              <CountUp to={stats.recentTransfers} />
+            </p>
             <p className="text-[11px] text-indigo-500 dark:text-indigo-400 font-medium mt-0.5">relocations</p>
           </div>
         </Link>
       </div>
 
-      {/* ── Main Bento Grid (3 left + 2 right) ──────────────────────── */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
-        {/* Left Column (3-Span) */}
         <div className="lg:col-span-3 space-y-5">
-          {/* Category Distribution Bar Card */}
           <Card className="overflow-hidden">
             <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800/80">
               <div className="flex items-center justify-between">
@@ -387,7 +382,6 @@ function DashboardContent({
             </CardHeader>
 
             <CardContent className="pt-4 space-y-4">
-              {/* Segmented Progress Bar */}
               <div className="flex h-3 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800 gap-0.5 p-0.5">
                 {categories.slice(0, 8).map((cat, i) => {
                   const pct = (cat.count / totalCatAssets) * 100;
@@ -404,7 +398,6 @@ function DashboardContent({
                 })}
               </div>
 
-              {/* Category Grid Items */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
                 {categories.slice(0, 8).map((cat, i) => {
                   const pct = ((cat.count / totalCatAssets) * 100).toFixed(1);
@@ -436,7 +429,6 @@ function DashboardContent({
             </CardContent>
           </Card>
 
-          {/* Operational Lifecycle Status Gauges */}
           <Card>
             <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800/80">
               <div className="flex items-center justify-between">
@@ -452,7 +444,6 @@ function DashboardContent({
 
             <CardContent className="pt-4">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                {/* Active */}
                 <div className="rounded-xl border border-emerald-200/60 dark:border-emerald-900/50 bg-emerald-50/30 dark:bg-emerald-950/20 p-3.5 space-y-1">
                   <div className="flex items-center justify-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                     <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" /> Active In-Use
@@ -465,7 +456,6 @@ function DashboardContent({
                   </p>
                 </div>
 
-                {/* Under Maintenance */}
                 <div className="rounded-xl border border-amber-200/60 dark:border-amber-900/50 bg-amber-50/30 dark:bg-amber-950/20 p-3.5 space-y-1">
                   <div className="flex items-center justify-center gap-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
                     <Wrench className="h-3 w-3" /> Under Service
@@ -478,7 +468,6 @@ function DashboardContent({
                   </p>
                 </div>
 
-                {/* Damaged / Missing */}
                 <div className="rounded-xl border border-red-200/60 dark:border-red-900/50 bg-red-50/30 dark:bg-red-950/20 p-3.5 space-y-1">
                   <div className="flex items-center justify-center gap-1 text-xs font-semibold text-red-700 dark:text-red-400">
                     <AlertTriangle className="h-3 w-3" /> Flagged / Missing
@@ -491,7 +480,6 @@ function DashboardContent({
                   </p>
                 </div>
 
-                {/* Retired / Disposed */}
                 <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/40 p-3.5 space-y-1">
                   <div className="flex items-center justify-center gap-1 text-xs font-semibold text-zinc-600 dark:text-zinc-400">
                     <Archive className="h-3 w-3" /> Condemned
@@ -507,7 +495,6 @@ function DashboardContent({
             </CardContent>
           </Card>
 
-          {/* Recent Audit & Activity Stream */}
           <Card>
             <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800/80">
               <div className="flex items-center justify-between">
@@ -530,33 +517,35 @@ function DashboardContent({
                 </p>
               ) : (
                 <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                  {history.map((event: any) => (
-                    <div key={event.id} className="flex items-start gap-3 py-2.5 first:pt-0 last:pb-0">
-                      <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-200/50 dark:border-indigo-800/50">
-                        <Clock className="h-3 w-3 text-indigo-600 dark:text-indigo-400" />
+                  {history.map((event: any, i: number) => (
+                    <BlurFade key={event.id} delay={i * 45}>
+                      <div className="flex items-start gap-3 py-2.5 first:pt-0 last:pb-0">
+                        <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-200/50 dark:border-indigo-800/50">
+                          <Clock className="h-3 w-3 text-indigo-600 dark:text-indigo-400" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-medium text-zinc-900 dark:text-zinc-100">
+                            <span>{EVENT_LABELS[event.event_type] ?? event.event_type}</span>
+                            {event.asset && (
+                              <>
+                                {' · '}
+                                <Link
+                                  href={`/inventory/${event.asset.id}`}
+                                  className="font-mono text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
+                                >
+                                  {event.asset.asset_tag}
+                                </Link>{' '}
+                                ({event.asset.name})
+                              </>
+                            )}
+                          </p>
+                          <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-0.5">
+                            {event.performer?.full_name ?? 'System'} · {formatRelativeTime(event.occurred_at)}
+                            {event.reason && ` · "${event.reason}"`}
+                          </p>
+                        </div>
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs font-medium text-zinc-900 dark:text-zinc-100">
-                          <span>{EVENT_LABELS[event.event_type] ?? event.event_type}</span>
-                          {event.asset && (
-                            <>
-                              {' · '}
-                              <Link
-                                href={`/inventory/${event.asset.id}`}
-                                className="font-mono text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
-                              >
-                                {event.asset.asset_tag}
-                              </Link>{' '}
-                              ({event.asset.name})
-                            </>
-                          )}
-                        </p>
-                        <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-0.5">
-                          {event.performer?.full_name ?? 'System'} · {formatRelativeTime(event.occurred_at)}
-                          {event.reason && ` · "${event.reason}"`}
-                        </p>
-                      </div>
-                    </div>
+                    </BlurFade>
                   ))}
                 </div>
               )}
@@ -564,9 +553,7 @@ function DashboardContent({
           </Card>
         </div>
 
-        {/* Right Column (2-Span) */}
         <div className="lg:col-span-2 space-y-5">
-          {/* Campus Floor Vertical Density Map */}
           <Card>
             <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800/80">
               <div className="flex items-center justify-between">
@@ -612,7 +599,6 @@ function DashboardContent({
             </CardContent>
           </Card>
 
-          {/* Pending Approvals Widget */}
           <Card>
             <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800/80">
               <div className="flex items-center justify-between">

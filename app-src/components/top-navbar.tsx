@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import * as React from 'react';
 import Link from 'next/link';
@@ -118,7 +118,6 @@ export function TopNavbar({
       className="sticky top-0 z-40 w-full border-b border-zinc-200/80 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md"
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 gap-4">
-        {/* ── Brand / Logo ────────────────────────────────────────── */}
         <div className="flex items-center gap-3 shrink-0">
           <Link href="/dashboard" onClick={handleCloseImmediate} className="flex items-center gap-2.5 group">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl overflow-hidden bg-white dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700/80 p-1 shadow-xs group-hover:border-indigo-400 dark:group-hover:border-indigo-600 transition-colors">
@@ -136,7 +135,6 @@ export function TopNavbar({
           </Link>
         </div>
 
-        {/* ── Desktop Navigation Links ────────────────────────────── */}
         <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5">
           {/* Dashboard */}
           <Link
@@ -153,7 +151,6 @@ export function TopNavbar({
             <span>Dashboard</span>
           </Link>
 
-          {/* ── Assets Dropdown ─────────────────────────────────── */}
           <div
             className="relative"
             onMouseEnter={() => handleMouseEnter('assets')}
@@ -214,7 +211,6 @@ export function TopNavbar({
             )}
           </div>
 
-          {/* ── Locations Dropdown ──────────────────────────────── */}
           <div
             className="relative"
             onMouseEnter={() => handleMouseEnter('locations')}
@@ -288,7 +284,6 @@ export function TopNavbar({
             )}
           </div>
 
-          {/* ── Operations Dropdown (Approvals & Transfers) ───────── */}
           {role !== 'viewer' && (
             <div
               className="relative"
@@ -393,7 +388,6 @@ export function TopNavbar({
             <span>Stock Audit</span>
           </Link>
 
-          {/* ── Administration Dropdown (Approvers only) ───────────── */}
           {role === 'approver' && (
             <div
               className="relative"
@@ -470,7 +464,6 @@ export function TopNavbar({
           )}
         </nav>
 
-        {/* ── Right Actions (Theme, Profile) ──────────────────────── */}
         <div className="flex items-center gap-2.5 sm:gap-3">
           {/* Theme switcher */}
           <button
@@ -489,7 +482,6 @@ export function TopNavbar({
 
           <div className="h-6 w-px bg-zinc-200 dark:bg-zinc-800" />
 
-          {/* ── User Profile Menu ─────────────────────────────────── */}
           <div
             className="relative"
             onMouseEnter={() => handleMouseEnter('user')}
@@ -580,7 +572,6 @@ export function TopNavbar({
         </div>
       </div>
 
-      {/* ── Mobile Navigation Drawer ──────────────────────────────── */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-4 space-y-3 animate-in slide-in-from-top-2">
           <div className="grid grid-cols-2 gap-2 text-xs font-medium">

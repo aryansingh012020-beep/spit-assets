@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
@@ -243,7 +243,6 @@ export function RoomAssetIngestionDialog({
 
           {/* Body */}
           <div className="flex-1 overflow-y-auto py-4 space-y-4">
-            {/* ── STEP 1: UPLOAD & TEMPLATE ── */}
             {step === 'upload' && (
               <div className="space-y-4">
                 {/* Target Room Banner */}
@@ -364,7 +363,6 @@ export function RoomAssetIngestionDialog({
               </div>
             )}
 
-            {/* ── STEP 2: PREVIEW & RAILROAD INSPECTION ── */}
             {step === 'preview' && report && (
               <div className="space-y-4">
                 {/* Metric Summary Counters */}
@@ -561,7 +559,6 @@ export function RoomAssetIngestionDialog({
               </div>
             )}
 
-            {/* ── STEP 3: SUCCESS SUMMARY ── */}
             {step === 'success' && importResult && (
               <div className="text-center py-6 space-y-4">
                 <div className="h-16 w-16 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-inner">

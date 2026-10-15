@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
@@ -65,7 +65,6 @@ export function DashboardShell({ children, profile, pendingCount = 0 }: Dashboar
     <ToastRoot>
       <div className="flex h-screen overflow-hidden bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
 
-        {/* ── Mobile backdrop ──────────────────────────── */}
         {mobileOpen && (
           <div
             className="fixed inset-0 z-40 bg-black/40 lg:hidden"
@@ -74,7 +73,6 @@ export function DashboardShell({ children, profile, pendingCount = 0 }: Dashboar
           />
         )}
 
-        {/* ── Sidebar ──────────────────────────────────── */}
         {/* Desktop: always visible, collapsible */}
         <div className="hidden lg:flex h-full">
           <Sidebar
@@ -102,7 +100,6 @@ export function DashboardShell({ children, profile, pendingCount = 0 }: Dashboar
           />
         </div>
 
-        {/* ── Main area ────────────────────────────────── */}
         <div className="flex flex-1 flex-col min-w-0 overflow-hidden relative">
 
           {/* SPIT Watermark — page background */}

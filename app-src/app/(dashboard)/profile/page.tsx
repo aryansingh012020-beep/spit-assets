@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+﻿import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { isDemoMode, DEMO_PROFILE } from '@/lib/demo-data';
@@ -8,7 +8,6 @@ import { ProfileClientView } from './profile-client-view';
 export const dynamic = 'force-dynamic';
 
 export default async function ProfilePage() {
-  // ── Demo mode ────────────────────────────────────────────────────
   if (isDemoMode()) {
     const cookieStore = await cookies();
     if (cookieStore.get('demo_session')?.value !== 'true') redirect('/login');
@@ -79,7 +78,6 @@ export default async function ProfilePage() {
     );
   }
 
-  // ── Production mode ──────────────────────────────────────────────
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

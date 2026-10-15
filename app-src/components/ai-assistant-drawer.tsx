@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import * as React from 'react';
 import Link from 'next/link';
@@ -149,7 +149,6 @@ export function AIAssistantDrawer() {
 
   return (
     <>
-      {/* ── Floating Launcher Trigger Button ─────────────────────── */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-3.5 py-2 text-xs font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all border border-zinc-700/40 dark:border-zinc-200 group"
@@ -162,7 +161,6 @@ export function AIAssistantDrawer() {
         </kbd>
       </button>
 
-      {/* ── Floating AI Chat Modal ───────────────────────────────── */}
       {isOpen && (
         <div
           className={`fixed bottom-20 right-4 sm:right-6 z-50 flex flex-col rounded-2xl border border-zinc-200/90 dark:border-zinc-800 bg-white/98 dark:bg-zinc-900/98 shadow-2xl backdrop-blur-md overflow-hidden transition-all duration-200 animate-in zoom-in-95 slide-in-from-bottom-2 ${

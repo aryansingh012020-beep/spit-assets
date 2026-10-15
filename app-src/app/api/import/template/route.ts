@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import * as XLSX from 'xlsx';
 
@@ -34,7 +34,6 @@ export async function GET(req: NextRequest) {
 
     const workbook = XLSX.utils.book_new();
 
-    // ── 1. Main Sheet: Asset Ingestion ──────────────────────────────────────────
     const targetRoomLabel = targetRoom
       ? `${targetRoom.name}${targetRoom.room_number ? ` (${targetRoom.room_number})` : ''}`
       : 'Lab 603 (Computer Lab)';
@@ -88,7 +87,6 @@ export async function GET(req: NextRequest) {
 
     XLSX.utils.book_append_sheet(workbook, ingestionSheet, 'Asset Ingestion');
 
-    // ── 2. Reference Sheet: Valid Categories ────────────────────────────────────
     const categoryRows = categories.map((c: any) => ({
       'Category Name': c.name,
       'Category Code': c.code,
@@ -111,7 +109,6 @@ export async function GET(req: NextRequest) {
     categorySheet['!cols'] = [{ wch: 25 }, { wch: 16 }, { wch: 45 }];
     XLSX.utils.book_append_sheet(workbook, categorySheet, 'Valid Categories');
 
-    // ── 3. Reference Sheet: Campus Rooms Directory ──────────────────────────────
     const roomRows = allRooms.map((r: any) => ({
       'Room Number': r.room_number || '—',
       'Room Name': r.name,
@@ -130,7 +127,6 @@ export async function GET(req: NextRequest) {
     ];
     XLSX.utils.book_append_sheet(workbook, roomSheet, 'Campus Rooms');
 
-    // ── 4. Guide Sheet: Instructions & Railroads ────────────────────────────────
     const instructionRows = [
       {
         'Safety Railroad Rule': '1. Required Fields',

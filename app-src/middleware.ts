@@ -1,4 +1,4 @@
-import { type NextRequest, NextResponse } from 'next/server';
+﻿import { type NextRequest, NextResponse } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
 
 const AUTH_ROUTES = ['/login'];
@@ -12,7 +12,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // ── Demo mode: skip all Supabase auth ─────────────────────────────
   if (process.env.DEMO_MODE === 'true' || process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
     const isLoggedIn = request.cookies.get('demo_session')?.value === 'true';
 
@@ -25,7 +24,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // ── Production mode: resilient Supabase auth ──────────────────────
   try {
     const { supabaseResponse, user } = await updateSession(request);
     const isAuthRoute = AUTH_ROUTES.some((r) => pathname.startsWith(r));

@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+﻿import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { DashboardShell } from '@/components/dashboard-shell';
 import { DEMO_PROFILE, DEMO_STATS, isDemoMode } from '@/lib/demo-data';
@@ -6,7 +6,6 @@ import { createClient } from '@/lib/supabase/server';
 import type { Profile } from '@/lib/types';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  // ── Demo mode ────────────────────────────────────────────────────
   if (isDemoMode()) {
     const cookieStore = await cookies();
     const isLoggedIn = cookieStore.get('demo_session')?.value === 'true';
@@ -22,7 +21,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
     );
   }
 
-  // ── Production mode ──────────────────────────────────────────────
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

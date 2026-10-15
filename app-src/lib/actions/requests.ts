@@ -64,9 +64,7 @@ export async function submitAddRequest(data: AddAssetFormData): Promise<{
     const institutionId = profile.institution_id || '00000000-0000-0000-0000-000000000001';
     const admin = createAdminClient();
 
-    // ────────────────────────────────────────────────────────────
     // If the caller is an APPROVER, directly commit asset to inventory
-    // ────────────────────────────────────────────────────────────
     if (profile.role === 'approver') {
       let finalAssetTag = data.asset_tag?.trim() || null;
 
@@ -192,9 +190,7 @@ export async function submitAddRequest(data: AddAssetFormData): Promise<{
       };
     }
 
-    // ────────────────────────────────────────────────────────────
     // If the caller is an ASSET MANAGER, create pending change request
-    // ────────────────────────────────────────────────────────────
     const newValues = {
       name,
       asset_tag:        data.asset_tag?.trim() || null,
@@ -485,7 +481,6 @@ export async function uploadAssetPhotoAction(formData: FormData): Promise<{
 
     // APPROVER DIRECT FLOW: Only if explicitly flagged to direct-approve without approval review
     const shouldDirectApprove = profile.role === 'approver';
-    console.log('[uploadAssetPhotoAction] role:', profile.role, '| directApprove param:', formData.get('directApprove'), '| shouldDirectApprove:', shouldDirectApprove);
 
     if (shouldDirectApprove) {
       // 1. Unset prior primary photos

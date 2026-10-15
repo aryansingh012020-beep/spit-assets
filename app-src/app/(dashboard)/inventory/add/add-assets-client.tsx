@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
@@ -15,7 +15,6 @@ import { AddAssetFormData, AssetStatus } from '@/lib/types';
 import { useToast } from '@/components/ui/toast';
 import { cn } from '@/lib/utils';
 
-// ── Types ────────────────────────────────────────────────────
 interface Category { id: string; name: string; code?: string }
 interface Room {
   id: string; name: string; room_number: string | null;
@@ -308,7 +307,6 @@ export function AddAssetsClient({ categories, rooms, buildings, floors, isApprov
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
-        {/* ── LEFT: Form ─────────────────────────────── */}
         <div className="lg:col-span-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 divide-y divide-zinc-100 dark:divide-zinc-800">
           <div className="px-5 py-4">
             <h2 className="text-sm font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
@@ -444,7 +442,6 @@ export function AddAssetsClient({ categories, rooms, buildings, floors, isApprov
           </div>
         </div>
 
-        {/* ── RIGHT: Queue ────────────────────────────── */}
         <div className="lg:col-span-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 divide-y divide-zinc-100 dark:divide-zinc-800 sticky top-20">
           <div className="px-5 py-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-zinc-900 dark:text-white flex items-center gap-2">

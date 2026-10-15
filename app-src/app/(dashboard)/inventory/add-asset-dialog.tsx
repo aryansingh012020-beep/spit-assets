@@ -142,8 +142,6 @@ export function AddAssetDialog({
         if (photoRes.success && photoRes.storagePath) {
           payload.photo_path = photoRes.storagePath;
           payload.photo_url = photoRes.publicUrl;
-        } else if (!photoRes.success) {
-          console.warn('Initial photo upload notice:', photoRes.error);
         }
       }
 
@@ -234,7 +232,6 @@ export function AddAssetDialog({
 
             <div className="px-6 py-4 space-y-5">
 
-              {/* ── Section 1: Asset Identity ── */}
               <div className="space-y-3">
                 <p className={SECTION_LABEL}><Tag className="inline h-3 w-3 mr-1" />Asset Identity</p>
 
@@ -282,7 +279,6 @@ export function AddAssetDialog({
 
               <hr className="border-zinc-100 dark:border-zinc-800" />
 
-              {/* ── Section 2: Location ── */}
               <div className="space-y-3">
                 <p className={SECTION_LABEL}><MapPin className="inline h-3 w-3 mr-1" />Location</p>
 
@@ -370,7 +366,6 @@ export function AddAssetDialog({
 
               <hr className="border-zinc-100 dark:border-zinc-800" />
 
-              {/* ── Section 3: Details ── */}
               <div className="space-y-3">
                 <p className={SECTION_LABEL}><ClipboardList className="inline h-3 w-3 mr-1" />Details</p>
 
@@ -418,7 +413,6 @@ export function AddAssetDialog({
 
               <hr className="border-zinc-100 dark:border-zinc-800" />
 
-              {/* ── Section 4: Equipment Photo (Optional) ── */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <p className={SECTION_LABEL}>
@@ -516,7 +510,6 @@ export function AddAssetDialog({
 
               <hr className="border-zinc-100 dark:border-zinc-800" />
 
-              {/* ── Section 4: Justification ── */}
               <div>
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
                   Justification / Reason <span className="text-red-500">*</span>

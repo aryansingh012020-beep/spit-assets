@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import * as React from 'react';
 import Link from 'next/link';
@@ -135,7 +135,6 @@ export function AuditSessionClient({
 
   return (
     <div className="space-y-6 w-full max-w-7xl mx-auto pb-16">
-      {/* ── Top Header & Controls ─────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-5">
         <div>
           <div className="flex items-center gap-2">
@@ -187,7 +186,6 @@ export function AuditSessionClient({
         </div>
       </div>
 
-      {/* ── Live Progress & Metric Strip ───────────────────────────── */}
       <Card className="overflow-hidden border-indigo-100 dark:border-indigo-950/60 bg-gradient-to-r from-white via-indigo-50/20 to-purple-50/20 dark:from-zinc-900 dark:via-indigo-950/20 dark:to-zinc-900">
         <CardContent className="p-5 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -297,7 +295,6 @@ export function AuditSessionClient({
         </CardContent>
       </Card>
 
-      {/* ── Search & Filter Tools ──────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="relative w-full sm:w-80">
           <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-zinc-400" />
@@ -321,7 +318,6 @@ export function AuditSessionClient({
         </div>
       </div>
 
-      {/* ── Verification Checklist Table ──────────────────────────── */}
       <Card className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
@@ -468,7 +464,6 @@ export function AuditSessionClient({
         </div>
       </Card>
 
-      {/* ── NAAC / NBA Formal Printable Report Modal ────────────────── */}
       {printModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
           <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-4xl p-6 sm:p-8 space-y-6 shadow-2xl animate-in zoom-in-95">

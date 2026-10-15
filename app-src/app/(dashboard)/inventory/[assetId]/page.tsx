@@ -31,7 +31,6 @@ const EVENT_LABELS: Record<string, string> = {
   creation:          '✨ Created',
 };
 
-// ── UUID validation ─────────────────────────────────────────────────
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default async function AssetDetailPage({
@@ -46,7 +45,6 @@ export default async function AssetDetailPage({
     notFound();
   }
 
-  // ── Demo mode ───────────────────────────────────────────────────
   if (isDemoMode()) {
     const cookieStore = await cookies();
     if (cookieStore.get('demo_session')?.value !== 'true') redirect('/login');
@@ -69,7 +67,6 @@ export default async function AssetDetailPage({
     );
   }
 
-  // ── Production mode ─────────────────────────────────────────────
   const supabase = await createClient();
   const {
     data: { user },
@@ -195,7 +192,6 @@ export default async function AssetDetailPage({
   );
 }
 
-// ── AssetDetail Component ─────────────────────────────────────────
 function AssetDetail({
   asset,
   history,
@@ -222,7 +218,6 @@ function AssetDetail({
 
   return (
     <div className="space-y-6 max-w-4xl">
-      {/* ── Navigation & Actions ────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <Link
           href="/inventory"
@@ -266,7 +261,6 @@ function AssetDetail({
         </div>
       </div>
 
-      {/* ── Header ──────────────────────────────────────────────── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-xl font-bold text-zinc-900 dark:text-white">{asset.name}</h1>
@@ -277,7 +271,6 @@ function AssetDetail({
         <StatusBadge status={asset.status} className="text-sm" />
       </div>
 
-      {/* ── Verified Equipment Hero Image ───────────────────────── */}
       {asset.photos && asset.photos.length > 0 && (
         <div className="overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-900/90 shadow-md relative group">
           <div className="relative aspect-[21/9] sm:aspect-[24/9] w-full max-h-72 overflow-hidden flex items-center justify-center bg-zinc-950">
@@ -315,7 +308,6 @@ function AssetDetail({
         </div>
       )}
 
-      {/* ── Main Grid: Details + Governance ─────────────────────── */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Asset Details Card */}
         <Card className="lg:col-span-2">
@@ -438,7 +430,6 @@ function AssetDetail({
         </Card>
       </div>
 
-      {/* ── Photos Section ──────────────────────────────────────── */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -458,7 +449,6 @@ function AssetDetail({
         </CardContent>
       </Card>
 
-      {/* ── Comments & Discussion ───────────────────────────────── */}
       <AssetComments
         assetId={asset.id}
         initialComments={comments ?? []}
@@ -466,7 +456,6 @@ function AssetDetail({
         currentUserRole={role}
       />
 
-      {/* ── History Timeline ────────────────────────────────────── */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -524,7 +513,6 @@ function AssetDetail({
   );
 }
 
-// ── Helper: Detail Row ────────────────────────────────────────────
 function DetailRow({
   icon,
   label,

@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+﻿import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
@@ -21,7 +21,6 @@ interface SearchParams { q?: string; status?: string; category?: string; room?: 
 export default async function InventoryPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const params = await searchParams;
 
-  // ── Demo mode ────────────────────────────────────────────────────
   if (isDemoMode()) {
     const cookieStore = await cookies();
     if (cookieStore.get('demo_session')?.value !== 'true') redirect('/login');
@@ -58,7 +57,6 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
     />;
   }
 
-  // ── Production mode ──────────────────────────────────────────────
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

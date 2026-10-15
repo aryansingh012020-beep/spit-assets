@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+﻿import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { Card, CardContent, EmptyState } from '@/components/ui/primitives';
@@ -9,7 +9,6 @@ import { isDemoMode, DEMO_BUILDING, DEMO_FLOORS, DEMO_ROOMS, DEMO_ASSETS } from 
 export const revalidate = 60; // revalidate every 60s
 
 export default async function BuildingsPage() {
-  // ── Demo mode ────────────────────────────────────────────────────
   if (isDemoMode()) {
     const cookieStore = await cookies();
     if (cookieStore.get('demo_session')?.value !== 'true') redirect('/login');
@@ -24,7 +23,6 @@ export default async function BuildingsPage() {
     return <BuildingsContent buildings={[building]} />;
   }
 
-  // ── Production mode ──────────────────────────────────────────────
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
@@ -103,7 +101,6 @@ function BuildingsContent({ buildings }: { buildings: any[] }) {
           {buildings.map((b: any) => (
             <Link key={b.id} href={`/locations/floors?building=${b.id}`}>
               <Card className="relative overflow-hidden hover:shadow-xl hover:border-indigo-400 dark:hover:border-indigo-600 transition-all duration-300 cursor-pointer group h-full flex flex-col justify-between border-zinc-300/80 dark:border-zinc-800">
-                {/* ── SPIT Entrance Photo Watermark Overlay ────────────── */}
                 <div
                   className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none"
                   aria-hidden="true"

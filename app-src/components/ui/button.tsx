@@ -32,18 +32,31 @@ export interface ButtonProps
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   isLoading?: boolean;
+  shimmer?: boolean;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, isLoading, children, disabled, ...props }, ref) => {
+  ({ className, variant, size, isLoading, shimmer, children, disabled, ...props }, ref) => {
     return (
       <button
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(
+          shimmer && 'relative overflow-hidden group',
+          buttonVariants({ variant, size, className })
+        )}
         ref={ref}
         disabled={disabled || isLoading}
         aria-busy={isLoading}
         {...props}
       >
+        {shimmer && (
+          <span
+            className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"
+            style={{
+              background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent)',
+            }}
+            aria-hidden="true"
+          />
+        )}
         {isLoading && (
           <svg
             className="h-4 w-4 animate-spin"
